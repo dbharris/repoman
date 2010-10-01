@@ -1,10 +1,10 @@
 import site
-site.addsitedir('/opt/repo/repository/lib/python2.4/site-packages')
+site.addsitedir('/opt/mvliet/repoman/lib/python2.4/site-packages')
 
 import os, sys
-sys.path.append('/opt/repo/repository/repository')
-os.environ['PYTHON_EGG_CACHE'] = '/opt/repo/repository/python-eggs'
+sys.path.append('/opt/mvliet/repoman/repoman/pylons/repository')
+os.environ['PYTHON_EGG_CACHE'] = '/opt/mvliet/repoman/python-eggs'
 
 from paste.deploy import loadapp
-application = loadapp('config:/opt/repo/repository/repository/development.ini')
+application = loadapp('config:/opt/mvliet/repoman/repoman/pylons/repository/development.ini')
 

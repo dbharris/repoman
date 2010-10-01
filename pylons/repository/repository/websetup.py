@@ -30,4 +30,11 @@ def setup_app(command, conf, vars):
     user.global_admin=True
     user.groups.append(users)
     Session.add(user)
+    
+    user = model.User(name='Kyle Fransham', email="fransham@uvic.ca",
+                      client_dn='/C=CA/O=Grid/OU=uvic.ca/CN=Kyle Fransham')
+    user.global_admin=True
+    user.groups.append(users)
+
+
     Session.commit()
