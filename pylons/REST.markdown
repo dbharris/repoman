@@ -1,4 +1,3 @@
-
 # RESTfull API
 
 ## URLs
@@ -10,7 +9,7 @@
     <host:port>/repository/images
     <host:port>/repository/images/{id}
 
-
+***
 ### repository/users
 #### GET
 A GET request will return a list of all users in the system formatted as a json list of objects
@@ -50,6 +49,7 @@ error codes returned:
 * *400* - badly formed request due to invlaid input for *admin* or *suspended* or non-existant group specified
 * *500* - internal error.  something bad happened.  look at the logs.
 
+***
 ### repository/users/{id}
 #### GET
 A GET request on this url will retrieve an object describing the specified user in detail
@@ -83,7 +83,7 @@ A GET request on this url will retrieve an object describing the specified user 
 
 #### PUT
 
-
+***
 ### repository/groups
 
 **MORE DOCS COMING**
