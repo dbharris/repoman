@@ -2,7 +2,6 @@
 # Project imports
 from repository.model import meta
 from repository.model.user import User
-from repository.repo.helpers import environ_print
 
 # Standard imports
 from time import strptime, gmtime
@@ -11,6 +10,17 @@ from time import strptime, gmtime
 
 
 class UserAuthentication(object):
+    """WSGI middleware authentication module
+
+    This module is dependant on the mod_ssl environment variables.
+    once the client has been authenticated by mod_ssl, this module will lookup
+    the users Distinguished Name in the repository database.
+    If the user is not found in the database, a 403 Error will be returned.
+    If the user is found in the database, the environment variables will be
+    updated with:
+        REPOSITORY_USER_ID
+        #others if needed
+    """
     def __init__(self, app):
         self.app = app
 
@@ -54,5 +64,9 @@ class UserAuthentication(object):
             return ['Accout suspended.  Contact your administrator']
         elif not user.suspended:
             # Update environ with user info
-            environ.update({"REPOSITORY_USER_ID":user.id})
+            environ.update({"REPOSITORY_USER_ID":user.id,
+                            "REPOSITORY_USER_UUID":user.id,
+                            "REPOSITORY_USER_CLIENT_DN":user.client_dn,
+                            "REPOSITORY_USER_ADMIN":user.global_admin})
             return self.app(environ, start_response)
+

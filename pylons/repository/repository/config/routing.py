@@ -29,7 +29,6 @@ def make_map(config):
     map.resource('group', 'groups', controller='repository/groups',
                  path_prefix='/repository', name_prefix='repository_')
 
-
     # End of custom routes
 
     map.connect('/{controller}/{action}')

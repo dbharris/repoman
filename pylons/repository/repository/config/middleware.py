@@ -11,7 +11,7 @@ from routes.middleware import RoutesMiddleware
 from repository.config.environment import load_environment
 
 # custom imports
-from repository.repo.authentication import UserAuthentication
+from repository.lib.authentication import UserAuthentication
 
 def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     """Create a Pylons WSGI application and return it
@@ -48,7 +48,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
 
-    #app = UserAuthentication(app)
+    app = UserAuthentication(app)
 
     # END OF CUSTOM MIDDLEWARE
 

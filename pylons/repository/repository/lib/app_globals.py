@@ -2,6 +2,10 @@
 
 from beaker.cache import CacheManager
 from beaker.util import parse_cache_config_options
+from pylons import config
+
+from uuid import UUID
+
 
 class Globals(object):
     """Globals acts as a container for objects available throughout the
@@ -16,3 +20,8 @@ class Globals(object):
 
         """
         self.cache = CacheManager(**parse_cache_config_options(config))
+
+        # Repository Stuff
+        self.UUID_NAMESPACE = UUID(config['global_conf']['uuid_namespace'])
+
+        self.image_storage = config['global_conf']['image_storage']

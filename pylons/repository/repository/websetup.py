@@ -7,6 +7,7 @@ from repository.config.environment import load_environment
 from repository.model.meta import Session, Base
 
 from repository import model
+import uuid
 
 log = logging.getLogger(__name__)
 
@@ -19,22 +20,12 @@ def setup_app(command, conf, vars):
     # Create the tables if they don't already exist
     Base.metadata.create_all(bind=Session.bind)
 
+    namespace = uuid.UUID(conf.global_conf['uuid_namespace'])
+
     # Default groups
     users = model.Group(name='users')
+    users.uuid = uuid.uuid3(namespace, 'GROUP'+'users').hex
     Session.add(users)
     Session.commit()
 
-    # Me, TAKE ME OUT!!!
-    user = model.User(name='Matt Vliet', email="mvliet@uvic.ca",
-                      client_dn='/C=CA/O=Grid/OU=phys.uvic.ca/CN=Matt Vliet')
-    user.global_admin=True
-    user.groups.append(users)
-    Session.add(user)
-    
-    user = model.User(name='Kyle Fransham', email="fransham@uvic.ca",
-                      client_dn='/C=CA/O=Grid/OU=uvic.ca/CN=Kyle Fransham')
-    user.global_admin=True
-    user.groups.append(users)
 
-
-    Session.commit()

@@ -1,3 +1,5 @@
+# NOT CURRENTLY USED
+
 from sqlalchemy import Table, Column, ForeignKey
 from sqlalchemy.types import Integer
 
