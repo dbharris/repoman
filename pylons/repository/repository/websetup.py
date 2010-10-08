@@ -34,7 +34,7 @@ def setup_app(command, conf, vars):
     admin_file = conf.global_conf['admin_file']
     f = open(path.expandvars(admin_file), 'r')
     for line in f:
-        name, email, dn = line.split(',')
+        name, email, dn = line.rstrip('\n').split(',')
         user = model.User(name=name, email=email, client_dn=dn)
         user.uuid = uuid.uuid3(namespace, dn).hex
         user.gobal_admin=True
