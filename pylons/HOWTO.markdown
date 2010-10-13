@@ -1,5 +1,9 @@
 # query a url
+    import httplib
 
+    repo = httplib.HTTPSConnection('localhost', 4444, cert_file='/tmp/x509up_u1000')
+    repo.request('GET', '/repository/users')
+    resp = repo.getresponse()
 
 # add a new user
     import httplib

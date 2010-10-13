@@ -28,3 +28,11 @@ def group_uuid(name):
 def image_uuid(client_dn, image_name):
     """order of params matters!  when in doubt name the params."""
     return uuid3(app_globals.UUID_NAMESPACE, str(client_dn)+str(image_name)).hex
+
+###
+def stream_img(image_file, buff=1024):
+    chunk = image_file.read(buff)
+    while chunk:
+        yield chunk
+        chunk = image_file.read(buff)
+    image_file.close()

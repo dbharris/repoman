@@ -39,6 +39,7 @@ def setup_app(command, conf, vars):
         user.uuid = uuid.uuid3(namespace, dn).hex
         user.gobal_admin=True
         user.suspended=False
+        user.groups.append(users)
         Session.add(user)
         Session.commit()
     f.close()

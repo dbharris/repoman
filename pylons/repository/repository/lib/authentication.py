@@ -66,7 +66,7 @@ class UserAuthentication(object):
         elif not user.suspended:
             # Update environ with user info
             environ.update({"REPOSITORY_USER_ID":user.id,
-                            "REPOSITORY_USER_UUID":user.id,
+                            "REPOSITORY_USER_UUID":user.uuid,
                             "REPOSITORY_USER_CLIENT_DN":user.client_dn,
                             "REPOSITORY_USER_ADMIN":user.global_admin})
             return self.app(environ, start_response)

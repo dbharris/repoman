@@ -136,7 +136,7 @@ def group_long(*obj):
     for group in obj:
         data.append({'id':group.uuid,
                      'name':group.name,
-                     'users':[user_short(u) for u in group.repo_users if not u.deleted]
+                     'users':[user_short(u) for u in group.repo_users]
                     })
     if len(data) == 1:
         return data[0]

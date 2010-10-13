@@ -94,8 +94,6 @@ class ImagesController(BaseController):
         meta.Session.add(new_image)
         meta.Session.commit()
 
-
-
     def new(self, format='html'):
         """GET /repository/images/new: Form to create a new item"""
         abort(501, '501 Not Implemented')
@@ -117,11 +115,14 @@ class ImagesController(BaseController):
             if format == 'json':
                 response.headers['content-type'] = 'text/javascript'
                 return json.dumps(image_repr)
-            if format == 'repr':
-                return repr(image_repr)
             elif format == 'file':
-                #return the actual file?
-                pass
+                local_path = path.join(app_globals.image_storage, image.path)
+                image_file = open(local_path, 'rb')
+                try:
+                    # TODO: set proper header so the stream plays nice
+                    return h.stream_img(image_file)
+                except:
+                    abort(500, '500 Internal Error')
         else:
             abort(404, '404 Not Found')
 
@@ -129,3 +130,4 @@ class ImagesController(BaseController):
         """GET /repository/images/id/edit: Form to edit an existing item"""
         # url('repository_edit_image', id=ID)
         abort(501, '501 Not Implemented')
+
