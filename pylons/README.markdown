@@ -43,8 +43,8 @@ Create the database:
 
 Copy the example *repoman.conf* virtualhost file to your Apache config and modify
 
-If not already installed, install mod_ssl and mod_wsgi
-mod_wsgi compiled against Python2.4 is available in the EPEL repository.
+If not already installed, install mod_ssl and mod_wsgi.  
+A mod_wsgi compiled against Python2.4 is available in the EPEL repository.
 If using a version of python, you must build from source
 
 Start httpd!
