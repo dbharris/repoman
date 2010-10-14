@@ -2,7 +2,8 @@
 
 ## What Is It?
 Repoman is the beginnings of a virtual machine image management system accessed
-via a RESTful API.  HTTP error codes and non-standard headers (*they will be documented though!*)
+via a RESTful API.  Pylons is used as the framework for the application, while Apache
+is used for the https webserver.   HTTP error codes and non-standard headers (*they will be documented though!*)
 will be heavily used throughout the API to provide meaningful error states to the user.
 
 ## Basic Objects
@@ -46,26 +47,27 @@ A user will be able to:
 * View a list of all users
 * View a list of all groups
 * View a list of their groups
-* View a list of all group members
+* View a list of all members of a group
 * View a list of images owned by them
-* View a list of images shared within a group
+* View a list of images shared within a group they are a member of
 * View detailed information of images owned or shared with them
 * Create and upload a new image
-* Modify image information
+* Modify existing image information
 * Overwrite an image with a newer image
 * Copy an existing image (owned or shared) to a new image
 * other stuff?
 
 ## Group Admin Actions
 * add an existing user to group
-* modify/create/delete any image associated group
+* modify/create/delete any image associated with the group
 
 ## Admin Actions
-* Basically *root* user
+* Basically a *root* user
 * Add/delete users
 * Create/delete groups
-* modify group permissions
+* modify groups
 * etc.
+
 
 ## Technology
 Repoman is built on the following software:
