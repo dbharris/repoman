@@ -1,9 +1,0 @@
-This is the beginning of the repository manager.
-
-For now, this is using python sockets, but that's just until we can get REST working.   
-
-This is pretty much in an unusable state right now (no install, have to manually create the database, etc.) but it's going to get cleaned up real soon.
-
-If you have questions, e-mail fransham@uvic.ca
-
-
