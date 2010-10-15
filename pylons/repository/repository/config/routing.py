@@ -20,6 +20,9 @@ def make_map(config):
 
     # CUSTOM ROUTES HERE
 
+    map.resource('whoami', 'whoami', controller='repository/whoami',
+                  path_prefix='/repository', name_prefix='repository_')
+
     map.resource('user', 'users', controller='repository/users',
                  path_prefix='/repository', name_prefix='repository_')
 
@@ -29,10 +32,10 @@ def make_map(config):
     map.resource('group', 'groups', controller='repository/groups',
                  path_prefix='/repository', name_prefix='repository_')
 
-
     # End of custom routes
 
     map.connect('/{controller}/{action}')
     map.connect('/{controller}/{action}/{id}')
 
     return map
+

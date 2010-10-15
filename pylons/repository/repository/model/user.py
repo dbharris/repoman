@@ -9,12 +9,17 @@ from repository.model.user_group_association import ug_association_table
 class User(Base):
     __tablename__ = "repo_users"
 
+    # User info type stuff
     id = Column(Integer, primary_key=True)
-    name = Column(String(100), default='')
-    email = Column(String(100))
+    uuid = Column(String(32), unique=True)
     client_dn = Column(String(100), unique=True)
+    name = Column(String(100), default='')
+    email = Column(String(100), default='')
+
+    # admin type stuff
     global_admin = Column(Boolean(), default=False)
     suspended = Column(Boolean(), default=False)
+    deleted = Column(Boolean(), default=False)
 
     # one-to-many relationship
     images = relationship("Image", backref="repo_users")

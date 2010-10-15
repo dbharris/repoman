@@ -1,3 +1,5 @@
+# NOT CURRENTLY USED
+
 from sqlalchemy import Column
 from sqlalchemy.types import Integer, String, Boolean
 from sqlalchemy.orm import relationship, backref
