@@ -1,0 +1,19 @@
+#backup/temp files
+*~
+*.goutputstream*
+*.Trash*
+*.trash*
+
+#databases
+*.db
+*.sqlite
+
+#compiled junk
+*.pyc
+
+#certs, etc
+*.pem
+*.key
+*.cert
+*.crt
+
