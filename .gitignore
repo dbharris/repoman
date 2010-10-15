@@ -17,3 +17,8 @@
 *.cert
 *.crt
 
+<<<<<<< HEAD
+=======
+#/shurg
+/pylons/repository/apache/*.wsgi
+>>>>>>> dev

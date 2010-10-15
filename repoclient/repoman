@@ -83,7 +83,11 @@ def main(argv):
       
 
     if list:
+<<<<<<< HEAD
         repo.list_all_images()
+=======
+        repo.list_images()
+>>>>>>> dev
         sys.exit(0)
         
     if getuser:
@@ -105,7 +109,11 @@ def main(argv):
     see --help for more details
             '''
             sys.exit(2)
+<<<<<<< HEAD
         repo.post_image(name)
+=======
+        repo.save_image(name)
+>>>>>>> dev
         sys.exit(0) 
         
         
