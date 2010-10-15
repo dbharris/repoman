@@ -6,18 +6,12 @@ Created on Oct 5, 2010
 import urllib 
 import urllib2
 import httplib
-<<<<<<< HEAD
 import mimetypes, mimetools
 import os, stat
 import simplejson as json
 from commands import getstatusoutput
 import sys
 import pycurl
-=======
-import simplejson as json
-from commands import getstatusoutput
-import sys
->>>>>>> dev
 
 class repoutils(object):
     
@@ -25,12 +19,9 @@ class repoutils(object):
         user = self.get_user(repo,cert,key,uid)
         return (user['name'],user['images'])
     
-<<<<<<< HEAD
     def get_all_images(self,repo,cert,key):
         return self.get_uri_response(repo+"/repository/images",cert,key)
     
-=======
->>>>>>> dev
     def get_users(self,repo,cert,key):
         return self.get_uri_response(repo+"/repository/users",cert,key)
     
@@ -45,14 +36,8 @@ class repoutils(object):
         
         my_dn=(output.split('\n')[0])[9:] 
         user_data = self.get_users(repo,cert,key)
-<<<<<<< HEAD
         if user_data['client_dn']==my_dn:
             return user_data['uuid']
-=======
-        for user in user_data:
-            if user['client_dn']==my_dn:
-                return user['id']
->>>>>>> dev
         return None
     
      
@@ -66,7 +51,6 @@ class repoutils(object):
         return json.load(response)
         
         
-<<<<<<< HEAD
     def post_image(self,repo,cert,key,imagefile,imagename,uuid):
         data = {
                   'name': imagename,
@@ -80,11 +64,6 @@ class repoutils(object):
 def get_content_type(filename):
     return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
-=======
-    def put_image(self,repo,cert,key,imagefile,imagename):
-        print "somehow we will upload the image."
-        
->>>>>>> dev
         
 class HTTPSClientAuthHandler(urllib2.HTTPSHandler):  
     def __init__(self, key, cert):  
@@ -95,7 +74,6 @@ class HTTPSClientAuthHandler(urllib2.HTTPSHandler):
         return self.do_open(self.getConnection, req)  
     def getConnection(self, host, timeout=300):  
         return httplib.HTTPSConnection(host, key_file=self.key, cert_file=self.cert)  
-<<<<<<< HEAD
     
     
 class Callable:
@@ -163,7 +141,3 @@ class MultipartPostHandler(urllib2.BaseHandler):
 
     https_request = http_request
 
-
-=======
->>>>>>> dev
-   

@@ -35,11 +35,7 @@ class repoclient(object):
             sys.exit(1)
     
         try:
-<<<<<<< HEAD
             self.imagename=config.get("ThisImage","imagename")
-=======
-            self.imagename=config.get("ThisImage","image")
->>>>>>> dev
             self.repository=config.get("ThisImage","repository")
         except ConfigParser.NoSectionError:
             print "Trouble reading config file. (/etc/repoclient/repoclient.conf"  
@@ -86,10 +82,7 @@ class repoclient(object):
     
     def sync_is_running(self):
         if os.path.exists(self.lockfile):
-<<<<<<< HEAD
             print self.lockfile
-=======
->>>>>>> dev
             return True
         return False
     
@@ -127,18 +120,10 @@ class repoclient(object):
     
     def list_users(self):
         users = self.rut.get_users(self.repository, self.usercert, self.userkey)
-<<<<<<< HEAD
         print '\n'
         for user in users:
             print "  "+user+": \t",
             print users[user]
-=======
-        for user in users:
-            print '\n'
-            for key in user:
-                print "  "+key+": \t",
-                print user[key]
->>>>>>> dev
         print '\n'
     
     def list_images(self,getuid=0):
@@ -156,7 +141,6 @@ class repoclient(object):
     Creating an image of the local filesystem.  
     This can take up to 10 minutes or more
     Please be patient ...
-<<<<<<< HEAD
     test
         '''
         if not self.iut.check_mounted(self.imagepath, self.mountpoint):
@@ -168,15 +152,6 @@ class repoclient(object):
             self.create_local_bundle()
         else:
             print "syncing image"
-=======
-        '''
-        if not self.iut.check_mounted(self.imagepath, self.mountpoint):
-            os.system("rm -rf "+self.imagepath+" "+self.mountpoint)
-            self.create_local_bundle()  
-        elif self.sync_is_running:
-            self.create_local_bundle()
-        else:
->>>>>>> dev
             self.iut.sync_filesystem(self.mountpoint, self.excl_dirs)
             
         print '''
@@ -190,7 +165,6 @@ class repoclient(object):
         
         print '\n   Image successfully uploaded to  the repository at:\n    '
         print self.repository
-<<<<<<< HEAD
     
     def list_all_images(self):
         print self.rut.get_all_images(self.repository, self.usercert, self.userkey)   
@@ -198,8 +172,4 @@ class repoclient(object):
           
     def post_image(self,imagename):  
         self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,imagename,"a911ff8c547443628b19e5bfbaa3b6da")     
-=======
-             
-               
->>>>>>> dev
         

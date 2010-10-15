@@ -28,13 +28,6 @@ class imageutils(object):
         fs_bytes_used=fs_bytes_used.split()[9]
         image_dirsize = image_dirsize.split()[10]
         
-<<<<<<< HEAD
-=======
-        print "size: "+fs_size
-        print "used: "+fs_bytes_used
-        print "image:"+image_dirsize
-        
->>>>>>> dev
         if(int(image_dirsize) < int(fs_bytes_used)):
             raise MountError("df ", "ERROR: Not enough space on filesystem. \n" +
                              "Check the path to your image ("+imagepath+") "+
