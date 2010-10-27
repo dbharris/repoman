@@ -70,7 +70,7 @@ class imageutils(object):
         cmd = "rsync -ax --delete"
         for excl in excludes:
             if not path.exists(mountpoint+excl):
-                mkdirs(mountpoint+excl)
+                makedirs(mountpoint+excl)
             cmd += " --exclude "+excl
         cmd += " / "+mountpoint
         print "creating local copy of filesystem... this could take some time.  Please be patient."
