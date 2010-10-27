@@ -66,13 +66,11 @@ class imageutils(object):
         return False
                 
     def sync_filesystem(self, mountpoint, excl_dirs):
-        create_dirs = ['/dev','/mnt','/proc','/sys','/tmp']
-        for i in create_dirs:
-            if not path.exists(mountpoint+i):
-                mkdir(mountpoint+i)
         excludes = str.rsplit(excl_dirs)
         cmd = "rsync -ax --delete"
         for excl in excludes:
+            if not path.exists(mountpoint+excl):
+                mkdirs(mountpoint+excl)
             cmd += " --exclude "+excl
         cmd += " / "+mountpoint
         print "creating local copy of filesystem... this could take some time.  Please be patient."

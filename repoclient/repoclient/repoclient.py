@@ -126,12 +126,13 @@ class repoclient(object):
             print users[user]
         print '\n'
     
-    def list_images(self,getuid=0):
-        images = self.rut.get_images(self.repository, self.usercert, self.userkey, uid=getuid)
+    def list_images(self):
+        images = self.rut.get_images(self.repository, self.usercert, self.userkey)
         print '\n    Images for user: '+images[0]+':\n'
         for image in images[1]:
-            print "      ",
-            print image
+                print '        %-10s: %32s' % ('name', image['name'])
+                print '        %-10s: %32s' % ('id', image['id'])
+                print '\n'
         print '\n'
         
         
@@ -161,7 +162,7 @@ class repoclient(object):
     time, depending on the speed of your connection
     and the size of your image...
         '''
-        self.rut.put_image(self.repository,self.usercert,self.userkey, self.imagepath,imagename)
+        self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,imagename)
         
         print '\n   Image successfully uploaded to  the repository at:\n    '
         print self.repository
@@ -171,5 +172,5 @@ class repoclient(object):
         
           
     def post_image(self,imagename):  
-        self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,imagename,"a911ff8c547443628b19e5bfbaa3b6da")     
+        self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,imagename)     
         
