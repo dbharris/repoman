@@ -26,15 +26,20 @@ def validate_new_user(params):
     else:
         return result
 
-class UniqueUser(formencode.FancyValidator):
+class UniqueUsername(formencode.FancyValidator):
     """Use this class to define what makes a unique user."""
     def _to_python(self, value, state):
         user_q = meta.Session.query(model.User)
-        uuid = h.user_uuid(value)
-        if user_q.filter(model.User.client_dn==value).first():
+        if user_q.filter(model.User.user_name==value).first():
             state = 'CONFLICT'
-            raise formencode.Invalid('conflict', value, state)
-        elif user_q.filter(model.User.uuid==uuid).first():
+        else:
+            return value
+
+class UniqueCertDN(formencode.FancyValidator):
+    """Use this class to define what makes a unique user."""
+    def _to_python(self, value, state):
+        cert_q = meta.Session.query(model.Certificate)
+        if cert_q.filter(model.Certificate.client_dn==value).first():
             state = 'CONFLICT'
             raise formencode.Invalid('conflict', value, state)
         else:
@@ -45,15 +50,16 @@ class NewUserForm(formencode.Schema):
     filter_extra_fields = True
 
     # Manditory fields here
-    name = formencode.validators.String(not_empty=True)
-    client_dn = formencode.All(formencode.validators.String(not_empty=True),
-                               UniqueUser())
+    user_name = formencode.All(formencode.validators.String(not_empty=True),
+                               UniqueUsername())
+    cert_dn = formencode.All(formencode.validators.String(not_empty=True),
+                             UniqueCertDN())
     email = formencode.All(formencode.validators.String(not_empty=True),
                            formencode.validators.Email())
 
     # Default fields here
-    #FIXME: not parsing properly
-    global_admin = formencode.validators.Bool(if_missing=False)
+    full_name = formencode.validators.String(not_empty=True)
+    groups = formencode.validators.String(if_missing=False)
     suspended = formencode.validators.Bool(if_missing=False)
 
 
@@ -112,7 +118,7 @@ class UniqueImage(formencode.FancyValidator):
     """Use this class to determine the uniqueness of an Image"""
     def _to_python(self, value, state):
         image_q = meta.Session.query(model.Image)
-        client_dn = request.environ['REPOSITORY_USER_CLIENT_DN']
+        client_dn = request.environ['REPOSITORY_USER']
         uuid = h.image_uuid(client_dn, value)
         if image_q.filter(model.Image.uuid==uuid).first():
             state = 'CONFLICT'
@@ -123,15 +129,10 @@ class UniqueImage(formencode.FancyValidator):
 
 class NewImageForm(formencode.Schema):
     allow_extra_fields = True
-    #filter_extra_fields = True
-
-    # It's hard to valitade the file for upload
-    # file validation will be done in the controller
-    #file = formencode.validators.NotEmpty()
+    filter_extra_fields = True
 
     name = formencode.All(formencode.validators.String(not_empty=True),
                           UniqueImage())
-    group = formencode.validators.String(if_missing='users')
     desc = formencode.validators.String(if_missing=None)
 
     os_variant = formencode.validators.String(if_missing=None)
@@ -142,7 +143,5 @@ class NewImageForm(formencode.Schema):
     owner_r = formencode.validators.Bool(if_missing=True)
     owner_w = formencode.validators.Bool(if_missing=True)
     group_r = formencode.validators.Bool(if_missing=False)
-    group_w = formencode.validators.Bool(if_missing=False)
     other_r = formencode.validators.Bool(if_missing=False)
-    other_w = formencode.validators.Bool(if_missing=False)
 

@@ -1,6 +1,7 @@
 """Pylons middleware initialization"""
 from beaker.middleware import SessionMiddleware
-from paste.cascade import Cascade
+#from paste.cascade import Cascade
+from repository.lib.lazy import LazyCascade
 from paste.registry import RegistryManager
 from paste.urlparser import StaticURLParser
 from paste.deploy.converters import asbool
@@ -48,7 +49,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
 
-    app = UserAuthentication(app)
+    #app = UserAuthentication(app)
 
     # END OF CUSTOM MIDDLEWARE
 
@@ -72,5 +73,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
         # Serve static files
         static_app = StaticURLParser(config['pylons.paths']['static_files'])
         app = Cascade([static_app, app])
+        #app = LazyCascade([static_app, app], lazy_size=1024*10000)
     app.config = config
     return app
+

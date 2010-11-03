@@ -1,7 +1,7 @@
 
 # Project imports
 from repository.model import meta
-from repository.model.user import User
+from repository.model.certificate import Certificate
 
 # Standard imports
 from time import strptime, gmtime
@@ -54,20 +54,18 @@ class UserAuthentication(object):
                 client_dn = client_dn[:client_dn.rindex('/CN=')]
 
         # Check if client is in the DB
-        user_q = meta.Session.query(User)
-        user = user_q.filter(User.client_dn==client_dn).first()
-        if not user:
+        cert_q = meta.Session.query(Certificate)
+        cert = cert_q.filter(Certificate.client_dn==client_dn).first()
+        if not cert:
             start_response('403 Forbidden', [('Content-type', 'text/html')])
             return client_dn
             return ['Unknown user']
-        elif user.suspended:
+        elif cert.user.suspended:
             start_response('403 Forbidden', [('Content-type', 'text/html')])
             return ['Accout suspended.  Contact your administrator']
-        elif not user.suspended:
+        elif not cert.user.suspended:
             # Update environ with user info
-            environ.update({"REPOSITORY_USER_ID":user.id,
-                            "REPOSITORY_USER_UUID":user.uuid,
-                            "REPOSITORY_USER_CLIENT_DN":user.client_dn,
-                            "REPOSITORY_USER_ADMIN":user.global_admin})
-            return self.app(environ, start_response)
+            new_env = environ.copy()
+            new_env.update({"REPOSITORY_USER":cert.user})
+            return self.app(new_env, start_response)
 

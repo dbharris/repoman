@@ -1,0 +1,16 @@
+from sqlalchemy import Column,ForeignKey
+from sqlalchemy.types import Integer, String, Boolean
+from sqlalchemy.orm import relationship, backref
+
+from repository.model.meta import Base
+
+
+class Quota(Base):
+    __tablename__ = "quota"
+
+    id = Column(Integer, primary_key=True)
+    # user
+    # max_files
+    # max_storage
+    # max_file_size
+

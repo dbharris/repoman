@@ -20,11 +20,41 @@
 
 # add a new image
     import pycurl
+    
+    class ResponseHeaders(object):
+        def __init__(self):
+            self.headers = []
+        
+        def store(self, buff):
+            self.headers.append(buff)
+            
+        def __repr__(self):
+            return repr(self.headers)
+    
+    # upload the metadata for the image
+    response_headers = ResponseHeaders()
     c = pycurl.Curl()
     c.setopt(pycurl.POST, 1)
-    c.setopt(pycurl.URL, 'https://localhost:4444/repository/images')
-    c.setopt(pycurl.HTTPPOST, [('file', (pycurl.FORM_FILE, '/tmp/vm_image.img')), ('name', 'test_image')])
+    c.setopt(pycurl.URL, 'https://localhost:4444/api/images/meta')
+    c.setopt(pycurl.HTTPPOST, [('name', 'test_image'), ('desc', 'Some human description')])
+    c.setopt(c.HEADERFUNCTION, response_headers.store)
     c.setopt(pycurl.SSL_VERIFYHOST, 0)
     c.setopt(pycurl.SSL_VERIFYPEER, 0)
     c.setopt(pycurl.SSLCERT, '/tmp/x509up_u1000')
     c.perform()
+    
+    # The response from the server will be a '201' code.  The 'Location:' header
+    # will contain the url to post the raw file to, or just post it to 
+    # /api/images/raw/{UUID}
+    
+    # upload the corresponding raw image
+    c = pycurl.Curl()
+    c.setopt(pycurl.POST, 1)
+    c.setopt(pycurl.URL, 'https://localhost:4444/api/images/raw/{uuid}')
+    c.setopt(pycurl.HTTPPOST, [('file', (pycurl.FORM_FILE, '/tmp/vm_image.img'))])
+    c.setopt(pycurl.SSL_VERIFYHOST, 0)
+    c.setopt(pycurl.SSL_VERIFYPEER, 0)
+    c.setopt(pycurl.SSLCERT, '/tmp/x509up_u1000')
+    c.perform()
+    
+    # once the raw file has been posted, the database will be 

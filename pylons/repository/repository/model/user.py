@@ -1,41 +1,40 @@
-from sqlalchemy import Column
+from sqlalchemy import Column,ForeignKey
 from sqlalchemy.types import Integer, String, Boolean
 from sqlalchemy.orm import relationship, backref
 
 from repository.model.meta import Base
-from repository.model.user_group_association import ug_association_table
+from repository.model.associations import user_group_association
+from repository.model.certificate import Certificate
 
 
 class User(Base):
-    __tablename__ = "repo_users"
+    __tablename__ = "user"
+
+    id = Column(Integer, primary_key=True)
 
     # User info type stuff
-    id = Column(Integer, primary_key=True)
-    uuid = Column(String(32), unique=True)
-    client_dn = Column(String(100), unique=True)
-    name = Column(String(100), default='')
+    user_name = Column(String(100), unique=True)
+    password = Column(String(100))
+    full_name = Column(String(100), default='')
     email = Column(String(100), default='')
 
     # admin type stuff
-    global_admin = Column(Boolean(), default=False)
     suspended = Column(Boolean(), default=False)
     deleted = Column(Boolean(), default=False)
 
-    # one-to-many relationship
-    images = relationship("Image", backref="repo_users")
+    # relationships
+    certificate_id = Column(Integer, ForeignKey('certificate.id'))
+    certificate = relationship("Certificate", backref=backref("user", uselist=False))
+    quota_id = Column(Integer, ForeignKey('quota.id'))
+    quota = relationship("Quota", backref=backref("user", uselist=False))
+    images = relationship("Image", backref="user")
+    groups = relationship("Group", secondary='user_group_association', backref="users")
 
-    # link user <--> group
-    # many-to-many relationship
-    groups = relationship("Group",
-                          secondary=ug_association_table,
-                          backref="repo_users"
-                         )
-
-
-    def __init__(self, name='', email='', client_dn=''):
-        self.name = name
+    def __init__(self, user_name, email, cert_dn):
+        self.user_name = user_name
         self.email = email
-        self.client_dn = client_dn
+        self.certificate = Certificate(cert_dn)
 
     def __repr__(self):
-        return "<User('%s', '%s', '%s')>" % (self.name, self.email, self.client_dn)
+        return "<User('%s', '%s')>" % (self.user_name, self.email)
+

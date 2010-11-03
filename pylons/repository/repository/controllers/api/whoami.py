@@ -9,6 +9,8 @@ from repository.model.representation import user_long
 from repository.model import meta
 from repository.model.user import User
 
+from pylons import app_globals
+
 log = logging.getLogger(__name__)
 
 class WhoamiController(BaseController):
@@ -16,10 +18,9 @@ class WhoamiController(BaseController):
 
     def index(self, format='html'):
         """GET /repository/whoami: All items in the collection"""
-        my_uuid = request.environ['REPOSITORY_USER_UUID']
-        user = meta.Session.query(User).filter(User.uuid==my_uuid).first()
+        user = request.environ['REPOSITORY_USER']
         if user:
-            response.headers['content-type'] = 'text/javascript'
+            response.headers['content-type'] = app_globals.json_content_type
             return json.dumps(user_long(user))
         else:
             abort(404, '404 Not Found')

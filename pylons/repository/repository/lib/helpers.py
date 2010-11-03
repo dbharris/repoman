@@ -9,6 +9,8 @@ available to Controllers. This module is available to templates as 'h'.
 from pylons import app_globals
 from uuid import uuid3
 
+import simplejson
+
 ###
 true_values = (True, 'true', '1')
 def str_to_bool(value):
@@ -36,3 +38,16 @@ def stream_img(image_file, buff=1024):
         yield chunk
         chunk = image_file.read(buff)
     image_file.close()
+
+
+
+###
+def render_json(data):
+    return simplejson.dumps(data)
+
+def render_xml(data):
+    pass
+
+def render_yaml(data):
+    pass
+

@@ -20,17 +20,26 @@ def make_map(config):
 
     # CUSTOM ROUTES HERE
 
-    map.resource('whoami', 'whoami', controller='repository/whoami',
-                  path_prefix='/repository', name_prefix='repository_')
+    map.resource('whoami', 'whoami', controller='api/whoami',
+                  path_prefix='/api', name_prefix='api_')
 
-    map.resource('user', 'users', controller='repository/users',
-                 path_prefix='/repository', name_prefix='repository_')
+    map.resource('user', 'users', controller='api/users',
+                 path_prefix='/api', name_prefix='api_')
 
-    map.resource('image', 'images', controller='repository/images',
-                 path_prefix='/repository', name_prefix='repository_')
+    map.resource('group', 'groups', controller='api/groups',
+                 path_prefix='/api', name_prefix='api_')
 
-    map.resource('group', 'groups', controller='repository/groups',
-                 path_prefix='/repository', name_prefix='repository_')
+    map.resource('meta', 'meta', controller='api/images/meta',
+                  path_prefix='/api/images', name_prefix='api_images_')
+
+    # Manually set the routing for images/raw.
+    map.connect('/api/images/raw/:(id)', controller='api/images/raw',
+                 action='post_upload', conditions=dict(method=['POST']))
+    map.connect('/api/images/raw/:id', controller='api/images/raw',
+                 action='put_upload', conditions=dict(method=['PUT']))
+    map.connect('/api/images/raw/:id', controller='api/images/raw',
+                 action='show', conditions=dict(method=['GET']))
+
 
     # End of custom routes
 

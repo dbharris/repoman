@@ -37,11 +37,10 @@ import simplejson as json
 def user_short(*obj):
     data = []
     for u in obj:
-        data.append({'uuid':u.uuid,
-                     'name':u.name,
+        data.append({'user_name':u.user_name,
+                     'full_name':u.full_name,
                      'email':u.email,
-                     'client_dn':u.client_dn,
-                     'admin':u.global_admin,
+                     'client_dn':u.certificate.client_dn,
                     })
     if len(data) == 1:
         return data[0]
@@ -52,12 +51,12 @@ def user_short(*obj):
 def user_long(*obj):
     data = []
     for user in obj:
-        data.append({'uuid':user.uuid,
-                     'name':user.name,
+        data.append({'user_name':user.user_name,
+                     'full_name':user.full_name,
                      'email':user.email,
-                     'client_dn':user.client_dn,
-                     'admin':user.global_admin,
+                     'client_dn':user.certificate.client_dn,
                      'suspended':user.suspended,
+                     'quota':[None],
                      'images':[image_short(i) for i in user.images],
                      'groups':[group_short(g) for g in user.groups],
                     })
@@ -78,8 +77,8 @@ def image_short(*obj):
     for i in obj:
         data.append({'id':i.uuid,
                      'name':i.name,
-                     'owner_id':i.owner.uuid,
-                     'group_id':i.group.uuid,
+                     'owner':i.owner.user_name,
+                     'group':i.group.name,
                     })
     if len(data) == 1:
         return data[0]
@@ -92,8 +91,8 @@ def image_long(*obj):
         data.append({'id':image.uuid,
                      'name':image.name,
                      'url':image.url,
-                     'owner_id':image.owner.uuid,
-                     'group_id':image.group.uuid,
+                     'owner':image.owner.user_name,
+                     'group':image.group.name,
                      'uploaded':image.uploaded.ctime(),
                      'modified':image.modified.ctime(),
                      'checksum':image.checksum,
@@ -104,9 +103,7 @@ def image_long(*obj):
                      'permissions':{'owner_r':image.owner_r,
                                     'owner_w':image.owner_w,
                                     'group_r':image.group_r,
-                                    'group_w':image.group_w,
-                                    'other_r':image.other_r,
-                                    'other_w':image.other_w},
+                                    'other_r':image.other_r},
                      'desc':image.desc,
                     })
     if len(data) == 1:
@@ -123,9 +120,7 @@ def image_long(*obj):
 def group_short(*obj):
     data = []
     for g in obj:
-        data.append({'id':g.uuid,
-                     'name':g.name,
-                    })
+        data.append({'name':g.name})
     if len(data) == 1:
         return data[0]
     else:
@@ -134,9 +129,10 @@ def group_short(*obj):
 def group_long(*obj):
     data = []
     for group in obj:
-        data.append({'id':group.uuid,
-                     'name':group.name,
-                     'users':[user_short(u) for u in group.repo_users]
+        data.append({'name':group.name,
+                     'protected':group.protected,
+                     'permissions':[p.permission_name for p in group.permissions],
+                     'users':[user_short(u) for u in group.users]
                     })
     if len(data) == 1:
         return data[0]
