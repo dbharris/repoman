@@ -27,9 +27,35 @@ def auth_403(message):
 
 
 class UsersController(BaseController):
-    """REST Controller styled on the Atom Publishing Protocol"""
 
-    @authorize(AllOf(HasPermission('user_list_all')), auth_403)
+    def list_all(self, format='json'):
+        user_q = meta.Session.query(User)
+        users = [user for user in user_q]
+        if format == 'json':
+            response.headers['content-type'] = app_globals.json_content_type
+            return h.render_json(user_short(*users))
+        else:
+            abort(501, '501 Not Implemented')
+
+    def new_user(self, format='json'):
+        pass
+
+    def show(self, user, format='json'):
+        pass
+
+    def list_images(self, user, format='json'):
+        pass
+
+    def list_groups(self, user, format='json'):
+        pass
+
+    def list_permissions(self, user, format='json'):
+        pass
+
+    def list_shared_images(self, user, format='json'):
+        pass
+
+    #@authorize(AllOf(HasPermission('user_list_all')), auth_403)
     def index(self, format='json'):
         """GET /repository/users: All items in the collection"""
         # url('repository_users')

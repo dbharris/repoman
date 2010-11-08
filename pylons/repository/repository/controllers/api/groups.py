@@ -24,7 +24,35 @@ def auth_403(message):
     abort(403, "403 Forbidden : '%s'" % message)
 
 class GroupsController(BaseController):
-    """REST Controller styled on the Atom Publishing Protocol"""
+
+    def list_all(self, format='json'):
+        pass
+
+    def new_group(self, format='json'):
+        pass
+
+    def show(self, group, format='json'):
+        pass
+
+    def list_users(self, group, format='json'):
+        pass
+
+    def add_user(self, group, user, format='json'):
+        pass
+
+    def remove_user(self, group, user, format='json'):
+        pass
+
+    def list_permissions(self, group, format='json'):
+        pass
+
+    def add_permission(self, group, permission, format='json'):
+        pass
+
+    def remove_permission(self, group, permission, format='json'):
+        pass
+
+
 
     @authorize(AllOf(HasPermission('group_list')), auth_403)
     def index(self, format='json'):
