@@ -12,7 +12,7 @@ from repository.model import meta
 from repository.model.image import Image
 from repository.model.group import Group
 from repository.model.user import User
-from repository.model.form import validate_new_image, validate_image_share
+from repository.model.form import validate_new_image, validate_image_share, validate_modify_image
 from repository.lib import beautify
 from repository.lib import helpers as h
 from pylons import app_globals
@@ -65,7 +65,6 @@ class ImagesController(BaseController):
 
 
     def unshare_by_user(self, user, image, format='json'):
-
         params = validate_image_share(request.params)
 
         image_q = meta.Session.query(Image)\
@@ -76,11 +75,12 @@ class ImagesController(BaseController):
                 user = meta.Session.query(User)\
                                    .filter(User.user_name==params['user_name'])\
                                    .first()
-                return 'a'
                 if user:
                     if user in image.shared.users:
                         image.shared.users.remove(user)
                         meta.Session.commit()
+                    else:
+                        abort(400, '400 Bad Request - User not in shares')
                 else:
                     abort(400, '400 Bad Request')
             elif params['group']:
@@ -178,10 +178,35 @@ class ImagesController(BaseController):
             abort(404, '404 Not Found')
 
     def modify_meta_by_user(self, user, image, format='json'):
-        pass
+        params = validate_modify_image(request.params)
+
+        image_q = meta.Session.query(Image)
+        image = image_q.filter(Image.name==image)\
+                       .filter(Image.owner.has(User.user_name==user))\
+                       .first()
+
+        if image:
+            for k,v in params.iteritems():
+                if v:
+                    setattr(image, k, v)
+            meta.Session.commit()
+        else:
+            abort(404, '404 Not Found')
+
 
     def delete_by_user(self, user, image, format='json'):
-        pass
+        abort(501, '501 Not Implemented')
+
+        image_q = meta.Session.query(Image)
+        image = image_q.filter(Image.name==image)\
+                       .filter(Image.owner.has(User.user_name==user))\
+                       .first()
+
+        if image:
+            image.deleted = True
+            # Delete raw file
+        else:
+            abort(404, '404 Not Found')
 
     def delete(self, image, format='json'):
         user = request.environ['REPOSITORY_USER'].user_name

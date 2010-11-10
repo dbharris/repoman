@@ -10,7 +10,7 @@ from repository.lib.base import BaseController
 from repository.model import meta
 from repository.model.user import User
 from repository.model.group import Group
-from repository.model.form import validate_new_user
+from repository.model.form import validate_new_user, validate_modify_user
 from repository.lib import helpers as h
 from repository.lib.authorization import authorize, AllOf, AnyOf, NoneOf, HasPermission
 from repository.lib import beautify
@@ -72,7 +72,18 @@ class UsersController(BaseController):
         return h.render_json(beautify.user(new_user))
 
     def modify_user(self, user, format='json'):
-        pass
+        params = validate_modify_user(request.params)
+
+        user_q = meta.Session.query(User)
+        user = user_q.filter(User.user_name==user).first()
+
+        if user:
+            for k,v in params.iteritems():
+                if v:
+                    setattr(user, k, v)
+            meta.Session.commit()
+        else:
+            abort(404, '404 Not Found')
 
     def delete_user(self, user, format='json'):
         user = meta.Session.query(User).filter(User.user_name==user).first()

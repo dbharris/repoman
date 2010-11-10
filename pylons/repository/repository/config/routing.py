@@ -41,7 +41,7 @@ def make_map(config):
                 action='modify_user',
                 conditions=dict(method=['POST']))
 
-    map.connect(None, '/api/users', controller='api/users',
+    map.connect(None, '/api/users/:(user)', controller='api/users',
                 action='delete_user',
                 conditions=dict(method=['DELETE']))
 
@@ -77,6 +77,10 @@ def make_map(config):
     map.connect("group", '/api/groups/:(group)', controller='api/groups',
                 action='show',
                 conditions=dict(method=['GET']))
+
+    map.connect(None, '/api/groups/:(group)', controller='api/groups',
+                action='delete',
+                conditions=dict(method=['DELETE']))
 
     map.connect(None, '/api/groups/:(group)/users', controller='api/groups',
                 action='list_users',

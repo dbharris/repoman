@@ -1,7 +1,6 @@
 """Pylons middleware initialization"""
 from beaker.middleware import SessionMiddleware
-#from paste.cascade import Cascade
-from repository.lib.lazy import LazyCascade
+from paste.cascade import Cascade
 from paste.registry import RegistryManager
 from paste.urlparser import StaticURLParser
 from paste.deploy.converters import asbool

@@ -26,6 +26,19 @@ def validate_new_user(params):
     else:
         return result
 
+def validate_modify_user(params):
+    schema = ModifyUserForm()
+    try:
+        result = schema.to_python(params)
+    except formencode.validators.Invalid, error:
+        for e,v in error.error_dict.iteritems():
+            if e=='client_dn' and v.state=='CONFLICT':
+                abort(409, '409 Conflict')
+            else:
+                abort(400, '400 Bad Request - validate_new_user')
+    else:
+        return result
+
 class UniqueUsername(formencode.FancyValidator):
     """Use this class to define what makes a unique user."""
     def _to_python(self, value, state):
@@ -44,6 +57,13 @@ class UniqueCertDN(formencode.FancyValidator):
             raise formencode.Invalid('conflict', value, state)
         else:
             return value
+
+class ModifyUserForm(formencode.Schema):
+    allow_extra_fields = True
+    filter_extra_fields = True
+
+    # What fields should be editable by the user?
+    full_name = formencode.validators.String(not_empty=True)
 
 class NewUserForm(formencode.Schema):
     allow_extra_fields = True
@@ -114,6 +134,18 @@ def validate_new_image(params):
     else:
         return result
 
+def validate_modify_image(params):
+    schema = ModifyImageForm()
+    try:
+        result = schema.to_python(params)
+    except formencode.validators.Invalid, error:
+        for e,v in error.error_dict.iteritems():
+            if e=='name' and v.state=='CONFLICT':
+                abort(409, '409 Conflict')
+            else:
+                abort(400, '400 Bad Request - validate_new_image')
+    else:
+        return result
 
 class NewImageForm(formencode.Schema):
     allow_extra_fields = True
@@ -135,6 +167,24 @@ class NewImageForm(formencode.Schema):
     read_only = formencode.validators.Bool(if_missing=False)
     allow_http_get = formencode.validators.Bool(if_missing=False)
 
+class ModifyImageForm(formencode.Schema):
+    allow_extra_fields = True
+    filter_extra_fields = True
+
+    name = formencode.validators.String(if_missing=None)
+    description = formencode.validators.String(if_missing=None)
+
+    os_variant = formencode.validators.String(if_missing=None)
+    os_type = formencode.validators.String(if_missing=None)
+    os_arch = formencode.validators.String(if_missing=None)
+    hypervisor = formencode.validators.String(if_missing=None)
+
+    expires = formencode.validators.String(if_missing=None)
+
+    #expires = formencode.validators.DateTime???
+    read_only = formencode.validators.Bool(if_missing=None)
+    allow_http_get = formencode.validators.Bool(if_missing=None)
+
 def validate_raw_image(params):
     schema = NewImageForm()
     try:
@@ -152,7 +202,7 @@ class RawImageForm(formencode.Schema):
     allow_extra_fields = True
     filter_extra_fields = True
 
-    #Add file validator here
+    #TODO: Add file validator here
 
 
 #################

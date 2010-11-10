@@ -9,6 +9,7 @@ from repository.lib.base import BaseController
 from repository.model import meta
 from repository.model.group import Group
 from repository.model.user import User
+from repository.model.permission import Permission
 from repository.model.form import validate_new_group
 from repository.lib import beautify
 from repository.lib import helpers as h
@@ -59,6 +60,9 @@ class GroupsController(BaseController):
         meta.Session.commit()
         return h.render_json(beautify.group(new_group))
 
+    def delete(self, group, format='json'):
+        return 'group deleted.....NOT!'
+
     def show(self, group, format='json'):
         group = meta.Session.query(Group).filter(Group.name==group).first()
         if group:
@@ -76,6 +80,7 @@ class GroupsController(BaseController):
         if group and user:
             if user not in group.users:
                 group.users.append(user)
+                meta.Session.commit()
         else:
             abort(404, '404 Not Found')
 
@@ -85,6 +90,7 @@ class GroupsController(BaseController):
         if group and user:
             if user in group.users:
                 group.users.remove(user)
+                meta.Session.commit()
         else:
             abort(404, '404 Not Found')
 
@@ -96,6 +102,7 @@ class GroupsController(BaseController):
         if group and perm:
             if perm not in group.permissions:
                 group.permissions.append(perm)
+                meta.Session.commit()
         else:
             abort(404, '404 Not Found')
 
@@ -107,6 +114,7 @@ class GroupsController(BaseController):
         if group and perm:
             if perm in group.permissions:
                 group.permissions.remove(perm)
+                meta.Session.commit()
         else:
             abort(404, '404 Not Found')
 
