@@ -58,7 +58,7 @@ class UserAuthentication(object):
         user = user_q.filter(User.client_dn==client_dn).first()
         if not user:
             start_response('403 Forbidden', [('Content-type', 'text/html')])
-            return client_dn
+            # return client_dn
             return ['Unknown user']
         elif user.suspended:
             start_response('403 Forbidden', [('Content-type', 'text/html')])
