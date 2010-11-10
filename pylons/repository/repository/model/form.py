@@ -75,7 +75,7 @@ def validate_new_group(params):
             if e=='name' and v.state=='CONFLICT':
                 abort(409, '409 Conflict')
             else:
-                abort(400, '400 Bad Request - validate_new_group')
+                abort(400, '400 Bad Request')
     else:
         return result
 
@@ -114,34 +114,68 @@ def validate_new_image(params):
     else:
         return result
 
-class UniqueImage(formencode.FancyValidator):
-    """Use this class to determine the uniqueness of an Image"""
-    def _to_python(self, value, state):
-        image_q = meta.Session.query(model.Image)
-        client_dn = request.environ['REPOSITORY_USER']
-        uuid = h.image_uuid(client_dn, value)
-        if image_q.filter(model.Image.uuid==uuid).first():
-            state = 'CONFLICT'
-            raise formencode.Invalid('conflict', value, state)
-        else:
-            return value
-
 
 class NewImageForm(formencode.Schema):
     allow_extra_fields = True
     filter_extra_fields = True
 
-    name = formencode.All(formencode.validators.String(not_empty=True),
-                          UniqueImage())
-    desc = formencode.validators.String(if_missing=None)
+    user_name = formencode.validators.String(if_missing=None)
+
+    name = formencode.validators.String(not_empty=True)
+    description = formencode.validators.String(if_missing=None)
 
     os_variant = formencode.validators.String(if_missing=None)
     os_type = formencode.validators.String(if_missing=None)
     os_arch = formencode.validators.String(if_missing=None)
     hypervisor = formencode.validators.String(if_missing=None)
 
-    owner_r = formencode.validators.Bool(if_missing=True)
-    owner_w = formencode.validators.Bool(if_missing=True)
-    group_r = formencode.validators.Bool(if_missing=False)
-    other_r = formencode.validators.Bool(if_missing=False)
+    expires = formencode.validators.String(if_missing=None)
+
+    #expires = formencode.validators.DateTime???
+    read_only = formencode.validators.Bool(if_missing=False)
+    allow_http_get = formencode.validators.Bool(if_missing=False)
+
+def validate_raw_image(params):
+    schema = NewImageForm()
+    try:
+        result = schema.to_python(params)
+    except formencode.validators.Invalid, error:
+        for e,v in error.error_dict.iteritems():
+            if e=='name' and v.state=='CONFLICT':
+                abort(409, '409 Conflict')
+            else:
+                abort(400, '400 Bad Request')
+    else:
+        return result
+
+class RawImageForm(formencode.Schema):
+    allow_extra_fields = True
+    filter_extra_fields = True
+
+    #Add file validator here
+
+
+#################
+# S H A R I N G #
+#################
+def validate_image_share(params):
+    schema = ShareForm()
+    try:
+        result = schema.to_python(params)
+    except formencode.validators.Invalid, error:
+        for e,v in error.error_dict.iteritems():
+            if e=='name' and v.state=='CONFLICT':
+                abort(409, '409 Conflict')
+            else:
+                abort(400, '400 Bad Request bad share')
+    else:
+        return result
+
+
+class ShareForm(formencode.Schema):
+    allow_extra_fields = True
+    filter_extra_fields = True
+
+    user_name = formencode.validators.String(if_missing=None)
+    group = formencode.validators.String(if_missing=None)
 

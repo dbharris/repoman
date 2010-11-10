@@ -4,6 +4,8 @@ from repository.model.group import Group
 
 from repository import model
 from os import path
+from time import time
+from datetime import datetime
 
 # hard code for now.  read in from config soon.
 all_perms = [
@@ -35,10 +37,6 @@ default_groups = {'admins':all_perms,
                            'image_create_owned',
                            'image_modify_owned',
                            'image_delete_owned'],
-                  'users_admins':['group_modify',
-                                  'group_modify_membership',
-                                  'image_modify_group',
-                                  'image_delete_group'],
                  }
 
 
@@ -57,9 +55,11 @@ def create(conf):
         new_g.protected = True
         for p in perms:
             new_g.permissions.append(permissions[p])
+        Session.add(new_g)
+
+    Session.commit()
 
     admins = Session.query(Group).filter(Group.name=='admins').first()
-
     # add some users from a file into the db for testing
     # each line of the file should be of the form name,email,dn
     admin_file = conf.global_conf['admin_file']
@@ -68,6 +68,9 @@ def create(conf):
         name, email, dn = line.rstrip('\n').split(',')
         user = model.User(user_name=name, email=email, cert_dn=dn)
         user.suspended=False
+        user.deleted=False
+        current_time = datetime.utcfromtimestamp(time())
+        user.created = current_time
         user.groups.append(admins)
         Session.add(user)
     f.close()

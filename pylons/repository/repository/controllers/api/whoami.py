@@ -5,7 +5,7 @@ from pylons import request, response, session, tmpl_context as c, url
 from pylons.controllers.util import abort, redirect
 
 from repository.lib.base import BaseController, render
-from repository.model.representation import user_long
+from repository.lib import beautify
 from repository.model import meta
 from repository.model.user import User
 
@@ -21,9 +21,9 @@ class WhoamiController(BaseController):
         if user:
             if format == 'json':
                 response.headers['content-type'] = app_globals.json_content_type
-                return json.dumps(user_long(user))
+                return json.dumps(beautify.user(user))
             else:
-            abort(501, '501 Not Implimented')
+                abort(501, '501 Not Implimented')
         else:
             abort(404, '404 Not Found')
 

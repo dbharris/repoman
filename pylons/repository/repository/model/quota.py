@@ -9,6 +9,8 @@ class Quota(Base):
     __tablename__ = "quota"
 
     id = Column(Integer, primary_key=True)
+
+    max_storage = Column(Integer, default=0)
     # user
     # max_files
     # max_storage

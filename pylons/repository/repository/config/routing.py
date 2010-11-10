@@ -24,17 +24,29 @@ def make_map(config):
     # TODO:mvliet: name the routes
 
     # Whoami
-    map.connect(None, '/api/whoami', controller='api/whoami', action='whoami',
+    map.connect(None, '/api/whoami', controller='api/whoami',
+                action='whoami',
                 conditions=dict(method=['GET']))
 
     # User Routes
-    map.connect(None, '/api/users', controller='api/users', action='list_all',
+    map.connect("users", '/api/users', controller='api/users',
+                action='list_all',
                 conditions=dict(method=['GET']))
 
-    map.connect(None, '/api/users', controller='api/users', action='new_user',
+    map.connect(None, '/api/users', controller='api/users',
+                action='new_user',
                 conditions=dict(method=['POST']))
 
-    map.connect(None, '/api/users/:(user)', controller='api/users', action='show',
+    map.connect('user', '/api/users/:(user)', controller='api/users',
+                action='modify_user',
+                conditions=dict(method=['POST']))
+
+    map.connect(None, '/api/users', controller='api/users',
+                action='delete_user',
+                conditions=dict(method=['DELETE']))
+
+    map.connect(None, '/api/users/:(user)', controller='api/users',
+                action='show',
                 conditions=dict(method=['GET']))
 
     map.connect(None, '/api/users/:(user)/images', controller='api/users',
@@ -42,7 +54,7 @@ def make_map(config):
                 conditions=dict(method=['GET']))
 
     map.connect(None, '/api/users/:(user)/groups', controller='api/users',
-                actions='list_groups',
+                action='list_groups',
                 conditions=dict(method=['GET']))
 
     map.connect(None, '/api/users/:(user)/permissions', controller='api/users',
@@ -54,13 +66,16 @@ def make_map(config):
                 conditions=dict(method=['GET']))
 
     # Group Routes
-    map.connect(None, '/api/groups', controller='api/groups', action='list_all',
+    map.connect("groups", '/api/groups', controller='api/groups',
+                action='list_all',
                 conditions=dict(method=['GET']))
 
-    map.connect(None, '/api/groups', controller='api/groups', action='new_group',
+    map.connect(None, '/api/groups', controller='api/groups',
+                action='new_group',
                 conditions=dict(method=['POST']))
 
-    map.connect(None, '/api/groups/:(group)', controller='api/groups', action='show',
+    map.connect("group", '/api/groups/:(group)', controller='api/groups',
+                action='show',
                 conditions=dict(method=['GET']))
 
     map.connect(None, '/api/groups/:(group)/users', controller='api/groups',
@@ -90,50 +105,66 @@ def make_map(config):
                 conditions=dict(method=['DELETE']))
 
     # Image Routes
-    map.connect(None, '/api/images/:(user)/:(image)/raw', controller='api/images',
-                action='get_raw_image',
+    map.connect(None, '/api/images/:(user)/:(image)/share', controller='api/images',
+                action='share_by_user',
+                conditions=dict(method=['POST']))
+
+    map.connect(None, '/api/images/:(user)/:(image)/share', controller='api/images',
+                action='unshare_by_user',
+                conditions=dict(method=['DELETE']))
+
+    map.connect(None, '/api/images/:(image)/share', controller='api/images',
+                action='share',
+                conditions=dict(method=['POST']))
+
+    map.connect(None, '/api/images/:(image)/share', controller='api/images',
+                action='unshare',
+                conditions=dict(method=['DELETE']))
+
+    map.connect('raw_by_user', '/api/images/raw/:(user)/:(image)', controller='api/images',
+                action='get_raw_by_user',
                 conditions=dict(method=['GET']))
 
-    map.connect(None, '/api/images/:(user)/:(image)/raw', controller='api/images',
+    map.connect(None, '/api/images/raw/:(user)/:(image)', controller='api/images',
+                action='upload_raw_by_user',
+                conditions=dict(method=['POST']))
+
+    map.connect('raw', '/api/images/raw:(image)', controller='api/images',
+                action='get_raw',
+                conditions=dict(method=['GET']))
+
+    map.connect(None, '/api/images/raw/:(image)', controller='api/images',
                 action='upload_raw',
                 conditions=dict(method=['POST']))
 
-    map.connect(None, '/api/images/:(image)/raw', controller='api/images',
-                action='get_raw_image',
-                conditions=dict(method=['GET']))
-
-    map.connect(None, '/api/images/:(image)/raw', controller='api/images',
-                action='upload_raw',
-                conditions=dict(method=['POST']))
-
-    map.connect(None, '/api/images/:(user)/:(image)', controller='api/images',
-                action='show_image_meta',
+    map.connect('image_by_user', '/api/images/:(user)/:(image)', controller='api/images',
+                action='show_meta_by_user',
                 conditions=dict(method=['GET']))
 
     map.connect(None, '/api/images/:(user)/:(image)', controller='api/images',
-                action='modify_image_meta',
+                action='modify_meta_by_user',
                 conditions=dict(method=['POST']))
 
     map.connect(None, '/api/images/:(user)/:(image)', controller='api/images',
-                action='delete_image',
+                action='delete_by_user',
                 conditions=dict(method=['DELETE']))
 
-    map.connect(None, '/api/images/:(image)', controller='api/images',
-                action='show_image_meta',
+    map.connect('image', '/api/images/:(image)', controller='api/images',
+                action='show_meta',
                 conditions=dict(method=['GET']))
 
     map.connect(None, '/api/images/:(image)', controller='api/images',
-                action='modify_image_meta',
+                action='modify_meta',
                 conditions=dict(method=['POST']))
 
     map.connect(None, '/api/images/:(image)', controller='api/images',
-                action='delete_image',
+                action='delete',
                 conditions=dict(method=['DELETE']))
 
-    map.connect(None, '/api/images', controller='api/images', action='list_all',
+    map.connect('images', '/api/images', controller='api/images', action='list_all',
                 conditions=dict(method=['GET']))
 
-    map.connect(None, '/api/images', controller='api/images', action='new_image',
+    map.connect(None, '/api/images', controller='api/images', action='new',
                 conditions=dict(method=['POST']))
 
 

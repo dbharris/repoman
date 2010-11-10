@@ -11,9 +11,9 @@ from repository.model import meta
 from repository.model.user import User
 from repository.model.group import Group
 from repository.model.form import validate_new_user
-from repository.model.representation import user_long, user_short
 from repository.lib import helpers as h
 from repository.lib.authorization import authorize, AllOf, AnyOf, NoneOf, HasPermission
+from repository.lib import beautify
 
 from pylons import app_globals
 
@@ -29,50 +29,17 @@ def auth_403(message):
 class UsersController(BaseController):
 
     def list_all(self, format='json'):
-        user_q = meta.Session.query(User)
-        users = [user for user in user_q]
+        user_q = meta.Session.query(User).filter(User.deleted!=True)
+        users = [user.user_name for user in user_q]
+        urls = [url('user', user=u, qualified=True) for u in users]
         if format == 'json':
             response.headers['content-type'] = app_globals.json_content_type
-            return h.render_json(user_short(*users))
+            return h.render_json(urls)
         else:
             abort(501, '501 Not Implemented')
 
     def new_user(self, format='json'):
-        pass
-
-    def show(self, user, format='json'):
-        pass
-
-    def list_images(self, user, format='json'):
-        pass
-
-    def list_groups(self, user, format='json'):
-        pass
-
-    def list_permissions(self, user, format='json'):
-        pass
-
-    def list_shared_images(self, user, format='json'):
-        pass
-
-    #@authorize(AllOf(HasPermission('user_list_all')), auth_403)
-    def index(self, format='json'):
-        """GET /repository/users: All items in the collection"""
-        # url('repository_users')
-        user_q = meta.Session.query(User)
-        users = [user for user in user_q]
-        if format == 'json':
-            response.headers['content-type'] = app_globals.json_content_type
-            return h.render_json(user_short(*users))
-        else:
-            abort(501, '501 Not Implemented')
-
-    @authorize(AllOf(HasPermission('user_create')), auth_403)
-    def create(self):
-        """POST /repository/users: Create a new item"""
-
         params = validate_new_user(request.params)
-
         new_user = User(cert_dn=params['cert_dn'],
                         user_name=params['user_name'],
                         email=params['email'])
@@ -102,51 +69,57 @@ class UsersController(BaseController):
         # Update the database
         meta.Session.add(new_user)
         meta.Session.commit()
-        return h.render_json(user_long(new_user))
+        return h.render_json(beautify.user(new_user))
 
-    def new(self, format='html'):
-        """GET /repository/users/new: Form to create a new item"""
-        abort(501, '501 Not Implemented')
+    def modify_user(self, user, format='json'):
+        pass
 
-    @authorize(AllOf(HasPermission('user_modify')), auth_403)
-    def update(self, id):
-        """PUT /repository/users/id: Update an existing item"""
-
-        user = meta.Session.query(User).filter(User.user_name==id).first()
-        if user:
-            # What
-            pass
-        else:
-            abort(404, '404 Not Found')
-
-    @authorize(AllOf(HasPermission('user_delete')), auth_403)
-    def delete(self, id):
-        """DELETE /repository/users/id: Delete an existing item"""
-        if not request.environ.get('REPOSITORY_USER_ADMIN'):
-            abort(403, "403 Forbidden")
-
-        user = meta.Session.query(User).filter(User.user_name==id).first()
+    def delete_user(self, user, format='json'):
+        user = meta.Session.query(User).filter(User.user_name==user).first()
         if user:
             # do something better here
             user.deleted = True
         else:
             abort(404, '404 Not Found')
 
-#    @authorize(AllOf(HasPermission('user_list_all')), auth_403)
-    def show(self, id, format='json'):
-        """GET /repository/users/id: Show a specific item"""
-        user = meta.Session.query(User).filter(User.user_name==id).first()
+    def show(self, user, format='json'):
+        user = meta.Session.query(User).filter(User.user_name==user).first()
         if user:
-            user_repr = user_long(user)
             if format=='json':
                 response.headers['content-type'] = app_globals.json_content_type
-                return h.render_json(user_repr)
+                return h.render_json(beautify.user(user))
             else:
                 abort(501, '501 Not Implemented')
         else:
             abort(404, '404 Not Found')
 
-    def edit(self, id, format='html'):
-        """GET /repository/users/id/edit: Form to edit an existing item"""
-        abort(501, '501 Not Implemented')
+    def list_images(self, user, format='json'):
+        user = meta.Session.query(User).filter(User.user_name==user).first()
+        if user:
+            images = user.images
+            images_repr = representation.image_repr(*images)
+            if format=='json':
+                response.headers['content-type'] = app_globals.json_content_type
+                return h.render_json(images_repr)
+            else:
+                abort(501, '501 Not Implemented')
+        else:
+            abort(404, '404 Not Found')
+
+    def list_groups(self, user, format='json'):
+        return url('group', group='test', qualified=True)
+        user = meta.Session.query(User).filter(User.user_name==user).first()
+        if user:
+            groups = user.groups
+            groups_repr = representation.group_repr(*groups)
+            if format=='json':
+                response.headers['content-type'] = app_globals.json_content_type
+                return h.render_json(groups_repr)
+            else:
+                abort(501, '501 Not Implemented')
+        else:
+            abort(404, '404 Not Found')
+
+    def list_shared_images(self, user, format='json'):
+        pass
 

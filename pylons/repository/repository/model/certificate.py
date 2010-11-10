@@ -13,7 +13,7 @@ class Certificate(Base):
     # Client
     client_dn = Column(String(256), unique=True)
     # Issuer
-    issuer_dn = Column(String(256), unique=True)
+    issuer_dn = Column(String(256), default='')
 
     def __init__(self, client_dn, issuer_dn=None):
         self.client_dn = client_dn

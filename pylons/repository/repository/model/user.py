@@ -15,11 +15,11 @@ class User(Base):
 
     user_name = Column(String(100), unique=True)    # unique user name
     email = Column(String(100), unique=True)        # unique email address
-    full_name = Column(String(256))                 # full name of user
-    password = Column(String(100))                  # password of user
+    full_name = Column(String(256), default='')     # full name of user
+    password = Column(String(100), default='')      # password of user
 
-    created = Column(DateTime())                    # GMT
-    expires = Column(DateTime())                    # GMT
+    created = Column(DateTime(), default=None)                    # GMT
+    expires = Column(DateTime(), default=None)                    # GMT
 
     # flags
     suspended = Column(Boolean(), default=False)    # is the account suspended?
@@ -34,7 +34,7 @@ class User(Base):
     quota = relationship("Quota", backref=backref("user", uselist=False))
 
     # list of images
-    images = relationship("Image", backref="user")
+    images = relationship("Image", backref="owner")
 
     # list of group membership
     groups = relationship("Group", secondary='user_group_association', backref="users")

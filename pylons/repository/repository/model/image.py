@@ -20,7 +20,7 @@ class Image(Base):
     size = Column(Integer)                      # bytes
 
     name = Column(String(256))                  # name of image
-    description = Column(String(512))           # Human description
+    description = Column(String(256))           # Human description
 
     os_variant = Column(String(100))            # sl55, debian, etc
     os_type = Column(String(100))               # linux, windows, unix, etc.
@@ -48,18 +48,18 @@ class Image(Base):
 
     # owner ref
     owner_id = Column(Integer, ForeignKey('user.id'))
-    owner = relationship("User", backref=backref('image', uselist=False))
+    #owner = relationship("User", backref=backref('image', uselist=False))
 
     # sharing ref
     shared_id = Column(Integer, ForeignKey('image_share.id'))
     shared = relationship("ImageShare", backref=backref("image", uselist=False))
 
     def __repr__(self):
-        return "<Image('%s', '%s')>" % (self.name, self.owner_id)
+        return "<Image('%s', '%s')>" % (self.name, self.owner.user_name)
 
     def __init__(self):
         self.checksum = Checksum()
-        self.share = ImageShare()
+        self.shared = ImageShare()
 
 
 
@@ -68,6 +68,7 @@ class ImageShare(Base):
     __tablename__ = "image_share"
 
     id = Column(Integer, primary_key=True)
+    enabled = Column(Boolean, default=True)
 
     # One-to-many relationship (ImageShare<->User(s))
     users = relationship("User", secondary='imageshare_user_association',
