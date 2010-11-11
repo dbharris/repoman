@@ -1,142 +1,43 @@
 # RESTfull API
 
-## URLs
+## URL Summary
 
-    <host:port>/repository/users
-    <host:port>/repository/users/{id}
-    <host:port>/repository/groups
-    <host:port>/repository/groups/{id}
-    <host:port>/repository/images
-    <host:port>/repository/images/{id}
+URL | HTTP_METHOD | DESCRIPTION |
+:---|:------------|:------------|
+/api/whoami | GET | display the user object of the currently logged in user
+/api/users | GET | display a list of all users
+/api/users | POST | create a new user based on PORT params
+/api/users/{user} | GET | display the user object for `user`
+/api/users/{user} | POST | modify the user object for `user`
+/api/users/{user} | DELETE | delete `user`
+/api/groups | GET | display a list of all groups
+/api/groups | POST | create a new group based on the POST params
+/api/groups/{group} | GET | display the group object for `group`
+/api/groups/{group} | DELETE | delete `group`
+/api/groups/{group}/users | GET | display a list of users who are members of `group`
+/api/groups/{group}/users/{user} | POST | add `user` to `group`
+/api/groups/{group}/users/{user} | DELETE | remove `user` from `group`
+/api/groups/{group}/permissions | GET | display a list of permissions for `group`
+/api/groups/{group}/permissions/{permission} | POST | add `permission` to `group`
+/api/groups/{group}/permissions/{permission} | DELETE | remove `permission` from `group`
+/api/images | GET | display a list of all images
+/api/images | POST | create an image owned by the currently logged in user
+/api/images/{image} | GET | display metadata for `image` in the current users namespace
+/api/images/{image} | POST | modify metadata for `image` in the current users namespace
+/api/images/{image} | DELETE | delete `image` in the current users namespace
+/api/images/{user}/{image} | GET | display metadata for `image` in namespace of `user`
+/api/images/{user}/{image} | POST | modify metadata for `image` in namespace of `user`
+/api/images/{user}/{image} | DELETE | delete `image` in namespace of `user`
+/api/images/raw/{image} | GET | get the raw image file that belongs to `image` in the current users namespace
+/api/images/raw/{image} | POST | upload the raw image file that belongs to `image` in the current users namespace
+/api/images/raw/{user}/{image} | GET | get the raw image file that belongs to `image` in the namespace of `user`
+/api/images/raw/{user}/{image} | POST | upload the raw image file that belongs to `image` in the namespace of `user`
+/api/images/{user}/{image}/share/user/{share_with} | POST | share `image` in the namespace of `user` with `share_with` user
+/api/images/{user}/{image}/share/user/{share_with} | DELETE | unshare `image` in the namespace of `user` with `share_with` user
+/api/images/{user}/{image}/share/group/{share_with} | POST | share `image` in the namespace of `user` with `share_with` group
+/api/images/{user}/{image}/share/group/{share_with} | DELETE | unshare `image` in the namespace of `user` with `share_with` group
+/api/images/{image}/share/user/{share_with} | POST | share `image` in the current users namespace with `share_with` user
+/api/images/{image}/share/user/{share_with} | DELETE | unshare `image` in current users namespace with `share_with` user
+/api/images/{image}/share/group/{share_with} | POST | share `image` in current users namespace with `share_with` group
+/api/images/{image}/share/group/{share_with} | DELETE | unshare `image` in current users namespace with `share_with` group
 
-***
-## repository/users
-### GET
-A GET request will return a list of all users in the system formatted as a json
-list of objects.
-
-each object will contain:
-    uuid        - string - 32 character hex representation of the uuid
-    name        - string - the users name
-    email       - string - the users email
-    client_dn   - string - the users DN from their grid cert
-    admin       - bool   - is the user an admin?
-
-### POST
-POSTing to this url will insert a new entry into the database.
-
-required params:
-    name        - plain text name of the user
-    email       - email address of the user
-    client_dn   - client DN (must be unique among all users)
-
-optional params:
-    admin       - bool   - is the user an admin?
-    suspended   - bool   - is the account suspended?
-    groups      - string - a list of group uuids to add this user to
-
-
-***
-## repository/users/{id}
-### GET
-A GET request on this url will retrieve an object describing the specified user
-in detail formatted in json.
-
-each response will be a json object containing:
-    uuid        - string - 32 character hex representation of the uuid
-    name        - string - the users name
-    email       - string - the users email
-    client_dn   - string - the users DN from their grid cert
-    admin       - bool   - is the user an admin?
-    suspended   - bool   - is the account suspended?
-    groups      - list   - a list of groups the user is a member of
-    images      - list   - a list of images the user owns
-
-
-***
-## repository/groups
-### GET
-A GET request on this url will retrieve list of objects describing all groups
-formatted in json.
-
-each object will contain:
-    uuid        - string - 32 character hex representation of the uuid
-    name        - string - name of the group
-
-
-### POST
-POSTing to this url will insert a new entry into the database.
-
-required params:
-    name        - string - plain text name of the group
-
-optional params:
-    users       - string - comma seperated list of user uuids to add to the group
-
-***
-## repository/group/{id}
-### GET
-A GET request on this url will retrieve an object describing the specified group
-in detail formatted in json.
-
-each response will be a json object containing:
-    uuid        - string - 32 character hex representation of the uuid
-    name        - string - the users name
-    users       - list   - a list of all users who are members of the group
-
-
-***
-## repository/images
-### GET
-A GET request on this url will retrieve list of objects describing all images
-formatted in json.
-
-each object will contain:
-    uuid        - string - 32 character hex representation of the uuid
-    name        - name of the image
-    owner_uuid  - string - 32 character hex representation of the uuid
-    group_uuid - string - 32 character hex representation of the uuid
-
-
-### POST
-POSTing to this url will insert a new entry into the database.
-
-required params:
-    name        - string - plain text name of the group
-    file        - file   - the file object to upload
-
-optional params:
-    group       - string - uuid of the group to add the image to
-    desc        - string - description of the image
-    os_variant  - string - rhel5, debian, etc
-    os_type     - string - linux, etc
-    os_arch     - string - x86, x86_64, etc
-    hypervisor  - string - kvm or xen
-    owner_r     - bool   - is the image readable by the owner?
-    owner_w     - bool   - is the image writeable by the owner?
-    group_r     - bool   - is the image readable by the group?
-    group_w     - bool   - is the image writeable by the group?
-    other_r     - bool   - is the image readable by other?
-    other_w     - bool   - is the image writeable by other?
-
-***
-## repository/image/{id}
-### GET
-A GET request on this url will retrieve an object describing the specified image
-in detail formatted in json.
-
-each response will be a json object containing:
-    uuid        - string - 32 character hex representation of the uuid
-    name        - string - the image name
-    url         - string - where you can get it from
-    owner_uuid  - string -
-    group_uuid  - string -
-    uploaded    - string -
-    modified    - string -
-    checksum    - string -
-    os_variant  - string -
-    os_type     - string -
-    os_arch     - string -
-    hypervisor  - string -
-    permissions - list   - list of bool permissions
-    desc        - string -
