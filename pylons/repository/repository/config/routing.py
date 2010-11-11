@@ -109,21 +109,45 @@ def make_map(config):
                 conditions=dict(method=['DELETE']))
 
     # Image Routes
-    map.connect(None, '/api/images/:(user)/:(image)/share', controller='api/images',
-                action='share_by_user',
+    map.connect(None, '/api/images/:(user)/:(image)/share/user/:(share_with)',
+                controller='api/images',
+                action='user_share_by_user',
                 conditions=dict(method=['POST']))
 
-    map.connect(None, '/api/images/:(user)/:(image)/share', controller='api/images',
-                action='unshare_by_user',
-                conditions=dict(method=['DELETE']))
-
-    map.connect(None, '/api/images/:(image)/share', controller='api/images',
-                action='share',
+    map.connect(None, '/api/images/:(user)/:(image)/share/group/:(share_with)',
+                controller='api/images',
+                action='group_share_by_user',
                 conditions=dict(method=['POST']))
 
-    map.connect(None, '/api/images/:(image)/share', controller='api/images',
-                action='unshare',
+    map.connect(None, '/api/images/:(user)/:(image)/share/user/:(share_with)',
+                controller='api/images',
+                action='user_unshare_by_user',
                 conditions=dict(method=['DELETE']))
+
+    map.connect(None, '/api/images/:(user)/:(image)/share/group/:(share_with)',
+                controller='api/images',
+                action='group_unshare_by_user',
+                conditions=dict(method=['DELETE']))
+
+
+    map.connect(None, '/api/images/:(image)/share/:(share_with)', controller='api/images',
+                action='user_share',
+                conditions=dict(method=['POST']))
+
+    map.connect(None, '/api/images/:(image)/share:(share_with)', controller='api/images',
+                action='user_unshare',
+                conditions=dict(method=['DELETE']))
+
+    map.connect(None, '/api/images/:(image)/share:(share_with)', controller='api/images',
+                action='group_share',
+                conditions=dict(method=['POST']))
+
+    map.connect(None, '/api/images/:(image)/share:(share_with)', controller='api/images',
+                action='group_unshare',
+                conditions=dict(method=['DELETE']))
+
+
+
 
     map.connect('raw_by_user', '/api/images/raw/:(user)/:(image)', controller='api/images',
                 action='get_raw_by_user',

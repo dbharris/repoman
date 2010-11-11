@@ -204,28 +204,3 @@ class RawImageForm(formencode.Schema):
 
     #TODO: Add file validator here
 
-
-#################
-# S H A R I N G #
-#################
-def validate_image_share(params):
-    schema = ShareForm()
-    try:
-        result = schema.to_python(params)
-    except formencode.validators.Invalid, error:
-        for e,v in error.error_dict.iteritems():
-            if e=='name' and v.state=='CONFLICT':
-                abort(409, '409 Conflict')
-            else:
-                abort(400, '400 Bad Request bad share')
-    else:
-        return result
-
-
-class ShareForm(formencode.Schema):
-    allow_extra_fields = True
-    filter_extra_fields = True
-
-    user_name = formencode.validators.String(if_missing=None)
-    group = formencode.validators.String(if_missing=None)
-

@@ -12,7 +12,7 @@ from repository.model import meta
 from repository.model.image import Image
 from repository.model.group import Group
 from repository.model.user import User
-from repository.model.form import validate_new_image, validate_image_share, validate_modify_image
+from repository.model.form import validate_new_image, validate_modify_image
 from repository.lib import beautify
 from repository.lib import helpers as h
 from pylons import app_globals
@@ -34,74 +34,76 @@ class ImagesController(BaseController):
     #TODO: calc md5sum for image
     #TODO: set image size after upload
 
-    def share_by_user(self, user, image, format='json'):
-        params = validate_image_share(request.params)
-
-        image_q = meta.Session.query(Image)
-        image = image_q.filter(Image.name==image)\
-                       .filter(Image.owner.has(User.user_name==user)).first()
+    def user_share_by_user(self, user, image, share_with, format='json'):
+        image = meta.Session.query(Image).filter(Image.owner.has(User.user_name==user)).first()
 
         if image:
-            if params['user_name']:
-                user = meta.Session.query(User)\
-                                   .filter(User.user_name==params['user_name'])\
-                                   .first()
-                if not user:
-                    abort(400, '400 Bad Request')
-                if user not in image.shared.users:
-                    image.shared.users.append(user)
-                    meta.Session.commit()
-            elif params['group']:
-                group = meta.Session.query(Image)\
-                                   .filter(Image.user_name==params['group'])\
-                                   .first()
-                if not group:
-                    abort(400, '400 Bad Request')
-                if group not in image.shared.groups:
-                    image.shared.groups.append(group)
-                    meta.Session.commit()
+            user = meta.Session.query(User)\
+                               .filter(User.user_name==share_with)\
+                               .first()
+            if not user:
+                abort(400, '400 Bad Request')
+            if user not in image.shared.users:
+                image.shared.users.append(user)
+                meta.Session.commit()
+        else:
+            abort(404, '404 Not Found')
+
+    def group_share_by_user(self, user, image, share_with, format='json'):
+        image = meta.Session.query(Image).filter(Image.owner.has(User.user_name==user)).first()
+
+        if image:
+            group = meta.Session.query(Group).filter(Group.name==share_with).first()
+            if not group:
+                abort(400, '400 Bad Request')
+            if group not in image.shared.groups:
+                image.shared.groups.append(group)
+                meta.Session.commit()
+        else:
+            abort(404, '404 Not Found')
+
+    def user_unshare_by_user(self, user, image, share_with, format='json'):
+        image = meta.Session.query(Image).filter(Image.owner.has(User.user_name==user)).first()
+
+        if image:
+            user = meta.Session.query(User).filter(User.user_name==share_with).first()
+            if not user:
+                abort(400, '400 Bad Request')
+            if user in image.shared.users:
+                image.shared.users.remove(user)
+                meta.Session.commit()
+        else:
+            abort(404, '404 Not Found')
+
+    def group_unshare_by_user(self, user, image, share_with, format='json'):
+        image = meta.Session.query(Image).filter(Image.owner.has(User.user_name==user)).first()
+
+        if image:
+            group = meta.Session.query(Group).filter(Group.name==share_with).first()
+            if not group:
+                abort(400, '400 Bad Request')
+            if group in image.shared.groups:
+                image.shared.groups.remove(group)
+                meta.Session.commit()
         else:
             abort(404, '404 Not Found')
 
 
-    def unshare_by_user(self, user, image, format='json'):
-        params = validate_image_share(request.params)
-
-        image_q = meta.Session.query(Image)\
-                       .filter(Image.owner.has(User.user_name==user)).first()
-
-        if image:
-            if params['user_name']:
-                user = meta.Session.query(User)\
-                                   .filter(User.user_name==params['user_name'])\
-                                   .first()
-                if user:
-                    if user in image.shared.users:
-                        image.shared.users.remove(user)
-                        meta.Session.commit()
-                    else:
-                        abort(400, '400 Bad Request - User not in shares')
-                else:
-                    abort(400, '400 Bad Request')
-            elif params['group']:
-                group = meta.Session.query(Image)\
-                                   .filter(Image.user_name==params['group'])\
-                                   .first()
-                if not group:
-                    abort(400, '400 Bad Request')
-                if group in image.shared.groups:
-                    image.shared.groups.remove(group)
-                    meta.Session.commit()
-        else:
-            abort(404, '404 Not Found')
-
-    def share(self, image, format='json'):
+    def user_share(self, image, share_with, format='json'):
         user = request.environ['REPOSITORY_USER'].user_name
-        self.share_by_user(user=user, image=image, format=format)
+        self.user_share_by_user(user=user, image=image, share_with=share_with, format=format)
 
-    def unshare(self, image, format='json'):
+    def group_share(self, image, share_with, format='json'):
         user = request.environ['REPOSITORY_USER'].user_name
-        self.unshare_by_user(user=user, image=image, format=format)
+        self.group_share_by_user(user=user, image=image, share_with=share_with, format=format)
+
+    def user_unshare(self, image, share_with, format='json'):
+        user = request.environ['REPOSITORY_USER'].user_name
+        self.unshare_by_user(user=user, image=image, share_with=share_with, format=format)
+
+    def user_unshare(self, image, share_with, format='json'):
+        user = request.environ['REPOSITORY_USER'].user_name
+        self.unshare_by_user(user=user, image=image, share_with=share_with, format=format)
 
     def get_raw_by_user(self, user, image, format='json'):
         image_q = meta.Session.query(Image)
