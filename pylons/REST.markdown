@@ -41,3 +41,90 @@ URL | HTTP_METHOD | DESCRIPTION |
 /api/images/{image}/share/group/{share_with} | POST | share `image` in current users namespace with `share_with` group
 /api/images/{image}/share/group/{share_with} | DELETE | unshare `image` in current users namespace with `share_with` group
 
+
+## Creating Users
+To create a user POST to `/api/users`.
+
+Param | Type | Required | Description |
+:-----|:-----|:--------:|:------------|
+user_name | String | yes | the repoman-wide unique user name for this user
+email | String | yes | a valid email for the user
+cert_dn | String | yes | the users certificate distinguished name
+full_name | String | no | full name for the user
+
+**Http Status Codes**
+
+Code | Occurs When | Response Body |
+:----|:------------|:--------------|
+200 | user was created with no problems | json representation of user
+400 | bad set of paramaters was supplied | -
+409 | conflicting user_name of client_dn | -
+
+
+## Creating Groups
+To create a group POST to `/api/groups`.
+
+Param | Type | Required | Description |
+:-----|:-----|:--------:|:------------|
+name | String | yes | the repoman-wide unique name for this group
+
+**Http Status Codes**
+
+Code | Occurs When | Response Body |
+:----|:------------|:--------------|
+200 | group was created with no problems | json representation of group
+400 | bad set of paramaters was supplied | -
+409 | conflicting name for group | -
+
+
+## Creating Images
+To create an image POST to `/api/images`.
+
+Param | Type | Required | Description |
+:-----|:-----|:--------:|:------------|
+name | String | yes | image name unique to the users namespace
+description | String | no | description of the image
+os_variant | String | no | redhat, centos, ubuntu, etc.
+os_arch | String | no | x86, x86_64
+os_type | String | no | linux, unix, windows, etc.
+hypervisor | String | no | kvm, xen
+read_only | Bool | no | should the image be readonly?
+
+**Http Status Codes**
+
+Code | Occurs When | Response Body | Other |
+:----|:------------|:--------------|:------|
+201 | image metadata object was created | json representation of image | `Location` header contains url to upload raw image at
+400 | bad set of paramaters was supplied | - | -
+409 | conflict image name in the namespace | - | -
+
+
+## Uploading an image file
+To upload a image file POST to `/api/images/raw/{image}` or '/api/images/raw/{user}/image'
+
+Param | Type | Required | Description |
+:-----|:-----|:--------:|:------------|
+file | form_file | yes | a standard file post field that contains your image
+
+
+**Http Status Codes**
+
+Code | Occurs When | Response Body |
+:----|:------------|:--------------|
+200 | image file uploaded ok | -
+400 | bad set of paramaters was supplied | -
+
+## Modifying an existing Image
+To modify the metadata for an existing image POST to `/api/images/{image}` or `/api/images/{user}/{image}`
+Only the paramaters that are specified will be overwritten.
+
+Param | Type | Required | Description |
+:-----|:-----|:--------:|:------------|
+name | String | no| image name unique to the users namespace
+description | String | no | description of the image
+os_variant | String | no | redhat, centos, ubuntu, etc.
+os_arch | String | no | x86, x86_64
+os_type | String | no | linux, unix, windows, etc.
+hypervisor | String | no | kvm, xen
+read_only | Bool | no | should the image be readonly?
+
