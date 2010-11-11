@@ -1,0 +1,3 @@
+include repoman/config/deployment.ini_tmpl
+recursive-include repoman/public *
+recursive-include repoman/templates *
