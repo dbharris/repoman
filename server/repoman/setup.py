@@ -8,10 +8,10 @@ except ImportError:
 setup(
     name='repoman',
     version='0.1',
-    description='',
-    author='',
-    author_email='',
-    url='',
+    description='RESTful irtual machine image manager',
+    author='Matthew Vliet',
+    author_email='mvliet@uvic.ca',
+    url='https://github.com/hep-gc/repoman',
     install_requires=[
         "Pylons>=1.0",
         "SQLAlchemy>=0.5",
@@ -35,3 +35,4 @@ setup(
     main = pylons.util:PylonsInstaller
     """,
 )
+

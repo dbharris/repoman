@@ -129,7 +129,6 @@ def make_map(config):
                 action='group_unshare_by_user',
                 conditions=dict(method=['DELETE']))
 
-
     map.connect(None, '/api/images/:(image)/share/:(share_with)', controller='api/images',
                 action='user_share',
                 conditions=dict(method=['POST']))
@@ -145,9 +144,6 @@ def make_map(config):
     map.connect(None, '/api/images/:(image)/share:(share_with)', controller='api/images',
                 action='group_unshare',
                 conditions=dict(method=['DELETE']))
-
-
-
 
     map.connect('raw_by_user', '/api/images/raw/:(user)/:(image)', controller='api/images',
                 action='get_raw_by_user',
@@ -208,3 +204,4 @@ def make_map(config):
     map.connect('/{controller}/{action}/{id}')
 
     return map
+

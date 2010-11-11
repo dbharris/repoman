@@ -282,7 +282,7 @@ class ImagesController(BaseController):
         meta.Session.add(new_image)
         meta.Session.commit()
 
-        response.headers['Location'] = url('raw/%s' % uuid)
+        response.headers['Location'] = url('raw_by_user', user=user.user_name, image=new_image.name)
         response.status = ("201 Object created.  upload raw file to 'Location'")
         return h.render_json(beautify.image(new_image))
 

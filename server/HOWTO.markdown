@@ -53,12 +53,25 @@ Long line in code output have been manually wrapped.
     >>> resp = repo.getresponse()
 
 
-## Upload an image file
+## Create an Image and upload the image file
+### Creating the image
+    >>> headers = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
+    >>> params = urllib.urlencode({'name':'My_test_image.raw.gz', 'description':"The Most Amazing Image Ever!",
+    ... 'os_arch':'x86_64', 'os_variant':'rhel 5.5', 'hypervisor':'kvm'})
+    >>> repo.request('POST', '/api/images', params, headers)
+    >>> resp = repo.getresponse()
+    >>> resp.status
+    201
+    >>> resp.getheader('location')
+    'https://localhost:4444/api/raw/bob/My_test_image.raw.gz'
 
-    # upload the corresponding raw image
+**Note that the image object contains a flag `raw_file_uploaded` that will remain false until the image file is uploaded**
+**Attempting to perform a GET on the raw image url will result in a "404 - Not Found" error**
+
+### Upload the corresponding image file
     c = pycurl.Curl()
     c.setopt(pycurl.POST, 1)
-    c.setopt(pycurl.URL, 'https://localhost:4444/api/images/raw/bob/test_image.gz')
+    c.setopt(pycurl.URL, 'https://localhost:4444/api/images/raw/bob/My_test_image.raw.gz')
     c.setopt(pycurl.HTTPPOST, [('file', (pycurl.FORM_FILE, '/tmp/vm_image.img'))])
     c.setopt(pycurl.SSL_VERIFYHOST, 0)
     c.setopt(pycurl.SSL_VERIFYPEER, 0)
