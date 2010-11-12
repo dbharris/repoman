@@ -61,7 +61,15 @@ class GroupsController(BaseController):
         return h.render_json(beautify.group(new_group))
 
     def delete(self, group, format='json'):
-        return 'group deleted.....NOT!'
+        group = meta.Session.query(Group).filter(Group.name==group).first()
+        if group:
+            if not group.protected:
+                meta.Session.delete(group)
+                meta.Session.commit()
+            else:
+                abort(403, '403 Forbidden')
+        else:
+            abort(404, '404 Not Found')
 
     def show(self, group, format='json'):
         group = meta.Session.query(Group).filter(Group.name==group).first()
