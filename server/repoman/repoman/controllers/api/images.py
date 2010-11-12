@@ -90,19 +90,19 @@ class ImagesController(BaseController):
 
 
     def user_share(self, image, share_with, format='json'):
-        user = request.environ['repoman_USER'].user_name
+        user = request.environ['REPOMAN_USER'].user_name
         self.user_share_by_user(user=user, image=image, share_with=share_with, format=format)
 
     def group_share(self, image, share_with, format='json'):
-        user = request.environ['repoman_USER'].user_name
+        user = request.environ['REPOMAN_USER'].user_name
         self.group_share_by_user(user=user, image=image, share_with=share_with, format=format)
 
     def user_unshare(self, image, share_with, format='json'):
-        user = request.environ['repoman_USER'].user_name
+        user = request.environ['REPOMAN_USER'].user_name
         self.unshare_by_user(user=user, image=image, share_with=share_with, format=format)
 
     def user_unshare(self, image, share_with, format='json'):
-        user = request.environ['repoman_USER'].user_name
+        user = request.environ['REPOMAN_USER'].user_name
         self.unshare_by_user(user=user, image=image, share_with=share_with, format=format)
 
     def get_raw_by_user(self, user, image, format='json'):
@@ -125,7 +125,7 @@ class ImagesController(BaseController):
                 abort(500, '500 Internal Error')
 
     def upload_raw_by_user(self, user, image, format='json'):
-        #if user != request.environ['repoman_USER'].user_name:
+        #if user != request.environ['REPOMAN_USER'].user_name:
         #    abort(403, '403 forbidden')
 
         image_q = meta.Session.query(Image)
@@ -158,11 +158,11 @@ class ImagesController(BaseController):
             abort(404, '404 Item not found')
 
     def get_raw(self, image, format='json'):
-        user = request.environ['repoman_USER'].user_name
+        user = request.environ['REPOMAN_USER'].user_name
         self.get_raw_by_user(user=user, image=image, format=format)
 
     def upload_raw(self, image, format='json'):
-        user = request.environ['repoman_USER'].user_name
+        user = request.environ['REPOMAN_USER'].user_name
         self.upload_raw_by_user(user=user, image=image, format=format)
 
     def show_meta_by_user(self, user, image, format='json'):
@@ -211,19 +211,19 @@ class ImagesController(BaseController):
             abort(404, '404 Not Found')
 
     def delete(self, image, format='json'):
-        user = request.environ['repoman_USER'].user_name
+        user = request.environ['REPOMAN_USER'].user_name
         self.delete_by_user(user=user, image=image, format=format)
 
     def show_meta(self, image, format='json'):
-        user = request.environ['repoman_USER'].user_name
+        user = request.environ['REPOMAN_USER'].user_name
         self.show_meta_by_user(user=user, image=image, format=format)
 
     def modify_meta(self, image, format='json'):
-        user = request.environ['repoman_USER'].user_name
+        user = request.environ['REPOMAN_USER'].user_name
         self.modify_meta_by_user(user=user, image=image, format=format)
 
     def delete(self, image, format='json'):
-        user = request.environ['repoman_USER'].user_name
+        user = request.environ['REPOMAN_USER'].user_name
         self.delete_by_user(user=user, image=image, format=format)
 
     def list_all(self, format='json'):
@@ -243,7 +243,7 @@ class ImagesController(BaseController):
             user_q = meta.Session.query(User)
             user = user_q.filter(User.user_name==params['user_name']).first()
         else:
-            user = request.environ['repoman_USER']
+            user = request.environ['REPOMAN_USER']
 
         if not user:
                 abort(400, '400 Bad Request')

@@ -28,7 +28,7 @@ class MemberOf(object):
         self.group_name = group
 
     def check(self):
-        user = request.environ.get('repoman_USER')
+        user = request.environ.get('REPOMAN_USER')
         group = meta.Session.query(Group).filter(Group.name==self.group_name).first()
         if not group:
             raise NotValidAuth(self.invalid_group_message)
@@ -45,7 +45,7 @@ class HasPermission(object):
         self.invalid_permission_message = u"Required permission does not exist: '%s'" % permission
 
     def check(self):
-        user = request.environ.get('repoman_USER')
+        user = request.environ.get('REPOMAN_USER')
         permission = meta.Session.query(Permission).filter(Permission.permission_name==self.permission_name).first()
         if not permission:
             raise NotValidAuth(self.invalid_permission_message)
@@ -67,7 +67,7 @@ class LoggedIn(object):
     message = u'User must be logged in'
 
     def check(self):
-        user = request.environ.get('repoman_USER')
+        user = request.environ.get('REPOMAN_USER')
         if user:
             return True
         else:

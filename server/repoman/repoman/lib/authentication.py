@@ -18,7 +18,7 @@ class UserAuthentication(object):
     If the user is not found in the database, a 403 Error will be returned.
     If the user is found in the database, the environment variables will be
     updated with:
-        repoman_USER_ID
+        REPOMAN_USER_ID
         #others if needed
     """
     def __init__(self, app):
@@ -66,6 +66,6 @@ class UserAuthentication(object):
         elif not cert.user.suspended:
             # Update environ with user info
             new_env = environ.copy()
-            new_env.update({"repoman_USER":cert.user})
+            new_env.update({"REPOMAN_USER":cert.user})
             return self.app(new_env, start_response)
 

@@ -17,7 +17,7 @@ class WhoamiController(BaseController):
 
     def whoami(self, format='json'):
         """GET /repoman/whoami: All items in the collection"""
-        user = request.environ['repoman_USER']
+        user = request.environ['REPOMAN_USER']
         if user:
             if format == 'json':
                 response.headers['content-type'] = app_globals.json_content_type
