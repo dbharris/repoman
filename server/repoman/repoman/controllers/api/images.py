@@ -205,8 +205,14 @@ class ImagesController(BaseController):
                        .first()
 
         if image:
-            image.deleted = True
-            # Delete raw file
+            file_name = user + '_' + image.name
+            full_path = path.join(app_globals.image_storage, file_name)
+            try:
+                os.remove(full_path)
+            except:
+                pass
+            meta.Session.delete(image)
+            meta.Session.commit()
         else:
             abort(404, '404 Not Found')
 
