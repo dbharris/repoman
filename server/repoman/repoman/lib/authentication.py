@@ -67,6 +67,5 @@ class UserAuthentication(object):
                 return self.app(new_env, start_response)
         else:
             start_response('403 Forbidden', [('Content-type', 'text/html')])
-            return client_dn
             return ['Unknown user']
 
