@@ -44,7 +44,7 @@ class Image(Base):
 
     # checksum ref
     checksum_id = Column(Integer, ForeignKey('checksum.id'))
-    checksum = relationship("Checksum", backref=backref("image", uselist=False))
+    checksum = relationship("Checksum", backref=backref("image", uselist=False), cascade='delete')
 
     # owner ref
     owner_id = Column(Integer, ForeignKey('user.id'))
@@ -52,7 +52,7 @@ class Image(Base):
 
     # sharing ref
     shared_id = Column(Integer, ForeignKey('image_share.id'))
-    shared = relationship("ImageShare", backref=backref("image", uselist=False))
+    shared = relationship("ImageShare", backref=backref("image", uselist=False), cascade='delete')
 
     def __repr__(self):
         return "<Image('%s', '%s')>" % (self.name, self.owner.user_name)
