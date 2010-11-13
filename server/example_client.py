@@ -150,3 +150,11 @@ def upload_raw(path, user, image):
     c.setopt(pycurl.SSLCERT, CERT)
     c.perform()
 
+def delete_image(user, image):
+    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file=CERT)
+    headers = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
+    params = urllib.urlencode({})
+    repo.request('DELETE', '/api/images/'+user+'/'+image, params, headers)
+    resp = repo.getresponse()
+    print_resp(resp)
+
