@@ -27,11 +27,11 @@ class User(Base):
 
     # user certificate ref
     certificate_id = Column(Integer, ForeignKey('certificate.id'))
-    certificate = relationship("Certificate", backref=backref("user", uselist=False))
+    certificate = relationship("Certificate", backref=backref("user", uselist=False), cascade='delete')
 
     # user quota ref
     quota_id = Column(Integer, ForeignKey('quota.id'))
-    quota = relationship("Quota", backref=backref("user", uselist=False))
+    quota = relationship("Quota", backref=backref("user", uselist=False), cascade='delete')
 
     # list of images
     images = relationship("Image", backref="owner")
