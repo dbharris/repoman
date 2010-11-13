@@ -91,19 +91,19 @@ class ImagesController(BaseController):
 
     def user_share(self, image, share_with, format='json'):
         user = request.environ['REPOMAN_USER'].user_name
-        self.user_share_by_user(user=user, image=image, share_with=share_with, format=format)
+        return self.user_share_by_user(user=user, image=image, share_with=share_with, format=format)
 
     def group_share(self, image, share_with, format='json'):
         user = request.environ['REPOMAN_USER'].user_name
-        self.group_share_by_user(user=user, image=image, share_with=share_with, format=format)
+        return self.group_share_by_user(user=user, image=image, share_with=share_with, format=format)
 
     def user_unshare(self, image, share_with, format='json'):
         user = request.environ['REPOMAN_USER'].user_name
-        self.unshare_by_user(user=user, image=image, share_with=share_with, format=format)
+        return self.unshare_by_user(user=user, image=image, share_with=share_with, format=format)
 
     def user_unshare(self, image, share_with, format='json'):
         user = request.environ['REPOMAN_USER'].user_name
-        self.unshare_by_user(user=user, image=image, share_with=share_with, format=format)
+        return self.unshare_by_user(user=user, image=image, share_with=share_with, format=format)
 
     def get_raw_by_user(self, user, image, format='json'):
         image_q = meta.Session.query(Image)
@@ -159,11 +159,11 @@ class ImagesController(BaseController):
 
     def get_raw(self, image, format='json'):
         user = request.environ['REPOMAN_USER'].user_name
-        self.get_raw_by_user(user=user, image=image, format=format)
+        return self.get_raw_by_user(user=user, image=image, format=format)
 
     def upload_raw(self, image, format='json'):
         user = request.environ['REPOMAN_USER'].user_name
-        self.upload_raw_by_user(user=user, image=image, format=format)
+        return self.upload_raw_by_user(user=user, image=image, format=format)
 
     def show_meta_by_user(self, user, image, format='json'):
         image_q = meta.Session.query(Image)
@@ -218,19 +218,19 @@ class ImagesController(BaseController):
 
     def delete(self, image, format='json'):
         user = request.environ['REPOMAN_USER'].user_name
-        self.delete_by_user(user=user, image=image, format=format)
+        return self.delete_by_user(user=user, image=image, format=format)
 
     def show_meta(self, image, format='json'):
         user = request.environ['REPOMAN_USER'].user_name
-        self.show_meta_by_user(user=user, image=image, format=format)
+        return self.show_meta_by_user(user=user, image=image, format=format)
 
     def modify_meta(self, image, format='json'):
         user = request.environ['REPOMAN_USER'].user_name
-        self.modify_meta_by_user(user=user, image=image, format=format)
+        return self.modify_meta_by_user(user=user, image=image, format=format)
 
     def delete(self, image, format='json'):
         user = request.environ['REPOMAN_USER'].user_name
-        self.delete_by_user(user=user, image=image, format=format)
+        return self.delete_by_user(user=user, image=image, format=format)
 
     def list_all(self, format='json'):
         images = meta.Session.query(Image).all()
