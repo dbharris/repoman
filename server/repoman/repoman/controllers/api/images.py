@@ -13,7 +13,7 @@ from repoman.model.image import Image
 from repoman.model.group import Group
 from repoman.model.user import User
 from repoman.model.form import validate_new_image, validate_modify_image
-from repoman.lib import beautify
+from repoman.lib import beautify, storage
 from repoman.lib import helpers as h
 from pylons import app_globals
 
@@ -197,28 +197,20 @@ class ImagesController(BaseController):
 
 
     def delete_by_user(self, user, image, format='json'):
-        abort(501, '501 Not Implemented')
-
         image_q = meta.Session.query(Image)
         image = image_q.filter(Image.name==image)\
                        .filter(Image.owner.has(User.user_name==user))\
                        .first()
 
         if image:
-            file_name = user + '_' + image.name
-            full_path = path.join(app_globals.image_storage, file_name)
             try:
-                os.remove(full_path)
-            except:
-                pass
+                storage.delete_image(image)
+            except Exception, e:
+                abort(500, 'Unable to remove image file from storage')
             meta.Session.delete(image)
             meta.Session.commit()
         else:
             abort(404, '404 Not Found')
-
-    def delete(self, image, format='json'):
-        user = request.environ['REPOMAN_USER'].user_name
-        return self.delete_by_user(user=user, image=image, format=format)
 
     def show_meta(self, image, format='json'):
         user = request.environ['REPOMAN_USER'].user_name

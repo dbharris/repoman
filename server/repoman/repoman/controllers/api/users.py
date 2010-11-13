@@ -14,6 +14,7 @@ from repoman.model.form import validate_new_user, validate_modify_user
 from repoman.lib import helpers as h
 from repoman.lib.authorization import authorize, AllOf, AnyOf, NoneOf, HasPermission
 from repoman.lib import beautify
+from repoman.lib import storage
 
 from pylons import app_globals
 
@@ -88,8 +89,10 @@ class UsersController(BaseController):
     def delete_user(self, user, format='json'):
         user = meta.Session.query(User).filter(User.user_name==user).first()
         if user:
-            # do something better here
-            user.deleted = True
+            for i in user.images:
+                storage.delete_image(i)
+            meta.Session.delete(user)
+            meta.Session.commit()
         else:
             abort(404, '404 Not Found')
 
