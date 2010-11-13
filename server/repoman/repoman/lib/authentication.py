@@ -56,16 +56,17 @@ class UserAuthentication(object):
         # Check if client is in the DB
         cert_q = meta.Session.query(Certificate)
         cert = cert_q.filter(Certificate.client_dn==client_dn).first()
-        if not cert:
+        if cert:
+            if cert.user.suspended:
+                start_response('403 Forbidden', [('Content-type', 'text/html')])
+                return ['Accout suspended.  Contact your administrator']
+            elif not cert.user.suspended:
+                # Update environ with user info
+                new_env = environ.copy()
+                new_env.update({"REPOMAN_USER":cert.user})
+                return self.app(new_env, start_response)
+        else:
             start_response('403 Forbidden', [('Content-type', 'text/html')])
             return client_dn
             return ['Unknown user']
-        elif cert.user.suspended:
-            start_response('403 Forbidden', [('Content-type', 'text/html')])
-            return ['Accout suspended.  Contact your administrator']
-        elif not cert.user.suspended:
-            # Update environ with user info
-            new_env = environ.copy()
-            new_env.update({"REPOMAN_USER":cert.user})
-            return self.app(new_env, start_response)
 
