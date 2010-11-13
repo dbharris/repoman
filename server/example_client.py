@@ -6,8 +6,9 @@ import random
 import pycurl
 
 
-SERVER='localhost'
-PORT=4444
+SERVER = 'localhost'
+PORT = 4444
+CERT = '/tmp/x509up_u1000'
 
 def print_resp(resp):
     print "STATUS: %d" % resp.status
@@ -17,7 +18,7 @@ def print_resp(resp):
 
 
 def new_group(name):
-    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file='/tmp/x509up_u1000')
+    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file=CERT)
     headers = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
     params = urllib.urlencode({'name':name})
     repo.request('POST', '/api/groups', params, headers)
@@ -26,7 +27,7 @@ def new_group(name):
 
 def new_user(name):
     dn = str(random.randrange(1000000, 9999999))
-    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file='/tmp/x509up_u1000')
+    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file=CERT)
     headers = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
     params = urllib.urlencode({'user_name':name, 'full_name':name,
                                'cert_dn':dn, 'email':name+'@email.com'})
@@ -35,7 +36,7 @@ def new_user(name):
     print_resp(resp)
 
 def new_image(**kwargs):
-    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file='/tmp/x509up_u1000')
+    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file=CERT)
     headers = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
     params = urllib.urlencode(kwargs)
     repo.request('POST', '/api/images', params, headers)
@@ -44,7 +45,7 @@ def new_image(**kwargs):
 
 
 def delete_user(name):
-    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file='/tmp/x509up_u1000')
+    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file=CERT)
     headers = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
     params = urllib.urlencode({})
     repo.request('DELETE', '/api/users/'+name, params, headers)
@@ -52,7 +53,7 @@ def delete_user(name):
     print_resp(resp)
 
 def delete_group(name):
-    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file='/tmp/x509up_u1000')
+    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file=CERT)
     headers = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
     params = urllib.urlencode({})
     repo.request('DELETE', '/api/groups/'+name, params, headers)
@@ -60,7 +61,7 @@ def delete_group(name):
     print_resp(resp)
 
 def add_user_to_group(group, user):
-    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file='/tmp/x509up_u1000')
+    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file=CERT)
     headers = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
     params = urllib.urlencode({})
     repo.request('POST', '/api/groups/'+group+'/users/'+user, params, headers)
@@ -68,7 +69,7 @@ def add_user_to_group(group, user):
     print_resp(resp)
 
 def remove_user_from_group(group, user):
-    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file='/tmp/x509up_u1000')
+    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file=CERT)
     headers = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
     params = urllib.urlencode({})
     repo.request('DELETE', '/api/groups/'+group+'/users/'+user, params, headers)
@@ -76,7 +77,7 @@ def remove_user_from_group(group, user):
     print_resp(resp)
 
 def add_permission(group, permission):
-    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file='/tmp/x509up_u1000')
+    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file=CERT)
     headers = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
     params = urllib.urlencode({})
     repo.request('POST', '/api/groups/'+group+'/permissions/'+permission, params, headers)
@@ -84,7 +85,7 @@ def add_permission(group, permission):
     print_resp(resp)
 
 def remove_permission(group, permission):
-    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file='/tmp/x509up_u1000')
+    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file=CERT)
     headers = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
     params = urllib.urlencode({})
     repo.request('DELETE', '/api/groups/'+group+'/permissions/'+permission, params, headers)
@@ -92,7 +93,7 @@ def remove_permission(group, permission):
     print_resp(resp)
 
 def share_with_user(image_user, image, user=None):
-    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file='/tmp/x509up_u1000')
+    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file=CERT)
     headers = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
     params = urllib.urlencode({})
     repo.request('POST', '/api/images/'+image_user+'/'+image+'/share/user/'+user, params, headers)
@@ -100,7 +101,7 @@ def share_with_user(image_user, image, user=None):
     print_resp(resp)
 
 def share_with_group(image_user, image, group=None):
-    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file='/tmp/x509up_u1000')
+    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file=CERT)
     headers = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
     params = urllib.urlencode({})
     repo.request('POST', '/api/images/'+image_user+'/'+image+'/share/group/'+group, params, headers)
@@ -108,7 +109,7 @@ def share_with_group(image_user, image, group=None):
     print_resp(resp)
 
 def unshare_with_user(image_user, image, user=None):
-    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file='/tmp/x509up_u1000')
+    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file=CERT)
     headers = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
     params = urllib.urlencode({})
     repo.request('DELETE', '/api/images/'+image_user+'/'+image+'/share/user/'+user, params, headers)
@@ -116,7 +117,7 @@ def unshare_with_user(image_user, image, user=None):
     print_resp(resp)
 
 def unshare_with_group(image_user, image, group=None):
-    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file='/tmp/x509up_u1000')
+    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file=CERT)
     headers = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
     params = urllib.urlencode({})
     repo.request('DELETE', '/api/images/'+image_user+'/'+image+'/share/group/'+group, params, headers)
@@ -124,7 +125,7 @@ def unshare_with_group(image_user, image, group=None):
     print_resp(resp)
 
 def modify_image(user, image, **kwargs):
-    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file='/tmp/x509up_u1000')
+    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file=CERT)
     headers = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
     params = urllib.urlencode(kwargs)
     repo.request('POST', '/api/images/'+user+'/'+image, params, headers)
@@ -132,7 +133,7 @@ def modify_image(user, image, **kwargs):
     print_resp(resp)
 
 def modify_user(user, **kwargs):
-    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file='/tmp/x509up_u1000')
+    repo = httplib.HTTPSConnection(SERVER, PORT, cert_file=CERT)
     headers = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
     params = urllib.urlencode(kwargs)
     repo.request('POST', '/api/users/'+user, params, headers)
