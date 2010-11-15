@@ -12,7 +12,9 @@ from repoman.model.user import User
 from repoman.model.group import Group
 from repoman.model.form import validate_new_user, validate_modify_user
 from repoman.lib import helpers as h
-from repoman.lib.authorization import authorize, AllOf, AnyOf, NoneOf, HasPermission
+from repoman.lib.authorization import AllOf, AnyOf, NoneOf
+from repoman.lib.authorization import authorize, inline_auth
+from repoman.lib.authorization import HasPermission, IsAthuenticated, IsUser
 from repoman.lib import beautify
 from repoman.lib import storage
 
@@ -39,6 +41,7 @@ class UsersController(BaseController):
         else:
             abort(501, '501 Not Implemented')
 
+    @authorize(AllOf(HasPermission('user_create')), auth_403)
     def new_user(self, format='json'):
         params = validate_new_user(request.params)
         new_user = User(cert_dn=params['cert_dn'],
@@ -72,6 +75,7 @@ class UsersController(BaseController):
         meta.Session.commit()
         return h.render_json(beautify.user(new_user))
 
+    @authorize(HasPermission('user_modify'), auth_403)
     def modify_user(self, user, format='json'):
         params = validate_modify_user(request.params)
 
@@ -86,11 +90,15 @@ class UsersController(BaseController):
         else:
             abort(404, '404 Not Found')
 
+    @authorize(HasPermission('user_delete'), auth_403)
     def delete_user(self, user, format='json'):
         user = meta.Session.query(User).filter(User.user_name==user).first()
         if user:
             for i in user.images:
                 storage.delete_image(i)
+                meta.Session.delete(i.checksum)
+                meta.Session.delete(i.shared)
+                meta.Session.delete(i)
             meta.Session.delete(user)
             meta.Session.commit()
         else:

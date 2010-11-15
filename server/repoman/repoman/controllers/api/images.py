@@ -207,6 +207,8 @@ class ImagesController(BaseController):
                 storage.delete_image(image)
             except Exception, e:
                 abort(500, 'Unable to remove image file from storage')
+            meta.Session.delete(image.checksum)
+            meta.Session.delete(image.shared)
             meta.Session.delete(image)
             meta.Session.commit()
         else:
