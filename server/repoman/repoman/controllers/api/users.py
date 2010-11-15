@@ -75,8 +75,12 @@ class UsersController(BaseController):
         meta.Session.commit()
         return h.render_json(beautify.user(new_user))
 
-    @authorize(HasPermission('user_modify'), auth_403)
+    #authorization is inside function
     def modify_user(self, user, format='json'):
+        inline_auth(AnyOf(AllOf(HasPermission('user_modify_self'), IsUser(user)),
+                          HasPermission('user_modify')),
+                          auth_403)
+
         params = validate_modify_user(request.params)
 
         user_q = meta.Session.query(User)

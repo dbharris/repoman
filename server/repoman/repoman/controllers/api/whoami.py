@@ -28,5 +28,9 @@ class WhoamiController(BaseController):
             abort(404, '404 Not Found')
 
     def env(self, format='json'):
-        return json.dumps(request.environ)
+        out = {}
+        for k,v in request.environ.iteritems():
+            out[k] = repr(v)
+        response.headers['content-type'] = app_globals.json_content_type
+        return json.dumps(out)
 

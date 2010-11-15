@@ -13,7 +13,9 @@ from repoman.model.permission import Permission
 from repoman.model.form import validate_new_group
 from repoman.lib import beautify
 from repoman.lib import helpers as h
-from repoman.lib.authorization import authorize, AllOf, AnyOf, NoneOf, HasPermission
+from repoman.lib.authorization import AllOf, AnyOf, NoneOf
+from repoman.lib.authorization import authorize, inline_auth
+from repoman.lib.authorization import HasPermission, IsAthuenticated, IsUser
 
 from pylons import app_globals
 ###
@@ -42,6 +44,7 @@ class GroupsController(BaseController):
     def list_permissions(self, group, format='json'):
         pass
 
+    @authorize(HasPermission('group_create'), auth_403)
     def new_group(self, format='json'):
         params = validate_new_group(request.params)
         new_group = Group(name=params['name'])
@@ -60,6 +63,7 @@ class GroupsController(BaseController):
         meta.Session.commit()
         return h.render_json(beautify.group(new_group))
 
+    @authorize(HasPermission('group_delete'), auth_403)
     def delete(self, group, format='json'):
         group = meta.Session.query(Group).filter(Group.name==group).first()
         if group:
@@ -82,6 +86,7 @@ class GroupsController(BaseController):
         else:
             abort(404, '404 Not Found')
 
+    @authorize(HasPermission('group_modify_membership'), auth_403)
     def add_user(self, group, user, format='json'):
         group = meta.Session.query(Group).filter(Group.name==group).first()
         user = meta.Session.query(User).filter(User.user_name==user).first()
@@ -92,6 +97,7 @@ class GroupsController(BaseController):
         else:
             abort(404, '404 Not Found')
 
+    @authorize(HasPermission('group_modify_membership'), auth_403)
     def remove_user(self, group, user, format='json'):
         group = meta.Session.query(Group).filter(Group.name==group).first()
         user = meta.Session.query(User).filter(User.user_name==user).first()
@@ -102,6 +108,7 @@ class GroupsController(BaseController):
         else:
             abort(404, '404 Not Found')
 
+    @authorize(HasPermission('group_modify_permissions'), auth_403)
     def add_permission(self, group, permission, format='json'):
         group = meta.Session.query(Group).filter(Group.name==group).first()
         perm = meta.Session.query(Permission)\
@@ -114,6 +121,7 @@ class GroupsController(BaseController):
         else:
             abort(404, '404 Not Found')
 
+    @authorize(HasPermission('group_modify_permissions'), auth_403)
     def remove_permission(self, group, permission, format='json'):
         group = meta.Session.query(Group).filter(Group.name==group).first()
         perm = meta.Session.query(Permission)\
