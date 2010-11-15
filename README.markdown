@@ -1,13 +1,12 @@
 # Repoman
-Repoman is a virtual machine image repository under active development.
+Repoman is a virtual machine image catalog and repository with a RESTful interface.
 
 ## Server Documentation
 See these files for documentation of the server side
 
-* `pylons/README.markdown`  - some install realated stuff
-* `pylons/REST.markdown`    - explaination of the REST api
-* `pylons/HOWTO.markdown`   - some quick examples
-* `pylons/WHAT.markdown`    - explaination of what repoman is
+* `server/INSTALL.markdown` - some install realated stuff
+* `server/REST.markdown`    - overview of the REST api
+* `server/HOWTO.markdown`   - some quick examples
 
 ## Client Documentation
 see `repoclient/README` for a description of the client side
@@ -33,8 +32,7 @@ software, in the file named "LICENSE".
 
 You should also have received a copy of the GNU General Public License
 along with this program in the file named "COPYING". If not, write to the
-Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
+Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 Boston, MA 02110-1301, USA or visit their web page on the internet at
 http://www.gnu.org/copyleft/gpl.html.
-
 

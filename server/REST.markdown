@@ -14,6 +14,7 @@ URL | HTTP_METHOD | DESCRIPTION |
 /api/groups | POST | create a new group based on the POST params
 /api/groups/{group} | GET | display the group object for `group`
 /api/groups/{group} | DELETE | delete `group`
+/api/groups/{group} | POST | modify `group`
 /api/groups/{group}/users | GET | display a list of users who are members of `group`
 /api/groups/{group}/users/{user} | POST | add `user` to `group`
 /api/groups/{group}/users/{user} | DELETE | remove `user` from `group`
