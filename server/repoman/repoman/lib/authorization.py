@@ -56,22 +56,33 @@ class HasPermission(object):
         raise NotValidAuth(self.message)
 
 
-class OwnsImage(object):
-    pass
-
-
-class LoggedIn(object):
-    """This condition is somewhat useless at the moment.  a user is either
-    implicitly logged in, or they have no access to the api."""
-
-    message = u'User must be logged in'
+class IsAthuenticated(object):
+    def __init__(self):
+        self.message = u"User has not provided a valid credential"
 
     def check(self):
-        user = request.environ.get('REPOMAN_USER')
-        if user:
+        if request.environ.get('REPOMAN_USER') and request.environ.get('AUTHENTICATED'):
             return True
         else:
             raise NotValidAuth(self.message)
+
+
+class OwnsImage(object):
+    """This class must be used from within a method, NOT from a decorator."""
+    def __init__(self, image):
+        self.image = image
+        self.message = u"User does not own Image they are accessing"
+
+    def check(self):
+        if image.owner is request.environ.get('REPOMAN_USER'):
+            return True
+        else:
+            raise NotValidAuth(self.message)
+
+
+
+
+
 
 ###################
 # C H E C K E R S #
