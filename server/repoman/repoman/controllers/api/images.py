@@ -39,9 +39,9 @@ class ImagesController(BaseController):
 
     def user_share_by_user(self, user, image, share_with, format='json'):
         image = meta.Session.query(Image).filter(Image.owner.has(User.user_name==user)).first()
-        inline_auth(OwnsImage(image), auth_403)
 
         if image:
+            inline_auth(OwnsImage(image), auth_403)
             user = meta.Session.query(User)\
                                .filter(User.user_name==share_with)\
                                .first()
