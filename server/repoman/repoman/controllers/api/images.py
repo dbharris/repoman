@@ -13,6 +13,9 @@ from repoman.model.image import Image
 from repoman.model.group import Group
 from repoman.model.user import User
 from repoman.model.form import validate_new_image, validate_modify_image
+from repoman.lib.authorization import AllOf, AnyOf, NoneOf
+from repoman.lib.authorization import authorize, inline_auth
+from repoman.lib.authorization import HasPermission, IsAthuenticated, IsUser, OwnsImage, SharedWith
 from repoman.lib import beautify, storage
 from repoman.lib import helpers as h
 from pylons import app_globals
@@ -38,6 +41,7 @@ class ImagesController(BaseController):
         image = meta.Session.query(Image).filter(Image.owner.has(User.user_name==user)).first()
 
         if image:
+            inline_auth(OwnsImage(image), auth_403)
             user = meta.Session.query(User)\
                                .filter(User.user_name==share_with)\
                                .first()
@@ -53,6 +57,7 @@ class ImagesController(BaseController):
         image = meta.Session.query(Image).filter(Image.owner.has(User.user_name==user)).first()
 
         if image:
+            inline_auth(AllOf(OwnsImage(image), MemberOf(share_with)), auth_403)
             group = meta.Session.query(Group).filter(Group.name==share_with).first()
             if not group:
                 abort(400, '400 Bad Request')
@@ -66,6 +71,7 @@ class ImagesController(BaseController):
         image = meta.Session.query(Image).filter(Image.owner.has(User.user_name==user)).first()
 
         if image:
+            inline_auth(OwnsImage(image), auth_403)
             user = meta.Session.query(User).filter(User.user_name==share_with).first()
             if not user:
                 abort(400, '400 Bad Request')
@@ -79,6 +85,7 @@ class ImagesController(BaseController):
         image = meta.Session.query(Image).filter(Image.owner.has(User.user_name==user)).first()
 
         if image:
+            inline_auth(OwnsImage(image), auth_403)
             group = meta.Session.query(Group).filter(Group.name==share_with).first()
             if not group:
                 abort(400, '400 Bad Request')
@@ -114,6 +121,7 @@ class ImagesController(BaseController):
         if not image:
             abort(404, '404 Not Found')
         else:
+            inline_auth(AnyOf(OwnsImage(image), SharedWith(image)), auth_403)
             if not image.raw_uploaded:
                 abort(404, '404 Not Found')
 
@@ -133,6 +141,7 @@ class ImagesController(BaseController):
                        .filter(Image.owner.has(User.user_name==user)).first()
 
         if image:
+            inline_auth(OwnsImage(image), auth_403)
             try:
                 temp_file = request.params['file']
                 file_name = user + '_' + image.name
@@ -170,7 +179,9 @@ class ImagesController(BaseController):
         image = image_q.filter(Image.name==image)\
                        .filter(Image.owner.has(User.user_name==user))\
                        .first()
+
         if image:
+            inline_auth(AnyOf(OwnsImage(image), SharedWith(image)), auth_403)
             if format == 'json':
                 response.headers['content-type'] = app_globals.json_content_type
                 return h.render_json(beautify.image(image))
@@ -188,13 +199,13 @@ class ImagesController(BaseController):
                        .first()
 
         if image:
+            inline_auth(AnyOf(OwnsImage(image), HasPermission('image_modify')), auth_403)
             for k,v in params.iteritems():
                 if v:
                     setattr(image, k, v)
             meta.Session.commit()
         else:
             abort(404, '404 Not Found')
-
 
     def delete_by_user(self, user, image, format='json'):
         image_q = meta.Session.query(Image)
@@ -203,10 +214,13 @@ class ImagesController(BaseController):
                        .first()
 
         if image:
+            inline_auth(AnyOf(OwnsImage(image), HasPermission('image_delete')), auth_403)
             try:
                 storage.delete_image(image)
             except Exception, e:
                 abort(500, 'Unable to remove image file from storage')
+            meta.Session.delete(image.checksum)
+            meta.Session.delete(image.shared)
             meta.Session.delete(image)
             meta.Session.commit()
         else:
@@ -234,6 +248,7 @@ class ImagesController(BaseController):
         else:
             abort(501, '501 Not Implemented')
 
+    @authorize(HasPermission('image_create'), auth_403)
     def new(self, format='json'):
         params = validate_new_image(request.params)
 

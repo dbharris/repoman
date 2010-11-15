@@ -74,10 +74,40 @@ class OwnsImage(object):
         self.message = u"User does not own Image they are accessing"
 
     def check(self):
-        if image.owner is request.environ.get('REPOMAN_USER'):
+        if self.image:
+            if self.image.owner is request.environ.get('REPOMAN_USER'):
+                return True
+        raise NotValidAuth(self.message)
+
+
+class IsUser(object):
+    """This class must be used from within a method, NOT from a decorator."""
+    def __init__(self, user_name):
+        self.user_name = user_name
+        self.message = u'Attempting to access User that is not you.'
+
+    def check(self):
+        user = request.environ.get('REPOMAN_USER')
+        if user.user_name == self.user_name:
             return True
         else:
             raise NotValidAuth(self.message)
+
+class SharedWith(object):
+    def __init__(self, image):
+        self.image = image
+        self.message = u'Image not shared with user or users groups'
+
+    def check(self):
+        user = request.environ.get('REPOMAN_USER')
+        if self.image:
+            if user in self.image.shared.users:
+                return True
+            elif any([filter(lambda x: x in self.image.shared.groups) for g in user.groups]):
+                return True
+
+        raise NotValidAuth(self.message)
+
 
 
 
@@ -146,6 +176,21 @@ class NoneOf(object):
             return True
         raise NotValidAuth(self.message % ', '.join(condition_messages))
 
+#########################
+# I N L I N E   A U T H #
+#########################
+
+def inline_auth(valid, handler=None):
+    try:
+        valid.check()
+    except NotValidAuth, e:
+        if handler:
+            return handler(e)
+        else:
+            raise
+    else:
+        return True
+
 
 #######################
 # D E C O R A T O R S #
@@ -161,6 +206,7 @@ def authorize(valid, handler):
             return func(self, *args, **kwargs)
 
     return decorator(validate)
+
 
 #######################
 # E X C E P T I O N S #

@@ -21,9 +21,6 @@ all_perms = [
     'group_modify_membership',
     'group_modify_permissions',
     #image related permissions
-    'image_create_owned',
-    'image_modify_owned',
-    'image_delete_owned',
     'image_modify_group',
     'image_delete_group',
     'image_create',
@@ -33,9 +30,8 @@ all_perms = [
 
 default_groups = {'admins':all_perms,
                   'users':['user_modify_self',
-                           'image_create_owned',
-                           'image_modify_owned',
-                           'image_delete_owned'],
+                           'image_create',
+                          ]
                  }
 
 
