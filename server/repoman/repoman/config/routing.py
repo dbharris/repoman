@@ -28,6 +28,10 @@ def make_map(config):
                 action='whoami',
                 conditions=dict(method=['GET']))
 
+    map.connect(None, '/api/env', controller='api/whoami',
+                action='env',
+                conditions=dict(method=['GET']))
+
     # User Routes
     map.connect("users", '/api/users', controller='api/users',
                 action='list_all',

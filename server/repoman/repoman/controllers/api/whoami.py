@@ -27,3 +27,6 @@ class WhoamiController(BaseController):
         else:
             abort(404, '404 Not Found')
 
+    def env(self, format='json'):
+        return json.dumps(request.environ)
+
