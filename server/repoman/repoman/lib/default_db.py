@@ -13,23 +13,22 @@ all_perms = [
     'user_create',
     'user_modify',
     'user_delete',
-    'user_list_all',
     'user_modify_self',
     #group related permissions
     'group_create',
     'group_modify',
     'group_delete',
-    'group_list_all',
     'group_modify_membership',
+    'group_modify_permissions',
     #image related permissions
     'image_create_owned',
     'image_modify_owned',
     'image_delete_owned',
-    'image_list_all',
     'image_modify_group',
     'image_delete_group',
-    'image_modify_any',
-    'image_delete_any'
+    'image_create',
+    'image_delete',
+    'image_modify',
     ]
 
 default_groups = {'admins':all_perms,
