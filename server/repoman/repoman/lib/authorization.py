@@ -103,8 +103,8 @@ class SharedWith(object):
         if self.image:
             if user in self.image.shared.users:
                 return True
-            elif any([filter(lambda x: x in self.image.shared.groups) for g in user.groups]):
-                return True
+            #elif any([filter(lambda x: x in self.image.shared.groups) for g in user.groups]):
+            #    return True
 
         raise NotValidAuth(self.message)
 

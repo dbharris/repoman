@@ -133,19 +133,19 @@ def make_map(config):
                 action='group_unshare_by_user',
                 conditions=dict(method=['DELETE']))
 
-    map.connect(None, '/api/images/:(image)/share/:(share_with)', controller='api/images',
+    map.connect(None, '/api/images/:(image)/share/user/:(share_with)', controller='api/images',
                 action='user_share',
                 conditions=dict(method=['POST']))
 
-    map.connect(None, '/api/images/:(image)/share:(share_with)', controller='api/images',
+    map.connect(None, '/api/images/:(image)/share/user/:(share_with)', controller='api/images',
                 action='user_unshare',
                 conditions=dict(method=['DELETE']))
 
-    map.connect(None, '/api/images/:(image)/share:(share_with)', controller='api/images',
+    map.connect(None, '/api/images/:(image)/share/group/:(share_with)', controller='api/images',
                 action='group_share',
                 conditions=dict(method=['POST']))
 
-    map.connect(None, '/api/images/:(image)/share:(share_with)', controller='api/images',
+    map.connect(None, '/api/images/:(image)/share/group/:(share_with)', controller='api/images',
                 action='group_unshare',
                 conditions=dict(method=['DELETE']))
 

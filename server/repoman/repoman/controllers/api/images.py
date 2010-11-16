@@ -15,7 +15,7 @@ from repoman.model.user import User
 from repoman.model.form import validate_new_image, validate_modify_image
 from repoman.lib.authorization import AllOf, AnyOf, NoneOf
 from repoman.lib.authorization import authorize, inline_auth
-from repoman.lib.authorization import HasPermission, IsAthuenticated, IsUser, OwnsImage, SharedWith
+from repoman.lib.authorization import HasPermission, IsAthuenticated, IsUser, OwnsImage, SharedWith, MemberOf
 from repoman.lib import beautify, storage
 from repoman.lib import helpers as h
 from pylons import app_globals
@@ -47,7 +47,9 @@ class ImagesController(BaseController):
                                .first()
             if not user:
                 abort(400, '400 Bad Request')
-            if user not in image.shared.users:
+            if user in image.shared.users:
+                return
+            else:
                 image.shared.users.append(user)
                 meta.Session.commit()
         else:
@@ -61,7 +63,9 @@ class ImagesController(BaseController):
             group = meta.Session.query(Group).filter(Group.name==share_with).first()
             if not group:
                 abort(400, '400 Bad Request')
-            if group not in image.shared.groups:
+            if group in image.shared.groups:
+                return
+            else:
                 image.shared.groups.append(group)
                 meta.Session.commit()
         else:
