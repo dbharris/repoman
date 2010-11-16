@@ -123,29 +123,41 @@ class UsersController(BaseController):
         user = meta.Session.query(User).filter(User.user_name==user).first()
         if user:
             images = user.images
-            images_repr = representation.image_repr(*images)
             if format=='json':
                 response.headers['content-type'] = app_globals.json_content_type
-                return h.render_json(images_repr)
+                return h.render_json([url('image_by_user', image=i, user=user.user_name) for i in images])
             else:
                 abort(501, '501 Not Implemented')
         else:
             abort(404, '404 Not Found')
 
     def list_groups(self, user, format='json'):
-        return url('group', group='test', qualified=True)
         user = meta.Session.query(User).filter(User.user_name==user).first()
         if user:
             groups = user.groups
-            groups_repr = representation.group_repr(*groups)
             if format=='json':
                 response.headers['content-type'] = app_globals.json_content_type
-                return h.render_json(groups_repr)
+                return h.render_json([url('group', group=g) for g in groups])
             else:
                 abort(501, '501 Not Implemented')
         else:
             abort(404, '404 Not Found')
 
-    def list_shared_images(self, user, format='json'):
+    def list_my_shared_images(self, user, format='json'):
         pass
+
+    def get_shared_with_me(self, user, format='json'):
+        user = meta.Session.query(User).filter(User.user_name==user).first()
+        if user:
+            shared = user.shared_images
+            for g in user.groups:
+                shared.extend(g.shared_images)
+            shared = list(set(shared))
+            if format=='json':
+                response.headers['content-type'] = app_globals.json_content_type
+                return h.render_json([url('image_by_user', image=i.name, user=i.owneruser_name) for i in shared])
+            else:
+                abort(501, '501 Not Implemented')
+        else:
+            abort(404, '404 Not Found')
 
