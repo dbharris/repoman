@@ -127,7 +127,7 @@ class RepomanClient(object):
             raise BadResponse(resp)
 
     def new_image(self, **kwargs):
-        resp = self.post('/api/groups', kwargs)
+        resp = self.post('/api/images', kwargs)
         if resp.status == 201:
             return simplejson.loads(resp.read())
         else:
