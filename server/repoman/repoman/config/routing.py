@@ -65,8 +65,12 @@ def make_map(config):
                 action='list_permissions',
                 conditions=dict(method=['GET']))
 
-    map.connect(None, '/api/users/:(user)/shared_images', controller='api/users',
-                action='list_shared_images',
+    map.connect(None, '/api/users/:(user)/shared', controller='api/users',
+                action='get_shared_with_me',
+                conditions=dict(method=['GET']))
+
+    map.connect(None, '/api/users/:(user)/sharing', controller='api/users',
+                action='list_my_shared_images',
                 conditions=dict(method=['GET']))
 
     # Group Routes
