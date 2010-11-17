@@ -12,38 +12,46 @@ import sys
 
 class repoutils(object):
     
-    def get_images(self,repo,cert,key,uid):
-        user = self.get_user(repo,cert,key,uid)
-        return (user['name'],user['images'])
+    def get_images(self,repo,cert,key):
+        user = self.get_user(repo,cert,key)
+        return (user['user_name'],user['images'])
     
     def get_users(self,repo,cert,key):
-        return self.get_uri_response(repo+"/repository/users",cert,key)
+        users =  self.get_uri_response(repo+"/api/users",cert,key)
+        i=0
+        users_info = [0]*len(users)
+        for url in users:
+            users_info[i] = self.get_uri_response(url,cert,key)
+            i = i + 1
+        return users_info
     
-    def get_my_id(self,repo,cert,key,uid):
-        if uid:
-            return uid
+    def get_my_id(self,repo,cert,key):
         ret, output = getstatusoutput("openssl x509 -subject -in "+cert)
         if ret:
             print "Error querying cert with openssl: "
             print output
             sys.exit(1)
         
-        my_dn=(output.split('\n')[0])[9:] 
+        my_dn=(output.split('\n')[0])[9:]
         user_data = self.get_users(repo,cert,key)
+        
         for user in user_data:
-            if user['client_dn']==my_dn:
-                return user['id']
+            if user['client_dn'] in my_dn:
+                return user
+                #print user
         return None
     
      
-    def get_user(self,repo,cert,key,uid):
-        myid = self.get_my_id(repo,cert,key,uid)
-        return self.get_uri_response(repo+"/repository/users/"+str(myid),cert,key)
+    def get_user(self,repo,cert,key):
+        myid = self.get_my_id(repo,cert,key)
+        return myid
+        #return self.get_uri_response(repo+"/api/users/"+str(myid),cert,key)
         
     def get_uri_response(self,uri,cert,key):
         opener = urllib2.build_opener(HTTPSClientAuthHandler(key, cert))
         response = opener.open(uri)
-        return json.load(response)
+        json_response = json.load(response)
+        return json_response
         
         
     def put_image(self,repo,cert,key,imagefile,imagename):

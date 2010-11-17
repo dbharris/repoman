@@ -12,7 +12,7 @@ import getpass
 from repoclient import repoclient
 
 
-repo = "alto.cloud.nrc.ca"
+repo = "localhost"
     
 def usage():
     print "coming soon stay tuned"
@@ -90,7 +90,7 @@ def main(argv):
         if getallusers:
             repo.list_users()
         else:
-            repo.get_user(userid)
+            repo.get_user()
         sys.exit(0)
         
     if save:
