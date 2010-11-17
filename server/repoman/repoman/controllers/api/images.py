@@ -119,30 +119,7 @@ class ImagesController(BaseController):
         user = request.environ['REPOMAN_USER'].user_name
         return self.unshare_by_user(user=user, image=image, share_with=share_with, format=format)
 
-#    def get_raw_by_user(self, user, image, format='json'):
-#        image_q = meta.Session.query(Image)
-#        image = image_q.filter(Image.name==image)\
-#                       .filter(Image.owner.has(User.user_name==user))\
-#                       .first()
-
-#        if not image:
-#            abort(404, '404 Not Found')
-#        else:
-#            inline_auth(AnyOf(OwnsImage(image), SharedWith(image)), auth_403)
-#            if not image.raw_uploaded:
-#                abort(404, '404 Not Found')
-
-#            file_path = path.join(app_globals.image_storage, image.path)
-#            image_file = open(file_path, 'rb')
-#            try:
-#                return h.stream_img(image_file)
-#            except:
-#                abort(500, '500 Internal Error')
-
     def upload_raw_by_user(self, user, image, format='json'):
-        #if user != request.environ['REPOMAN_USER'].user_name:
-        #    abort(403, '403 forbidden')
-
         image_q = meta.Session.query(Image)
         image = image_q.filter(Image.name==image)\
                        .filter(Image.owner.has(User.user_name==user)).first()
@@ -172,10 +149,6 @@ class ImagesController(BaseController):
             meta.Session.commit()
         else:
             abort(404, '404 Item not found')
-
-#    def get_raw(self, image, format='json'):
-#        user = request.environ['REPOMAN_USER'].user_name
-#        return self.get_raw_by_user(user=user, image=image, format=format)
 
     def upload_raw(self, image, format='json'):
         user = request.environ['REPOMAN_USER'].user_name
