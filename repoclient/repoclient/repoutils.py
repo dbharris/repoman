@@ -6,16 +6,21 @@ Created on Oct 5, 2010
 import urllib 
 import urllib2
 import httplib
+import mimetypes, mimetools
 import simplejson as json
 from commands import getstatusoutput
 import sys
+import subprocess
 
 class repoutils(object):
     
     def get_images(self,repo,cert,key):
         user = self.get_user(repo,cert,key)
         return (user['user_name'],user['images'])
-    
+   
+    def get_all_images(self,repo,cert,key):
+        return self.get_uri_response(repo+"/api/images",cert,key)
+ 
     def get_users(self,repo,cert,key):
         users =  self.get_uri_response(repo+"/api/users",cert,key)
         i=0
@@ -52,12 +57,24 @@ class repoutils(object):
         response = opener.open(uri)
         json_response = json.load(response)
         return json_response
+
+    def new_image(self, name, description, os_variant, os_arch, os_type, hypervisor, read_only):
+        params = urllib.urlencode({'name':name, 'description':description, 'os_variant':os_variant, 'os_arch':os_arch, 'os_type':os_type, 'hypervisor':hypervisor, 'read_only':read_only})
         
+
+
         
-    def put_image(self,repo,cert,key,imagefile,imagename):
-        print "somehow we will upload the image."
-        
-        
+    def post_image(self,repo,cert,key,imagefile,imagename):
+        command = 'curl -F "file=@'+imagefile+'" -F "name='+imagename
+        command += '" --cert '+cert+' --key '+key+' --insecure '+repo
+        command +=    '/api/images > tmpfile'
+        p=subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+        for line in p.stdout.readlines():   
+            pass        
+
+    def get_content_type(filename):
+        return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+
 class HTTPSClientAuthHandler(urllib2.HTTPSHandler):  
     def __init__(self, key, cert):  
         urllib2.HTTPSHandler.__init__(self)  
