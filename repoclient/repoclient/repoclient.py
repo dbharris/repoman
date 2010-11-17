@@ -126,28 +126,31 @@ class repoclient(object):
                 print user[key]
         print '\n'
     
-    def list_images(self,getuid=0):
-        images = self.rut.get_images(self.repository, self.usercert, self.userkey, uid=getuid)
+    def list_images(self):
+        images = self.rut.get_images(self.repository, self.usercert, self.userkey)
         print '\n    Images for user: '+images[0]+':\n'
         for image in images[1]:
             print "      ",
             print image
         print '\n'
-        
-        
+
     def save_image(self, imagename):
         print '''
         
     Creating an image of the local filesystem.  
     This can take up to 10 minutes or more
     Please be patient ...
+    test
         '''
         if not self.iut.check_mounted(self.imagepath, self.mountpoint):
+            print "Creating a new image:"
             os.system("rm -rf "+self.imagepath+" "+self.mountpoint)
             self.create_local_bundle()  
-        elif self.sync_is_running:
+        elif self.sync_is_running():
+            print "Sync is already running...what?"
             self.create_local_bundle()
         else:
+            print "syncing image"
             self.iut.sync_filesystem(self.mountpoint, self.excl_dirs)
             
         print '''
@@ -157,10 +160,14 @@ class repoclient(object):
     time, depending on the speed of your connection
     and the size of your image...
         '''
-        self.rut.put_image(self.repository,self.usercert,self.userkey, self.imagepath,imagename)
+        self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,imagename)
         
         print '\n   Image successfully uploaded to  the repository at:\n    '
         print self.repository
-             
-               
+    
+    def list_all_images(self):
+        print self.rut.get_all_images(self.repository, self.usercert, self.userkey)   
         
+          
+    def post_image(self,imagename):  
+        self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,imagename) 
