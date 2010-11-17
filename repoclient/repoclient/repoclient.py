@@ -109,8 +109,8 @@ class repoclient(object):
                 os.remove(self.lockfile)
                 sys.exit(1)
                 
-    def get_user(self, getuid=0):
-        me = self.rut.get_user(self.repository, self.usercert, self.userkey, uid=getuid)
+    def get_user(self):
+        me = self.rut.get_user(self.repository, self.usercert, self.userkey)
         print '\n'
         for key in me:
             print "  "+key+": \t",
