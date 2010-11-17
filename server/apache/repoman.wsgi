@@ -2,11 +2,11 @@
 # 
 
 import site
-site.addsitedir('@@VIRTUAL_ENV@@/lib/python2.4/site-packages')
+site.addsitedir('/opt/git/repoman/lib/python2.4/site-packages')
 
 import os, sys
-sys.path.append('@@VIRTUAL_ENV@@/repoman/pylons/repository')
-os.environ['PYTHON_EGG_CACHE'] = '@@VIRTUAL_ENV@@/python-eggs'
+sys.path.append('/opt/git/repoman/repoman/server/repoman')
+os.environ['PYTHON_EGG_CACHE'] = '/opt/git/repoman/python-eggs'
 
 from paste.deploy import loadapp
-application = loadapp('config:@@VIRTUAL_ENV@@/repoman/server/repoman/development.ini')
+application = loadapp('config:/opt/git/repoman/repoman/server/repoman/development.ini')
