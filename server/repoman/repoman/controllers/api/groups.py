@@ -28,6 +28,9 @@ def auth_403(message):
 
 class GroupsController(BaseController):
 
+    def __before__(self):
+        inline_auth(IsAthuenticated(), auth_403)
+
     def list_all(self, format='json'):
         group_q = meta.Session.query(Group)
         groups = [g for g in group_q]

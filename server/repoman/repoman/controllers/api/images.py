@@ -37,6 +37,9 @@ class ImagesController(BaseController):
     #TODO: calc md5sum for image
     #TODO: set image size after upload
 
+    def __before__(self):
+        inline_auth(IsAthuenticated(), auth_403)
+
     def user_share_by_user(self, user, image, share_with, format='json'):
         image = meta.Session.query(Image).filter(Image.owner.has(User.user_name==user)).first()
 
@@ -116,25 +119,25 @@ class ImagesController(BaseController):
         user = request.environ['REPOMAN_USER'].user_name
         return self.unshare_by_user(user=user, image=image, share_with=share_with, format=format)
 
-    def get_raw_by_user(self, user, image, format='json'):
-        image_q = meta.Session.query(Image)
-        image = image_q.filter(Image.name==image)\
-                       .filter(Image.owner.has(User.user_name==user))\
-                       .first()
+#    def get_raw_by_user(self, user, image, format='json'):
+#        image_q = meta.Session.query(Image)
+#        image = image_q.filter(Image.name==image)\
+#                       .filter(Image.owner.has(User.user_name==user))\
+#                       .first()
 
-        if not image:
-            abort(404, '404 Not Found')
-        else:
-            inline_auth(AnyOf(OwnsImage(image), SharedWith(image)), auth_403)
-            if not image.raw_uploaded:
-                abort(404, '404 Not Found')
+#        if not image:
+#            abort(404, '404 Not Found')
+#        else:
+#            inline_auth(AnyOf(OwnsImage(image), SharedWith(image)), auth_403)
+#            if not image.raw_uploaded:
+#                abort(404, '404 Not Found')
 
-            file_path = path.join(app_globals.image_storage, image.path)
-            image_file = open(file_path, 'rb')
-            try:
-                return h.stream_img(image_file)
-            except:
-                abort(500, '500 Internal Error')
+#            file_path = path.join(app_globals.image_storage, image.path)
+#            image_file = open(file_path, 'rb')
+#            try:
+#                return h.stream_img(image_file)
+#            except:
+#                abort(500, '500 Internal Error')
 
     def upload_raw_by_user(self, user, image, format='json'):
         #if user != request.environ['REPOMAN_USER'].user_name:
@@ -170,9 +173,9 @@ class ImagesController(BaseController):
         else:
             abort(404, '404 Item not found')
 
-    def get_raw(self, image, format='json'):
-        user = request.environ['REPOMAN_USER'].user_name
-        return self.get_raw_by_user(user=user, image=image, format=format)
+#    def get_raw(self, image, format='json'):
+#        user = request.environ['REPOMAN_USER'].user_name
+#        return self.get_raw_by_user(user=user, image=image, format=format)
 
     def upload_raw(self, image, format='json'):
         user = request.environ['REPOMAN_USER'].user_name
@@ -207,6 +210,7 @@ class ImagesController(BaseController):
             for k,v in params.iteritems():
                 if v:
                     setattr(image, k, v)
+            image.modified = datetime.utcfromtimestamp(time())
             meta.Session.commit()
         else:
             abort(404, '404 Not Found')
@@ -282,7 +286,7 @@ class ImagesController(BaseController):
         new_image.description = params['description']
         new_image.expires = params['expires']
         new_image.read_only = params['read_only']
-        new_image.allow_http_get = params['allow_http_get']
+        new_image.unauthenticated_access = params['unauthenticated_access']
 
         # Non-user settable values
         uuid = h.image_uuid()

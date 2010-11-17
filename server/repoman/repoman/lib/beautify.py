@@ -28,7 +28,7 @@ def group(group):
 
 
 def image(image):
-    if image.allow_http_get:
+    if image.unauthenticated_access:
         http_url = url('raw_by_user', user=image.owner.user_name,
                        image=image.name, protocol='http')
     else:
@@ -48,7 +48,7 @@ def image(image):
              'hypervisor':image.hypervisor,
              'description':image.description,
              'read_only':image.read_only,
-             'allow_http_get':image.allow_http_get,
+             'unauthenticated_access':image.unauthenticated_access,
              'http_file_url':http_url,
              'raw_file_uploaded':image.raw_uploaded,
              'version':image.version,

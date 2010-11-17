@@ -33,7 +33,7 @@ class Image(Base):
     deleted = Column(Boolean(), default=False)          # image deleted?
     read_only = Column(Boolean(), default=False)        # protect from overwrite
     raw_uploaded = Column(Boolean(), default=False)     # has it been uploaded?
-    allow_http_get = Column(Boolean(), default=False)   # gettable from http?
+    unauthenticated_access = Column(Boolean(), default=False)   # gettable from http?
 
     # Adjacency list relationship
     # track what images were based on what images

@@ -6,6 +6,8 @@ from pylons.controllers.util import abort, redirect
 
 from repoman.lib.base import BaseController, render
 from repoman.lib import beautify
+from repoman.lib.authorization import authorize, inline_auth
+from repoman.lib.authorization import IsAthuenticated
 from repoman.model import meta
 from repoman.model.user import User
 
@@ -13,7 +15,13 @@ from pylons import app_globals
 
 log = logging.getLogger(__name__)
 
+def auth_403(message):
+    abort(403, "403 Forbidden : '%s'" % message)
+
 class WhoamiController(BaseController):
+
+    def __before__(self):
+        inline_auth(IsAthuenticated(), auth_403)
 
     def whoami(self, format='json'):
         """GET /repoman/whoami: All items in the collection"""

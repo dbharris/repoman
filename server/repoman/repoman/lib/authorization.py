@@ -58,7 +58,7 @@ class HasPermission(object):
 
 class IsAthuenticated(object):
     def __init__(self):
-        self.message = u"User has not provided a valid credential"
+        self.message = u"User has not provided a valid credential for that object"
 
     def check(self):
         if request.environ.get('REPOMAN_USER') and request.environ.get('AUTHENTICATED'):
