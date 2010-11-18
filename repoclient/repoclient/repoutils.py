@@ -12,8 +12,20 @@ from commands import getstatusoutput
 import sys
 import subprocess
 
+HEADERS = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
+
 class repoutils(object):
     
+    def post_image_metadata(self, url, repo, cert, key, metadata, headers=HEADERS):
+        print repo 
+        repo_https = self.repo(repo, cert, key)
+        params = urllib.urlencode({'name':metadata[0], 'description':metadata[1], 'os_variant':metadata[2], 'os_arch':metadata[3], 'os_type':metadata[4], 'hypervisor':metadata[5]})
+        repo_https.request('POST', '/api/images', params, headers)
+        return repo_https.getresponse()
+         
+    def repo(self, repo, cert, key):
+        return httplib.HTTPSConnection('localhost', 443, cert_file=cert, key_file=key)
+
     def get_images(self,repo,cert,key):
         user = self.get_user(repo,cert,key)
         return (user['user_name'],user['images'])
@@ -58,9 +70,6 @@ class repoutils(object):
         json_response = json.load(response)
         return json_response
 
-    def new_image(self, name, description, os_variant, os_arch, os_type, hypervisor, read_only):
-        params = urllib.urlencode({'name':name, 'description':description, 'os_variant':os_variant, 'os_arch':os_arch, 'os_type':os_type, 'hypervisor':hypervisor, 'read_only':read_only})
-        
 
 
         
