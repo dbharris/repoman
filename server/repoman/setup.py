@@ -7,8 +7,8 @@ except ImportError:
 
 setup(
     name='repoman',
-    version='0.1rc1',
-    description='RESTful irtual machine image manager',
+    version='0.1',
+    description='RESTful virtual machine image manager',
     author='Matthew Vliet',
     author_email='mvliet@uvic.ca',
     url='https://github.com/hep-gc/repoman',
