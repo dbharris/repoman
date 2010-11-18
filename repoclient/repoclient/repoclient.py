@@ -134,6 +134,17 @@ class repoclient(object):
             print image
         print '\n'
 
+    def new_image(self, metadata):
+        print "Working!" + str(metadata)
+        resp = self.rut.post_image_metadata('/api/images', self.repository, self.usercert, self.userkey, metadata)
+        print resp.status
+        #if resp.status == 200:
+        #    return simplejson.loads(resp.read())
+        #else:
+        #    raise BadResponse(resp)
+
+
+
     def save_image(self, imagename):
         print '''
         
