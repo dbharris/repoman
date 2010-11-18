@@ -18,4 +18,5 @@
 *.crt
 
 #/shurg
-server/apache/*.wsgi
+server/repoman/build/
+server/repoman/dist/
