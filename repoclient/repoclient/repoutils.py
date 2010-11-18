@@ -74,9 +74,11 @@ class repoutils(object):
 
         
     def post_image(self,repo,cert,key,imagefile,imagename):
+        id = self.get_user(repo,cert,key)
+        user_name = id['user_name']
         command = 'curl -F "file=@'+imagefile+'" -F "name='+imagename
         command += '" --cert '+cert+' --key '+key+' --insecure '+repo
-        command +=    '/api/images > tmpfile'
+        command +=    '/api/images/raw/'+user_name+'/ > tmpfile'
         p=subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
         for line in p.stdout.readlines():   
             pass        
