@@ -25,7 +25,6 @@ def main():
         print "repoman getuser [--all]"
         print "repoman info [--name] "
         print "repoman save [--name] [--(another other metadata tags)]"
-        print "repoman upload [--file]"
         print "\n"
         print "All defaults are set in repoclient.conf, set in /etc/repoclient/repoclient.conf by default"
         print "\n"
