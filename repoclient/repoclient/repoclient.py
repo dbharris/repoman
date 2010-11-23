@@ -149,7 +149,7 @@ class repoclient(object):
         if kwargs['replace']:
             print "Updating metadata."
             resp = self.rut.update_image_metadata('/api/images', self.repository, self.usercert, self.userkey, user_name=self.rut.get_username(self.repository,self.usercert,self.userkey), image_name=metadata['name'], metadata=metadata)
-            if resp.status == 201:
+            if resp.status == 200:
                 print "Metadata modification complete."
             else:
                 print "Metadata was not modified: "+str(resp.status)
@@ -206,7 +206,8 @@ class repoclient(object):
     time, depending on the speed of your connection
     and the size of your image...
         '''
-        self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,metadata['name'])
+        print "TEMPORARILY DISABLED FOR DEMONSTRATION PURPOSES"
+        #self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,metadata['name'])
         
         print '\n   Image successfully uploaded to  the repository at:\n    '
         print self.repository
