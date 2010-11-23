@@ -18,7 +18,17 @@ def ask_yes_or_no():
 
 def main():
     if not len(sys.argv) > 1:
-        print "help menu"
+        print "\n"
+        print "Repoman Client"
+        print "Currently implemented commands:"
+        print "repoman list [--all]"
+        print "repoman getuser [--all]"
+        print "repoman info [--name] "
+        print "repoman save [--name] [--(another other metadata tags)]"
+        print "repoman upload [--file]"
+        print "\n"
+        print "All defaults are set in repoclient.conf, set in /etc/repoclient/repoclient.conf by default"
+        print "\n"
         sys.exit(0)
     else:
         command = sys.argv[1]
@@ -86,7 +96,7 @@ def main():
             repo.get_user()
         sys.exit(0)
 
-    if command == 'get_image_info':
+    if command == 'info':
         image_list = repo.list_images_raw()
         for i in xrange(len(repo.list_images_raw())):
             image_list[i] = repo.list_images_raw()[i].split('/')[6]

@@ -2,6 +2,4 @@ repoclient:
 
 This package is designed to be installed on the VM to interface with the repoman server. 
 
-Scripts are provided to create a local copy of the filesystem, and upload it to the repository.
-
-Upload hasn't been written yet.  Creating a local filesystem copy for upload works well now.  
+To begin, run setup.py.  This will place a repoclient.conf in /etc/repoclient/, where the default repository and userkeys, etc. are set.

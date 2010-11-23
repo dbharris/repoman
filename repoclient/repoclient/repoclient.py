@@ -114,20 +114,30 @@ class repoclient(object):
                 sys.exit(1)
                 
     def get_user(self):
-        me = self.rut.get_user(self.repository, self.usercert, self.userkey)
+        user = self.rut.get_user(self.repository, self.usercert, self.userkey)
         print '\n'
-        for key in me:
-            print "  "+key+": \t",
-            print me[key]
+        for key in user:
+            if key == 'images':
+                print "  "+key+":"
+                for image in user['images']:
+                    print "  "+image
+            else:
+                print "  "+key+": \t",
+                print user[key]
         print '\n'
-    
+ 
     def list_users(self):
         users = self.rut.get_users(self.repository, self.usercert, self.userkey)
         for user in users:
             print '\n'
             for key in user:
-                print "  "+key+": \t",
-                print user[key]
+                if key == 'images':
+                    print "  "+key+":"
+                    for image in user['images']:
+                        print "  "+image
+                else:
+                    print "  "+key+": \t",
+                    print user[key]
         print '\n'
     
     def list_images(self):
@@ -163,12 +173,12 @@ class repoclient(object):
         resp = self.rut.get_image_metadata(self.repository, self.usercert, self.userkey, name)
         
         json_resp = json.loads(resp)
-        print json_resp
-        #print '\n'
-        #for key in json_resp:
-        #    print "  "+key+": \t",
-        #    print str(resp[key])
-        #print '\n'
+        #print json_resp
+        print '\n'
+        for key in json_resp:
+            print "  "+key+": \t",
+            print str(json_resp[key])
+        print '\n'
 
 
 
@@ -206,8 +216,7 @@ class repoclient(object):
     time, depending on the speed of your connection
     and the size of your image...
         '''
-        print "TEMPORARILY DISABLED FOR DEMONSTRATION PURPOSES"
-        #self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,metadata['name'])
+        self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,metadata['name'])
         
         print '\n   Image successfully uploaded to  the repository at:\n    '
         print self.repository
