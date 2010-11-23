@@ -16,13 +16,21 @@ HEADERS = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/p
 
 class repoutils(object):
     
-    def post_image_metadata(self, url, repo, cert, key, metadata, headers=HEADERS):
-        print repo 
+    # NEED TO UPDATE WITH KWARGS 
+    def post_image_metadata(self, url, repo, cert, key, headers=HEADERS, *args, **kwargs):
         repo_https = self.repo(repo, cert, key)
-        params = urllib.urlencode({'name':metadata[0], 'description':metadata[1], 'os_variant':metadata[2], 'os_arch':metadata[3], 'os_type':metadata[4], 'hypervisor':metadata[5]})
+        params = urllib.urlencode(kwargs['metadata'])
         repo_https.request('POST', '/api/images', params, headers)
         return repo_https.getresponse()
-         
+        
+    def get_image_metadata(self, repo, cert, key, name):
+        id = self.get_user(repo,cert,key)
+        user_name = id['user_name']
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('GET', '/api/images/'+user_name+'/'+name)
+        resp = repo_https.getresponse()
+        return resp.read()
+ 
     def repo(self, repo, cert, key):
         return httplib.HTTPSConnection('localhost', 443, cert_file=cert, key_file=key)
 
@@ -70,18 +78,31 @@ class repoutils(object):
         json_response = json.load(response)
         return json_response
 
-
-
-        
-    def post_image(self,repo,cert,key,imagefile,imagename):
+    def get_username(self,repo,cert,key):
         id = self.get_user(repo,cert,key)
-        user_name = id['user_name']
-        command = 'curl -F "file=@'+imagefile+'"'
-        command += '" --cert '+cert+' --key '+key+' --insecure '+repo
-        command +=    '/api/images/raw/'+user_name+'/'+imagename+' > tmpfile'
+        return id['user_name']
+
+    def post_image(self,repo,cert,key,imagefile,imagename):
+        user_name = self.get_username(repo,cert,key)
+        print "Posting image "+imagefile+" with name "+imagename+" "
+        command = "curl -F \"file=@"+imagefile+"\""
+        command += " --cert "+cert+" --key "+key+" --insecure "+repo+"/api/images/raw/"+user_name+"/"+imagename+" > tmpfile"
         p=subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
         for line in p.stdout.readlines():   
-            pass        
+            pass
+        
+    def share_user(self, repo, cert, key, user, image, headers=HEADERS):
+        user_name = self.get_username(repo,cert,key)
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('POST', '/api/images'+user_name+'/'+image+'/share/user/'+user, headers)
+        return repo_https.getresponse()    
+
+    def share_group(self, repo, cert, key, group, image, headers=HEADERS):
+        user_name = self.get_username(repo,cert,key)
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('POST', '/api/images'+user_name+'/'+image+'/share/group/'+group, headers)
+        return repo_https.getresponse()
+        
 
     def get_content_type(filename):
         return mimetypes.guess_type(filename)[0] or 'application/octet-stream'

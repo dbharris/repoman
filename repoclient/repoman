@@ -1,23 +1,13 @@
 #!/usr/bin/env python
-'''
-Created on Sep 17, 2010
-
-@author: fransham
-'''
-import getopt
-import pwd
 import sys
+import optparse
 import os
-import getpass
 from repoclient import repoclient
 
+repo = repoclient.repoclient()
 
-repo = "localhost"
-    
-def usage():
-    print "coming soon stay tuned"
-    
-    
+parser = optparse.OptionParser()
+
 def ask_yes_or_no():
     print " Are you sure you want to continue?"
     k=raw_input("[y/N]")
@@ -25,133 +15,76 @@ def ask_yes_or_no():
         return True
     return False
 
-def main(argv):
-    try:
-        opts, args = getopt.getopt(argv, "hd",
-                                   ["help",
-                                    "debug",
-                                    "list",
-                                    "getuser",
-                                    "all",
-                                    "save",
-                                    "new_image",
-                                    "name=",
-                                    "description=",
-                                    "os_variant=",
-                                    "os_arch=",
-                                    "os_type=",
-                                    "hypervisor=",
-                                    "read_only",
-                                    "user=",
-                                    "repo="
-                                    ])
-        
-    except getopt.GetoptError:
-        usage()
-        sys.exit(2)
-                           
-    list = False
-    getuser = False
-    all=False
-    new_image = False
-    save = False
-    username = pwd.getpwuid(os.getuid()).pw_name
-    userid=0
-    name = ""
-    description = ""
-    os_variant = ""
-    os_arch = ""
-    os_type = ""
-    hypervisor = ""
-    read_only = False
-    newname = ""
-    
-    repo = repoclient.repoclient()
-    
-    for opt, arg in opts:
-        if opt in ("-h", "--help"):
-            usage()
-            sys.exit()
-        elif opt == ("-d", "--debug"):
-            global _debug
-            _debug = 1
-        elif opt in ("--list"):
-            list = True
-        elif opt in ("--getuser"):
-            getuser = True
-        elif opt in ("--save"):
-            save = True
-        elif opt in ("--new_image"):
-            new_image = True
-        elif opt in ("--name"):
-            name = arg
-        elif opt in ("--description"):
-            description = arg
-        elif opt in ("--os_variant"):
-            os_variant = arg
-        elif opt in ("--os_arch"):
-            os_arch = arg
-        elif opt in ("--os_type"):
-            os_type = arg
-        elif opt in ("--hypervisor"):
-            hypervisor = arg
-        elif opt in ("--read_only"):
-            read_only = True
-        elif opt in ("--user"):
-            userid = arg
-        elif opt in ("--repo"):
-            repo = arg
-        elif opt in ("--all"):
-            all = True
-    
-    #make sure only one command line argument is specified:
-    if( list + getuser + save + new_image != 1):
-        usage()
-        sys.exit(2)
-      
 
-    if list:
-        if all:
+def main():
+    if not len(sys.argv) > 1:
+        print "help menu"
+        sys.exit(0)
+    else:
+        command = sys.argv[1]
+        # args = sys.argv[1:]
+
+    if command == 'list':
+        parser.add_option('-l','--long',dest='long',default=False)
+        parser.add_option('-a','--all',dest="all",default=False,action="store_true")
+        options, args = parser.parse_args(args=sys.argv[2:])
+        if options.all:
             repo.list_all_images()
         else:
             repo.list_images()
         sys.exit(0)
-        
-    if getuser:
-        if all:
+
+    if command == 'save':
+        # parser.add_option('-n','--name',action="store", type="string",dest="name")
+        # parser.add_option('-m','--metadata',dest="metadata",default=False,action="store_true")
+        # options, args = parser.parse_args(args=sys.argv[2:])
+        args = sys.argv
+        metadata = dict([(args[i].strip('-'), args[i+1]) for i in range(2, len(args) - 1, 2)])
+        image_list = repo.list_images_raw()
+        for i in xrange(len(repo.list_images_raw())):
+            image_list[i] = repo.list_images_raw()[i].split('/')[6]
+
+        try:
+            # Try to get the name from command line arguements
+            name = metadata['name']
+
+        except:
+            # If the name has NOT been specified 
+            print '''    Please either specify an image name with the --name flag
+        or specify metadata with --metadata --name [name] --os_type [os_type] etc..
+        The images available to you are:
+                  ''' 
+            for item in image_list:
+                print item
+            print '''
+        select one of these images to overwrite, or specify a new image name
+        see --help for more details
+                  '''
+            sys.exit(2)
+        replace=False
+        for item in image_list:
+            if item == name:
+                replace=True
+                print 'WARNING!! This image already exists on the repository.'
+                if not ask_yes_or_no():
+                    print 'Exiting repoclient.'
+                    sys.exit(2)
+        print "Saving image "+name+" with the following metadata:"
+        for key in metadata:
+            print key+": "+metadata[key]
+        repo.save_image(metadata=metadata,replace=replace)
+        # sends to repoclient as kwargs
+
+
+    if command == 'getuser':
+        parser.add_option('-a','--all',dest="all",default=False,action="store_true")
+        options, args = parser.parse_args(args=sys.argv[2:])
+        if options.all:
             repo.list_users()
+            sys.exit(0)
         else:
             repo.get_user()
         sys.exit(0)
 
-    if new_image:
-        print "Creating image with arguements:"
-        print "Name:" + name
-        print "Description: " + description
-        print "OS Variant: " + os_variant
-        print "OS Architecture: " + os_arch
-        print "OS Type: " + os_type
-        print "Hypervisor: " + hypervisor
-        print "Read Only: " + str(read_only)
-        metadata = [name, description, os_variant, os_arch, os_type, hypervisor, read_only]
-        repo.new_image(metadata)
-        sys.exit(0)
-
-    if save:
-        if not name:
-            print '''
-    Please specify an image name with the --name flag.
-    The images available to you are:
-            '''
-            repo.list_images()
-            print '''
-    select one of these images to overwrite, or specify a new image name
-    see --help for more details
-            '''
-            sys.exit(2)
-        repo.save_image(name)
-        sys.exit(0) 
-        
-        
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main() 

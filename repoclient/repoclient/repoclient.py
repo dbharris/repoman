@@ -9,6 +9,10 @@ import imageutils,repoutils
 import sys,os
 from commands import getstatusoutput
 import pprint
+try:
+    import json
+except:
+    import simplejson as json
 #write help
 
 
@@ -134,18 +138,41 @@ class repoclient(object):
             print image
         print '\n'
 
-    def new_image(self, metadata):
-        print "Working!" + str(metadata)
-        resp = self.rut.post_image_metadata('/api/images', self.repository, self.usercert, self.userkey, metadata)
-        print resp.status
-        #if resp.status == 200:
-        #    return simplejson.loads(resp.read())
-        #else:
-        #    raise BadResponse(resp)
+
+    def list_images_raw(self):
+        images = self.rut.get_images(self.repository, self.usercert, self.userkey)
+        return images[1]
+
+    def new_image(self, *args, **kwargs):
+        resp = self.rut.post_image_metadata('/api/images', self.repository, self.usercert, self.userkey, metadata=kwargs['metadata'])
+        #print resp.status
+        if resp.status == 201:
+            print "Image created."
+        else:
+            print "Image was not created: response code "+str(resp.status)
+
+    def get_image_info(self, name):
+        resp = self.rut.get_image_metadata(self.repository, self.usercert, self.userkey, name)
+        
+        json_resp = json.loads(resp)
+        print json_resp
+        #print '\n'
+        #for key in json_resp:
+        #    print "  "+key+": \t",
+        #    print str(resp[key])
+        #print '\n'
 
 
 
-    def save_image(self, imagename):
+    def save_image(self, *args, **kwargs):
+        metadata = kwargs['metadata']
+        print "Posting new image metadata to the repository."
+        if kwargs['replace']:
+            print "Replacing existing image "+metadata['name']
+        else:
+            print "Creating new image on repository with name "+metadata['name']
+        self.new_image(metadata=metadata,replace=kwargs['replace'])
+    
         print '''
         
     Creating an image of the local filesystem.  
@@ -171,14 +198,25 @@ class repoclient(object):
     time, depending on the speed of your connection
     and the size of your image...
         '''
-        self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,imagename)
+        self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,metadata['name'])
         
         print '\n   Image successfully uploaded to  the repository at:\n    '
         print self.repository
     
+    def upload_image(self, name, file):
+        print "Uploading image "+file+" to repository "+self.repository+" with name "+name
+        self.rut.post_image(self.repository,self.usercert,self.userkey,file,name)
+     
     def list_all_images(self):
         print self.rut.get_all_images(self.repository, self.usercert, self.userkey)   
         
           
     def post_image(self,imagename):  
-        self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,imagename) 
+        self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,imagename)
+
+    def share_user(self,image,user):
+        self.rut.share_user(self.repository,self.usercert,self.userkey,user,image) 
+
+    def share_group(self,image,group):
+        self.rut.share_group(self.repository,self.usercert,self.userkey,group,image)
+
