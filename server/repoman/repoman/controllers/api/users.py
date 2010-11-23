@@ -170,7 +170,7 @@ class UsersController(BaseController):
             shared = list(set(shared))
             if format=='json':
                 response.headers['content-type'] = app_globals.json_content_type
-                return h.render_json([url('image_by_user', image=i.name, user=i.owner_user_name, qualified=True) for i in shared])
+                return h.render_json([url('image_by_user', image=s.image.name, user=s.image.owner.user_name, qualified=True) for s in shared])
             else:
                 abort(501, '501 Not Implemented')
         else:
