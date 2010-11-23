@@ -144,12 +144,20 @@ class repoclient(object):
         return images[1]
 
     def new_image(self, *args, **kwargs):
+        metadata = kwargs['metadata']
         resp = self.rut.post_image_metadata('/api/images', self.repository, self.usercert, self.userkey, metadata=kwargs['metadata'])
-        #print resp.status
-        if resp.status == 201:
-            print "Image created."
+        if kwargs['replace']:
+            print "Updating metadata."
+            resp = self.rut.update_image_metadata('/api/images', self.repository, self.usercert, self.userkey, user_name=self.rut.get_username(self.repository,self.usercert,self.userkey), image_name=metadata['name'], metadata=metadata)
+            if resp.status == 201:
+                print "Metadata modification complete."
+            else:
+                print "Metadata was not modified: "+str(resp.status)
         else:
-            print "Image was not created: response code "+str(resp.status)
+            if resp.status == 201:
+                print "Metadata uploaded, image created."
+            else:
+                print "Image was not created: response code "+str(resp.status)
 
     def get_image_info(self, name):
         resp = self.rut.get_image_metadata(self.repository, self.usercert, self.userkey, name)

@@ -16,13 +16,19 @@ HEADERS = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/p
 
 class repoutils(object):
     
-    # NEED TO UPDATE WITH KWARGS 
     def post_image_metadata(self, url, repo, cert, key, headers=HEADERS, *args, **kwargs):
         repo_https = self.repo(repo, cert, key)
         params = urllib.urlencode(kwargs['metadata'])
         repo_https.request('POST', '/api/images', params, headers)
         return repo_https.getresponse()
-        
+
+    def update_image_metadata(self, url, repo, cert, key, headers=HEADERS, *args, **kwargs):
+        repo_https = self.repo(repo, cert, key)
+        params = urllib.urlencode(kwargs['metadata'])
+        repo_https.request('POST', '/api/images/'+kwargs['user_name']+'/'+kwargs['image_name'], params, headers)
+        return repo_https.getresponse()
+       
+ 
     def get_image_metadata(self, repo, cert, key, name):
         id = self.get_user(repo,cert,key)
         user_name = id['user_name']
