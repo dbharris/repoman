@@ -106,7 +106,7 @@ def main():
             repo.get_image_info(options.name)
             sys.exit(0)           
         else:
-            print "Please run this command as get_image_info --name image_name, where image_name is one of the following:"
+            print "Please run this command as info --name image_name, where image_name is one of the following:"
             for item in image_list:
                 print item
             sys.exit(2)
