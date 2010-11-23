@@ -51,7 +51,7 @@ Param | Type | Required | Description |
 user_name | String | yes | the repoman-wide unique user name for this user
 email | String | yes | a valid email for the user
 cert_dn | String | yes | the users certificate distinguished name
-full_name | String | no | full name for the user
+full_name | String | yes | full name for the user
 
 **Http Status Codes**
 
