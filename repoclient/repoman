@@ -8,8 +8,15 @@ repo = repoclient.repoclient()
 
 parser = optparse.OptionParser()
 
-def ask_yes_or_no():
+def ask_yes_or_no(*args, **kwargs):
+    try:
+        force = kwargs['force']
+    except:
+        force = False
     print " Are you sure you want to continue?"
+    if force:
+        print " To prevent this message from displaying, run the comming with" 
+        print " --force or -f."
     k=raw_input("[y/N]")
     if k in ('y', 'ye', 'yes'):
         return True
@@ -103,7 +110,12 @@ def main():
         parser.add_option('-n','--name',action="store",type="string",dest="name")
         options, args = parser.parse_args(args=sys.argv[2:])
         if options.name:
-            repo.get_image_info(options.name)
+            resp = repo.get_image_info(options.name)
+            print '\n'
+            for key in resp:
+                print "  "+key+": \t",
+                print str(resp[key])
+            print '\n'
             sys.exit(0)           
         else:
             print "Please run this command as info --name image_name, where image_name is one of the following:"
@@ -143,5 +155,96 @@ def main():
                         sys.exit(2)
             repo.upload_image(options.file, replace=replace, name=name, metadata=metadata)
 
+    if command == 'get':
+        parser.add_option('-n','--name',action="store",type="string",dest="name")
+        parser.add_option('-p','--path',action="store",type="string",dest="path")
+        options, args = parser.parse_args(args=sys.argv[2:])
+        image_list = repo.list_images_raw()
+        for i in xrange(len(repo.list_images_raw())):
+            image_list[i] = repo.list_images_raw()[i].split('/')[6]
+        if not options.name:
+            print "Please enter on of the following names:"
+            for item in image_list:
+                print item
+        else:
+            exists = False
+            for item in image_list:
+                if item == options.name:
+                    exists = True
+            if exists:
+                if options.path:
+                    repo.get(name=options.name,path=options.path)
+                else:
+                    repo.get(name=options.name)
+            else: 
+               print "Image did not match any of your images on the server."
+               print "Please enter on of the following names:"           
+               for item in image_list:
+                   print item
+                            
+
+    if command == "update":
+        args = sys.argv
+        if len(args) < 3:
+            print "help menu"
+            sys.exit(0)
+        force = False
+        for arg in args:
+            if arg == '--force':
+                force = True
+                args.remove(arg)
+        metadata = dict([(args[i].strip('-'), args[i+1]) for i in range(2, len(args) - 1, 2)])
+        try:
+            name = metadata['name']
+        except:
+            print "Please enter at least a name as metadata."
+            sys.exit(0)
+        image_list = repo.list_images_raw()
+        exists = False
+        for i in xrange(len(repo.list_images_raw())):
+            image_list[i] = repo.list_images_raw()[i].split('/')[6]
+            if image_list[i] == name:
+                exists = True
+        if not force and exists:
+            print "Warning! This image name already has metadata on the server."
+            if ask_yes_or_no(force=True):
+                print "Updating image "+name+" with metadata: "
+                for key in metadata:
+                    print key+": "+metadata[key]
+                repo.update_metadata(metadata=metadata, exists=exists)
+            else:
+                print "Exiting repoman."
+                sys.exit(0)
+        else:
+            print "Updating image "+name+" with metadata: "
+            for key in metadata:
+                print key+": "+metadata[key]
+            repo.update_metadata(metadata=metadata, exists=exists)
+            
+    if command == "delete":
+        parser.add_option('-n','--name',action="store", type="string",dest="name")
+        parser.add_option('-f','--force',dest="force",default=False,action="store_true")
+        options, args = parser.parse_args(args=sys.argv[2:])    
+        if not options.name:
+            print "Please specify a name with --name image_name"
+            sys.exit(0)
+        image_list = repo.list_images_raw()
+        exists = False
+        for i in xrange(len(repo.list_images_raw())):
+            image_list[i] = repo.list_images_raw()[i].split('/')[6]
+            if image_list[i] == options.name:
+                exists = True
+        if not exists:
+            print "That image does not exist on the repository."
+        else:
+            print "Deleting image "+options.name
+            if options.force:
+                repo.delete(options.name)
+                sys.exit(2)
+            if ask_yes_or_no(force=options.force):
+                repo.delete(options.name)
+            else:
+                print "Exiting repoman."
+                sys.exit(0)
 if __name__ == "__main__":
     main() 

@@ -3,3 +3,17 @@ repoclient:
 This package is designed to be installed on the VM to interface with the repoman server. 
 
 To begin, run setup.py.  This will place a repoclient.conf in /etc/repoclient/, where the default repository and userkeys, etc. are set.
+
+CURRENTLY FUNCTIONAL:
+list [--all/-a]
+getuser [--all/-a]
+save [metadata]
+upload --file file_name [metadata]
+get --name image_name [--path download_path]
+update --name image_name [metadata]
+
+WORKING ON:
+delete --name vmname
+rename --name vmname --newname yournewname
+grant (--user username | --group groupname) [--read]  --image vmname
+revoke (--user username | --group groupname) [--read]  --image  vmname

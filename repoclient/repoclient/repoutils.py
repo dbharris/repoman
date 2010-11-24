@@ -36,6 +36,15 @@ class repoutils(object):
         repo_https.request('GET', '/api/images/'+user_name+'/'+name)
         resp = repo_https.getresponse()
         return resp.read()
+
+    def delete_image(self, repo, cert, key, name):
+        #id = self.get_user(repo,cert,key)
+        #user_name = id['user_name']
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('DELETE', '/api/images/'+name)
+        resp = repo_https.getresponse()
+        return resp.read()
+
  
     def repo(self, repo, cert, key):
         return httplib.HTTPSConnection('localhost', 443, cert_file=cert, key_file=key)
@@ -96,7 +105,15 @@ class repoutils(object):
         p=subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
         for line in p.stdout.readlines():   
             pass
-        
+       
+    def get_image(self,repo,cert,key,imagename,path):
+        user_name = self.get_username(repo,cert,key)
+        print "Getting image "+imagename+" and storing it at "+path
+        command = "curl -o "+path+imagename+" --cert "+cert+" --key "+key+" --insecure "+repo+"/api/images/raw/"+user_name+"/"+imagename
+        p=subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+        for line in p.stdout.readlines():
+            pass
+     
     def share_user(self, repo, cert, key, user, image, headers=HEADERS):
         user_name = self.get_username(repo,cert,key)
         repo_https = self.repo(repo, cert, key)
