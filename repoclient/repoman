@@ -124,7 +124,7 @@ def main():
 
         if not options.file:
             print "Uploading an image requires both the name of the image from previously-uploaded metadata and the file to upload:"
-            print "Example:  repoman --upload --name my_image --file /opt/images/my_image.img.gz"
+            print "Example:  repoman upload --file /opt/images/my_image.img.gz --name whatever (any other metadata)"
             sys.exit(2)
         else:
             print "Uploading..."
