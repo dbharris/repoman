@@ -110,18 +110,38 @@ def main():
             for item in image_list:
                 print item
             sys.exit(2)
+
             
     if command == 'upload':
-        parser.add_option('-n','--name',action="store",type="string",dest="name")
+        # Uploading MUST be done in this order: repomain upload --file [metadata]
         parser.add_option('-f','--file',action="store",type="string",dest="file")
-        options, args = parser.parse_args(args=sys.argv[2:])
-        if not options.name and options.file:
+        options, args = parser.parse_args(args=sys.argv[2:4])
+        args = sys.argv
+        metadata = dict([(args[i].strip('-'), args[i+1]) for i in range(4, len(args) - 1, 2)])
+        image_list = repo.list_images_raw()
+        for i in xrange(len(repo.list_images_raw())):
+            image_list[i] = repo.list_images_raw()[i].split('/')[6]
+
+        if not options.file:
             print "Uploading an image requires both the name of the image from previously-uploaded metadata and the file to upload:"
             print "Example:  repoman --upload --name my_image --file /opt/images/my_image.img.gz"
             sys.exit(2)
         else:
             print "Uploading..."
-            repo.upload_image(options.name, options.file)
+            try:
+                name = metadata['name']
+            except:
+                print "The minimum metadata needed to upload an image is the name, specified with --name"
+                sys.exit(0)
+            replace=False
+            for item in image_list:
+                if item == metadata['name']:
+                    replace=True
+                    print 'WARNING!! This image already exists on the repository.'
+                    if not ask_yes_or_no():
+                        print 'Exiting repoclient.'
+                        sys.exit(2)
+            repo.upload_image(options.file, replace=replace, name=name, metadata=metadata)
 
 if __name__ == "__main__":
     main() 
