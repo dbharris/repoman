@@ -221,8 +221,17 @@ class repoclient(object):
         print '\n   Image successfully uploaded to  the repository at:\n    '
         print self.repository
     
-    def upload_image(self, name, file):
+    def upload_image(self, file, *args, **kwargs):
+        metadata = kwargs['metadata']
+        name = kwargs['name']
         print "Uploading image "+file+" to repository "+self.repository+" with name "+name
+        print "Posting new image metadata to the repository."
+        if kwargs['replace']:
+            print "Replacing existing image "+metadata['name']
+        else:
+            print "Creating new image on repository with name "+metadata['name']
+        self.new_image(metadata=metadata,replace=kwargs['replace'])
+
         self.rut.post_image(self.repository,self.usercert,self.userkey,file,name)
      
     def list_all_images(self):
