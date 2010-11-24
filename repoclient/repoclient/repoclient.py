@@ -155,7 +155,7 @@ class repoclient(object):
 
     def new_image(self, *args, **kwargs):
         metadata = kwargs['metadata']
-        resp = self.rut.post_image_metadata('/api/images', self.repository, self.usercert, self.userkey, metadata=kwargs['metadata'])
+        resp = self.rut.post_image_metadata('/api/images', self.repository, self.usercert, self.userkey, metadata=metadata)
         if kwargs['replace']:
             print "Updating metadata."
             resp = self.rut.update_image_metadata('/api/images', self.repository, self.usercert, self.userkey, user_name=self.rut.get_username(self.repository,self.usercert,self.userkey), image_name=metadata['name'], metadata=metadata)
@@ -169,16 +169,21 @@ class repoclient(object):
             else:
                 print "Image was not created: response code "+str(resp.status)
 
+    def update_metadata(self, *args, **kwargs):
+        metadata = kwargs['metadata']
+        exists = kwargs['exists']
+        self.new_image(metadata=metadata, replace=exists)
+        
+
     def get_image_info(self, name):
         resp = self.rut.get_image_metadata(self.repository, self.usercert, self.userkey, name)
         
         json_resp = json.loads(resp)
-        #print json_resp
-        print '\n'
-        for key in json_resp:
-            print "  "+key+": \t",
-            print str(json_resp[key])
-        print '\n'
+        return json_resp
+
+    def delete(self, name):
+        resp = self.rut.delete_image(self.repository, self.usercert, self.userkey, name)
+        print str(resp)
 
 
 
@@ -246,4 +251,15 @@ class repoclient(object):
 
     def share_group(self,image,group):
         self.rut.share_group(self.repository,self.usercert,self.userkey,group,image)
-
+    
+    def get(self, *args, **kwargs):
+        try:
+            path = kwargs['path']
+        except:
+            path = './'
+        imagename = kwargs['name']
+        resp = self.get_image_info(imagename)
+        if resp['raw_file_uploaded']:
+            self.rut.get_image(self.repository,self.usercert,self.userkey,imagename,path)
+        else:
+            print "The raw image for "+imagename+" has not been uploaded yet."
