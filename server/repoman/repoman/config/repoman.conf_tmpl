@@ -5,13 +5,6 @@
 # SSLCACertificatePath      - directory where CA certs are stored
 # SSLCARevocationPath       - directory where CA revocation lists are stored
 
-# Example Apache virtualhost config
-#
-# SSLCertificateFile        - host certificate file
-# SSLCertificateKeyFile     - host key file
-# SSLCACertificatePath      - directory where CA certs are stored
-# SSLCARevocationPath       - directory where CA revocation lists are stored
-
 <VirtualHost localhost:443>
 
     ServerName localhost
@@ -42,4 +35,17 @@
     WSGIScriptAlias / @@VIRTUAL_ENV@@/repoman/server/apache/repoman.wsgi
 
 </VirtualHost>
+
+##
+## Uncomment the Below virtualhost if you want to allow http access to repoman.
+##
+## By enabling http access, you will NOT be comprimizing your repoman install!
+## It simple enables images(on a per image basis) to be downloaded via http.
+#<VirtualHost localhost:443>
+#
+#    ServerName localhost
+#
+#    WSGIScriptAlias / @@VIRTUAL_ENV@@/repoman/server/apache/repoman.wsgi
+#
+#</VirtualHost>
 

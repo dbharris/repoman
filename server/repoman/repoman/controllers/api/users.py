@@ -31,6 +31,9 @@ def auth_403(message):
 
 class UsersController(BaseController):
 
+    def __before__(self):
+        inline_auth(IsAthuenticated(), auth_403)
+
     def list_all(self, format='json'):
         user_q = meta.Session.query(User).filter(User.deleted!=True)
         users = [user.user_name for user in user_q]
@@ -125,7 +128,7 @@ class UsersController(BaseController):
             images = user.images
             if format=='json':
                 response.headers['content-type'] = app_globals.json_content_type
-                return h.render_json([url('image_by_user', image=i, user=user.user_name) for i in images])
+                return h.render_json([url('image_by_user', image=i.name, user=user.user_name, qualified=True) for i in images])
             else:
                 abort(501, '501 Not Implemented')
         else:
@@ -137,14 +140,26 @@ class UsersController(BaseController):
             groups = user.groups
             if format=='json':
                 response.headers['content-type'] = app_globals.json_content_type
-                return h.render_json([url('group', group=g) for g in groups])
+                return h.render_json([url('group', group=g.name, qualified=True) for g in groups])
             else:
                 abort(501, '501 Not Implemented')
         else:
             abort(404, '404 Not Found')
 
     def list_my_shared_images(self, user, format='json'):
-        pass
+        user = meta.Session.query(User).filter(User.user_name==user).first()
+        if user:
+            shared = []
+            for i in user.images:
+                if i.shared.users or i.shared.groups:
+                    shared.append(i)
+            if format=='json':
+                response.headers['content-type'] = app_globals.json_content_type
+                return h.render_json([url('image_by_user', user=user.user_name, image=i.name, qualified=True) for i in shared])
+            else:
+                abort(501, '501 Not Implemented')
+        else:
+            abort(404, '404 Not Found')
 
     def get_shared_with_me(self, user, format='json'):
         user = meta.Session.query(User).filter(User.user_name==user).first()
@@ -155,7 +170,7 @@ class UsersController(BaseController):
             shared = list(set(shared))
             if format=='json':
                 response.headers['content-type'] = app_globals.json_content_type
-                return h.render_json([url('image_by_user', image=i.name, user=i.owneruser_name) for i in shared])
+                return h.render_json([url('image_by_user', image=s.image.name, user=s.image.owner.user_name, qualified=True) for s in shared])
             else:
                 abort(501, '501 Not Implemented')
         else:

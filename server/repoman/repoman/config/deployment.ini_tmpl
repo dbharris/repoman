@@ -9,6 +9,13 @@ email_to = you@yourdomain.com
 smtp_server = localhost
 error_email_from = paste@localhost
 
+admin_file = /tmp/repoman_admins
+default_user_group = users
+image_storage = /tmp/images
+temp_storage = /tmp/images
+
+json_content_type = application/json
+
 [server:main]
 use = egg:Paste#http
 host = 0.0.0.0
@@ -30,7 +37,6 @@ app_instance_uuid = ${app_instance_uuid}
 #beaker.cache.data_dir = %(here)s/data/cache
 #beaker.session.data_dir = %(here)s/data/sessions
 
-# SQLAlchemy database URL
 sqlalchemy.url = sqlite:///production.db
 
 # WARNING: *THE LINE BELOW MUST BE UNCOMMENTED ON A PRODUCTION ENVIRONMENT*
@@ -61,3 +67,4 @@ formatter = generic
 
 [formatter_generic]
 format = %(asctime)s %(levelname)-5.5s [%(name)s] [%(threadName)s] %(message)s
+

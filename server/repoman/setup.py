@@ -5,14 +5,16 @@ except ImportError:
     use_setuptools()
     from setuptools import setup, find_packages
 
+from repoman.__version__ import version
+
 setup(
     name='repoman',
-    version='0.1rc1',
-    description='RESTful irtual machine image manager',
+    version=version,
+    description='RESTful virtual machine image manager',
     author='Matthew Vliet',
     author_email='mvliet@uvic.ca',
     url='https://github.com/hep-gc/repoman',
-    license="'GPLv3' or 'Apache v2'",
+    license="GPLv3 or Apache v2",
     install_requires=[
         "Pylons>=1.0",
         "SQLAlchemy>=0.5",

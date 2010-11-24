@@ -22,11 +22,9 @@ class Globals(object):
         self.cache = CacheManager(**parse_cache_config_options(config))
 
         # repoman Stuff
-        self.UUID_NAMESPACE = UUID(config['global_conf']['uuid_namespace'])
 
         self.temp_storage = config['global_conf']['temp_storage']
         self.image_storage = config['global_conf']['image_storage']
-        self.http_url_prfix = config['global_conf']['http_url_prefix']
 
         self.json_content_type = config['global_conf']['json_content_type']
         self.default_user_group = config['global_conf']['default_user_group']

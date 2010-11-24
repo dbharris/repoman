@@ -19,7 +19,7 @@ def validate_new_user(params):
         result = schema.to_python(params)
     except formencode.validators.Invalid, error:
         for e,v in error.error_dict.iteritems():
-            if e=='client_dn' and v.state=='CONFLICT':
+            if v.state=='CONFLICT':
                 abort(409, '409 Conflict')
             else:
                 abort(400, '400 Bad Request - validate_new_user')
@@ -32,10 +32,10 @@ def validate_modify_user(params):
         result = schema.to_python(params)
     except formencode.validators.Invalid, error:
         for e,v in error.error_dict.iteritems():
-            if e=='client_dn' and v.state=='CONFLICT':
+            if v.state=='CONFLICT':
                 abort(409, '409 Conflict')
             else:
-                abort(400, '400 Bad Request - validate_new_user')
+                abort(400, '400 Bad Request - validate_modify_user')
     else:
         return result
 
@@ -45,6 +45,7 @@ class UniqueUsername(formencode.FancyValidator):
         user_q = meta.Session.query(model.User)
         if user_q.filter(model.User.user_name==value).first():
             state = 'CONFLICT'
+            raise formencode.Invalid('conflict', value, state)
         else:
             return value
 
@@ -58,12 +59,21 @@ class UniqueCertDN(formencode.FancyValidator):
         else:
             return value
 
+class UniqueEmail(formencode.FancyValidator):
+    def _to_python(self, value, state):
+        user_q = meta.Session.query(model.User)
+        if user_q.filter(model.User.email==value).first():
+            state = 'CONFLICT'
+            raise formencode.Invalid('conflict', value, state)
+        else:
+            return value
+
 class ModifyUserForm(formencode.Schema):
     allow_extra_fields = True
     filter_extra_fields = True
 
     # What fields should be editable by the user?
-    full_name = formencode.validators.String(not_empty=True)
+    full_name = formencode.validators.String(if_missing=None)
 
 class NewUserForm(formencode.Schema):
     allow_extra_fields = True
@@ -75,10 +85,11 @@ class NewUserForm(formencode.Schema):
     cert_dn = formencode.All(formencode.validators.String(not_empty=True),
                              UniqueCertDN())
     email = formencode.All(formencode.validators.String(not_empty=True),
-                           formencode.validators.Email())
+                           formencode.validators.Email(),
+                           UniqueEmail())
+    full_name = formencode.validators.String(not_empty=True)
 
     # Default fields here
-    full_name = formencode.validators.String(not_empty=True)
     groups = formencode.validators.String(if_missing=False)
     suspended = formencode.validators.Bool(if_missing=False)
 
@@ -165,7 +176,7 @@ class NewImageForm(formencode.Schema):
 
     #expires = formencode.validators.DateTime???
     read_only = formencode.validators.Bool(if_missing=False)
-    allow_http_get = formencode.validators.Bool(if_missing=False)
+    unauthenticated_access = formencode.validators.Bool(if_missing=False)
 
 class ModifyImageForm(formencode.Schema):
     allow_extra_fields = True
@@ -183,7 +194,7 @@ class ModifyImageForm(formencode.Schema):
 
     #expires = formencode.validators.DateTime???
     read_only = formencode.validators.Bool(if_missing=None)
-    allow_http_get = formencode.validators.Bool(if_missing=None)
+    unauthenticated_access = formencode.validators.Bool(if_missing=None)
 
 def validate_raw_image(params):
     schema = NewImageForm()
