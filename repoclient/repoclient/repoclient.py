@@ -249,7 +249,7 @@ class repoclient(object):
 
     def share_user(self, *args, **kwargs):
         print "Sharing file "+kwargs['image']+"with user "+kwargs['user']
-        resp = self.rut.share_user(self.repository, self.usercert, self.userkey, user=kwargs['user'], read=kwargs['read'], image=kwargs['image']) 
+        resp = self.rut.share_user(self.repository, self.usercert, self.userkey, user=kwargs['user'], image=kwargs['image']) 
         if resp == 200:
             print "Share complete."
         else:
@@ -257,7 +257,7 @@ class repoclient(object):
 
     def share_group(self, *args, **kwargs):
         print "Sharing file "+kwargs['image']+"with group "+kwargs['group']
-        resp = self.rut.share_group(self.repository, self.usercert, self.userkey, group=kwargs['group'], read=kwargs['read'], image=kwargs['image']) 
+        resp = self.rut.share_group(self.repository, self.usercert, self.userkey, group=kwargs['group'], image=kwargs['image']) 
         if resp == 200:
             print "Share complete."
         else:
@@ -265,7 +265,7 @@ class repoclient(object):
 
     def unshare_user(self, *args, **kwargs):
         print "Unsharing file "+kwargs['image']+"with user "+kwargs['user']
-        resp = self.rut.unshare_user(self.repository, self.usercert, self.userkey, user=kwargs['user'], read=kwargs['read'], image=kwargs['image']) 
+        resp = self.rut.unshare_user(self.repository, self.usercert, self.userkey, user=kwargs['user'], image=kwargs['image']) 
         if resp == 200:
             print "Unshare complete."
         else:
@@ -273,7 +273,7 @@ class repoclient(object):
 
     def unshare_group(self, *args, **kwargs):
         print "Unsharing file "+kwargs['image']+"with group "+kwargs['group']
-        resp = self.rut.unshare_group(self.repository, self.usercert, self.userkey, group=kwargs['group'], read=kwargs['read'], image=kwargs['image'])
+        resp = self.rut.unshare_group(self.repository, self.usercert, self.userkey, group=kwargs['group'],  image=kwargs['image'])
         if resp == 200:
             print "Unshare complete."
         else:
