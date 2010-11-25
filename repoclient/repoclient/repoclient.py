@@ -246,11 +246,38 @@ class repoclient(object):
     def post_image(self,imagename):  
         self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,imagename)
 
-    def share_user(self,image,user):
-        self.rut.share_user(self.repository,self.usercert,self.userkey,user,image) 
 
-    def share_group(self,image,group):
-        self.rut.share_group(self.repository,self.usercert,self.userkey,group,image)
+    def share_user(self, *args, **kwargs):
+        print "Sharing file "+kwargs['image']+"with user "+kwargs['user']
+        resp = self.rut.share_user(self.repository, self.usercert, self.userkey, user=kwargs['user'], read=kwargs['read'], image=kwargs['image']) 
+        if resp == 200:
+            print "Share complete."
+        else:
+            print "Share failed: HTTP code "+str(resp)
+
+    def share_group(self, *args, **kwargs):
+        print "Sharing file "+kwargs['image']+"with group "+kwargs['group']
+        resp = self.rut.share_group(self.repository, self.usercert, self.userkey, group=kwargs['group'], read=kwargs['read'], image=kwargs['image']) 
+        if resp == 200:
+            print "Share complete."
+        else:
+            print "Share failed: HTTP code "+str(resp)
+
+    def unshare_user(self, *args, **kwargs):
+        print "Unsharing file "+kwargs['image']+"with user "+kwargs['user']
+        resp = self.rut.unshare_user(self.repository, self.usercert, self.userkey, user=kwargs['user'], read=kwargs['read'], image=kwargs['image']) 
+        if resp == 200:
+            print "Unshare complete."
+        else:
+            print "Unshare failed: HTTP code "+str(resp)
+
+    def unshare_group(self, *args, **kwargs):
+        print "Unsharing file "+kwargs['image']+"with group "+kwargs['group']
+        resp = self.rut.unshare_group(self.repository, self.usercert, self.userkey, group=kwargs['group'], read=kwargs['read'], image=kwargs['image'])
+        if resp == 200:
+            print "Unshare complete."
+        else:
+            print "Unshare failed: HTTP code "+str(resp)
     
     def get(self, *args, **kwargs):
         try:

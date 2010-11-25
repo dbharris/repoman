@@ -45,6 +45,37 @@ class repoutils(object):
         resp = repo_https.getresponse()
         return resp.read()
 
+    def share_user(self, repo, cert, key, *args, **kwargs):
+        id = self.get_user(repo,cert,key)
+        user_name = id['user_name']
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('POST', '/api/images/'+user_name+'/'+kwargs['image']+'/share/user/'+kwargs['user'])
+        resp = repo_https.getresponse()
+        return resp.status
+
+    def share_group(self, repo, cert, key, *args, **kwargs):
+        id = self.get_user(repo,cert,key)
+        user_name = id['user_name']
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('POST', '/api/images/'+user_name+'/'+kwargs['image']+'/share/group/'+kwargs['group'])
+        resp = repo_https.getresponse()
+        return resp.status
+
+    def unshare_user(self, repo, cert, key, *args, **kwargs):
+        id = self.get_user(repo,cert,key)
+        user_name = id['user_name']
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('DELETE', '/api/images/'+user_name+'/'+kwargs['image']+'/share/user/'+kwargs['user'])
+        resp = repo_https.getresponse()
+        return resp.status
+
+    def unshare_group(self, repo, cert, key, *args, **kwargs):
+        id = self.get_user(repo,cert,key)
+        user_name = id['user_name']
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('DELETE', '/api/images/'+user_name+'/'+kwargs['image']+'/share/group/'+kwargs['group'])
+        resp = repo_https.getresponse()
+        return resp.status
  
     def repo(self, repo, cert, key):
         return httplib.HTTPSConnection('localhost', 443, cert_file=cert, key_file=key)
@@ -114,19 +145,6 @@ class repoutils(object):
         for line in p.stdout.readlines():
             pass
      
-    def share_user(self, repo, cert, key, user, image, headers=HEADERS):
-        user_name = self.get_username(repo,cert,key)
-        repo_https = self.repo(repo, cert, key)
-        repo_https.request('POST', '/api/images'+user_name+'/'+image+'/share/user/'+user, headers)
-        return repo_https.getresponse()    
-
-    def share_group(self, repo, cert, key, group, image, headers=HEADERS):
-        user_name = self.get_username(repo,cert,key)
-        repo_https = self.repo(repo, cert, key)
-        repo_https.request('POST', '/api/images'+user_name+'/'+image+'/share/group/'+group, headers)
-        return repo_https.getresponse()
-        
-
     def get_content_type(filename):
         return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
