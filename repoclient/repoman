@@ -36,6 +36,7 @@ def print_help_menu():
     print "repoman upload --file filename --name imagename [--(any other metadata tags)]"
     print "repoman share (--user username | --group groupname)  --name vmname"
     print "repoman unshare (--user username | --group groupname)  --name  vmname"
+    print "repoman --help or repoman help"
     print "\n"
     print "Other metadata tag examples: --hypervisor Xen, --os_variant RHEL"
     print "All defaults are set in repoclient.conf, set in /etc/repoclient/repoclient.conf by default"
