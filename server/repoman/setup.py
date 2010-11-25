@@ -18,6 +18,9 @@ setup(
     install_requires=[
         "Pylons>=1.0",
         "SQLAlchemy>=0.5",
+        "markupsafe",
+        'uuid',
+        'pysqlite'
     ],
     setup_requires=["PasteScript>=1.6.3"],
     packages=find_packages(exclude=['ez_setup']),
@@ -36,6 +39,9 @@ setup(
 
     [paste.app_install]
     main = pylons.util:PylonsInstaller
+
+    [paste.paster_command]
+    make-wsgi-config = repoman.commands.wsgi_config:WSGIConfigCommand
     """,
 )
 

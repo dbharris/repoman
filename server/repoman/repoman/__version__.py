@@ -1,7 +1,7 @@
 major = '0.1'
 minor = ''
-tag = 'dev'
-revision = '5'
+tag = ''
+revision = ''
 version = major
 
 if minor:
