@@ -34,13 +34,12 @@ def print_help_menu():
     print "repoman delete --name imagename [--force]"
     print "repoman update [--force] --name imagename [--(any other metadata tags)]"
     print "repoman upload --file filename --name imagename [--(any other metadata tags)]"
-    print "repoman share (--user username | --group groupname) [--read]  --image vmname"
-    print "repoman unshare (--user username | --group groupname) [--read]  --image  vmname"
+    print "repoman share (--user username | --group groupname)  --name vmname"
+    print "repoman unshare (--user username | --group groupname)  --name  vmname"
     print "\n"
     print "Other metadata tag examples: --hypervisor Xen, --os_variant RHEL"
     print "All defaults are set in repoclient.conf, set in /etc/repoclient/repoclient.conf by default"
     print "Delete function has not been tested."
-    print "share/unshare --read has not been implemented."
     print "\n"
     sys.exit(0)
 
@@ -290,8 +289,7 @@ def main():
     if command == "share":
         parser.add_option('-u','--username',action="store", type="string",dest="username")
         parser.add_option('-g','--group',action="store", type="string",dest="group")
-        parser.add_option('-r','--read',dest="read",default=False,action="store_true")
-        parser.add_option('-i','--image',action="store", type="string",dest="image")
+        parser.add_option('-n','--name',action="store", type="string",dest="image")
         options, args = parser.parse_args(args=sys.argv[2:])
         if not options.username and not options.group:
             print "Please user either a user or a group to share the image with."
@@ -305,24 +303,23 @@ def main():
             for i in xrange(len(repo.list_images_raw())):
                 image_list[i] = repo.list_images_raw()[i].split('/')[6]
             print "Please enter an image to share."
-            print "i.e. share --user username --image imagename"
+            print "i.e. share --user username --name imagename"
             print "The images you own on the server are:"
             for item in image_list:
                 print item
             sys.exit(0)
         if options.username:
-            repo.share_user(user=options.username,read=options.read,image=options.image)
+            repo.share_user(user=options.username,image=options.image)
             sys.exit(2)
         if options.group:
-            repo.share_group(group=options.group,read=options.read,image=options.image)
+            repo.share_group(group=options.group,image=options.image)
             sys.exit(2)
      
 
     if command == "unshare":
         parser.add_option('-u','--username',action="store", type="string",dest="username")
         parser.add_option('-g','--group',action="store", type="string",dest="group")
-        parser.add_option('-r','--read',dest="read",default=False,action="store_true")
-        parser.add_option('-i','--image',action="store", type="string",dest="image")
+        parser.add_option('-n','--name',action="store", type="string",dest="image")
         options, args = parser.parse_args(args=sys.argv[2:])
         image_list = repo.list_images_raw()
         for i in xrange(len(repo.list_images_raw())):
@@ -337,7 +334,7 @@ def main():
         
         if not options.image:
             print "Please enter an image to unshare."
-            print "i.e. unshare --user username --image imagename"
+            print "i.e. unshare --user username --name imagename"
             print "The images you own on the server are:"
             for item in image_list:
                 print item
@@ -353,10 +350,10 @@ def main():
                 print item
             sys.exit(0) 
         if options.username:    
-            repo.unshare_user(user=options.username,read=options.read,image=options.image)
+            repo.unshare_user(user=options.username,image=options.image)
             sys.exit(2)
         if options.group:
-            repo.unshare_group(group=options.group,read=options.read,image=options.image) 
+            repo.unshare_group(group=options.group,image=options.image) 
             sys.exit(2)
 
     if command == 'help' or command == '--help':
