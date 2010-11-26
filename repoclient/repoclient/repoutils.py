@@ -11,6 +11,7 @@ import simplejson as json
 from commands import getstatusoutput
 import sys
 import subprocess
+import urlparse
 
 HEADERS = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
 
@@ -78,7 +79,8 @@ class repoutils(object):
         return resp.status
  
     def repo(self, repo, cert, key):
-        return httplib.HTTPSConnection('localhost', 443, cert_file=cert, key_file=key)
+        hostname = urlparse.urlparse(repo)[1].split(':')[0]
+        return httplib.HTTPSConnection(hostname, 443, cert_file=cert, key_file=key)
 
     def get_images(self,repo,cert,key):
         user = self.get_user(repo,cert,key)

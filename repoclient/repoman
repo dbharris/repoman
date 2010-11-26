@@ -23,9 +23,9 @@ def ask_yes_or_no(*args, **kwargs):
     return False
 
 def print_help_menu():
-    print "\n"
     print "Repoman Client 0.1b2"
-    print "Currently implemented commands:"
+    print " "
+    print "Available commands:"
     print "repoman list [--all]"
     print "repoman getuser [--all]"
     print "repoman info --name imagename "
@@ -41,7 +41,7 @@ def print_help_menu():
     print "Other metadata tag examples: --hypervisor Xen, --os_variant RHEL"
     print "All defaults are set in repoclient.conf, set in /etc/repoclient/repoclient.conf by default"
     print "Delete function has not been tested."
-    print "\n"
+    print " "
     sys.exit(0)
 
 def main():
@@ -102,8 +102,7 @@ def main():
         for key in metadata:
             print key+": "+metadata[key]
         repo.save_image(metadata=metadata,replace=replace)
-        # sends to repoclient as kwargs
-
+        sys.exit(0)
 
     if command == 'getuser':
         parser.add_option('-a','--all',dest="all",default=False,action="store_true")
@@ -135,6 +134,8 @@ def main():
             for item in image_list:
                 print item
             sys.exit(2)
+        sys.exit(0)
+
 
     if command == 'upload':
         args = sys.argv
@@ -178,7 +179,7 @@ def main():
                     print 'Exiting repoclient.'
                     sys.exit(2)
         repo.upload_image(file, replace=replace, name=name, metadata=metadata)
-
+        sys.exit(0)
 
     if command == 'get':
         parser.add_option('-n','--name',action="store",type="string",dest="name")
@@ -206,7 +207,8 @@ def main():
                print "Please enter on of the following names:"           
                for item in image_list:
                    print item
-                            
+        sys.exit(0)                        
+    
     if command == "update":
         args = sys.argv
         if len(args) < 3:
@@ -256,9 +258,9 @@ def main():
         else:
             print "Updating image "+name+" with metadata: "
             for key in metadata:
-                print key+": "+metadata[key]
+                print key+": "+str(metadata[key])
             repo.update_metadata(metadata=metadata, exists=exists)
-
+        sys.exit(0)
            
  
     if command == "delete":
@@ -286,6 +288,7 @@ def main():
             else:
                 print "Exiting repoman."
                 sys.exit(0)
+        sys.exit(0)
 
     if command == "share":
         parser.add_option('-u','--username',action="store", type="string",dest="username")
@@ -308,14 +311,14 @@ def main():
             print "The images you own on the server are:"
             for item in image_list:
                 print item
-            sys.exit(0)
+            sys.exit(2)
         if options.username:
             repo.share_user(user=options.username,image=options.image)
-            sys.exit(2)
+            sys.exit(0)
         if options.group:
             repo.share_group(group=options.group,image=options.image)
-            sys.exit(2)
-     
+            sys.exit(0)
+        sys.exit(0)     
 
     if command == "unshare":
         parser.add_option('-u','--username',action="store", type="string",dest="username")
@@ -332,7 +335,6 @@ def main():
         if options.username and options.group:
             print "Please select either a user or a group to unshare to."
             sys.exit(0)
-        
         if not options.image:
             print "Please enter an image to unshare."
             print "i.e. unshare --user username --name imagename"
@@ -356,7 +358,8 @@ def main():
         if options.group:
             repo.unshare_group(group=options.group,image=options.image) 
             sys.exit(2)
-
+        sys.exit(0)
+        
     if command == 'help' or command == '--help':
         print_help_menu()
         sys.exit(0)
