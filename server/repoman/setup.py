@@ -32,7 +32,7 @@ setup(
     #        ('templates/**.mako', 'mako', {'input_encoding': 'utf-8'}),
     #        ('public/**', 'ignore', None)]},
     zip_safe=False,
-    scripts=['repoman-admin']
+    scripts=['repoman/commands/repoman-admin'],
     paster_plugins=['PasteScript', 'Pylons'],
     entry_points="""
     [paste.app_factory]

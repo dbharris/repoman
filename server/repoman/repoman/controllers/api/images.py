@@ -16,7 +16,8 @@ from repoman.model.form import validate_new_image, validate_modify_image
 from repoman.lib.authorization import AllOf, AnyOf, NoneOf
 from repoman.lib.authorization import authorize, inline_auth
 from repoman.lib.authorization import HasPermission, IsAthuenticated, IsUser, OwnsImage, SharedWith, MemberOf
-from repoman.lib import beautify, storage
+from repoman.lib import beautify
+from repoman.lib.storage import storage
 from repoman.lib import helpers as h
 from pylons import app_globals
 
