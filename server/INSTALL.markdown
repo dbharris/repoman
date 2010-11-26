@@ -68,8 +68,15 @@ There are 2 ways to install repoman.
 
 **This guide assumes a RHEL based OS.  paths and commands may vary for you**
 
+1.  Install prerequisites
+
+        yum install python-setuptools gcc sqlite sqlite-devel
+        easy_install pip virtualenv
+
 1.  Create a Virtual Environment
-        virtualenv --no-site-packages repoman
+        mkdir -p /opt/repoman
+        export REPOMAN=/opt/repoman
+        virtualenv --no-site-packages $REPOMAN
 
 1.  Install needed libraries
         cd $REPOMAN
@@ -80,19 +87,34 @@ There are 2 ways to install repoman.
         pip install pysqlite uuid
 
 1.  Checkout the repository
-        git clone git@github.com:hep-gc/repoman.git
+        git clone git://github.com/hep-gc/repoman.git
+
+    or if you don't have git installed:
+        wget --no-check-certificate https://github.com/hep-gc/repoman/tarball/dev
+        tar xzvf hep-gc-repoman*.tar.gz
+        rm -Rf hep-gc-repoman*.tar.gz
+        mv hep-gc-repoman* repoman
 
 1.  Modify repoman.wsgi
-        cd $REPOMAN/repoman/server
+        cd $REPOMAN/repoman/server/apache
         vim repoman.wsgi
 
     Replace `@@VIRTUAL_ENV@@` with `$REPOMAN`.
+
+    or
+        sed -i "s|@@VIRTUAL_ENV@@|$VIRTUAL_ENV|" repoman.wsgi
+
 
 1.  Copy the  config to your apache installation.
         cp $REPOMAN/repoman/server/apache/repoman.conf /etc/httpd/conf.d/
         vim /etc/httpd/conf.d/repoman.conf
 
     Replace `@@VIRTUAL_ENV@@` with `$REPOMAN`.
+
+    or
+
+        sed -i "s|@@VIRTUAL_ENV@@|$VIRTUAL_ENV|" /etc/httpd/conf.d/repoman.conf
+
     Modify the paths to the host and CA certificates if needed.
 
 1.  Create the cache directory for eggs
@@ -112,7 +134,7 @@ There are 2 ways to install repoman.
         doug,doug@uvic.ca,/C=CA/O=Grid/OU=phys.uvic.ca/CN=Doug McKenzie
 
 1. Create the database
-        cd $REPOMAN/repoman/server
+        cd $REPOMAN/repoman/server/repoman/
         paster setup-app development.ini
 
 1. Give the `apache` user read/write on the database
