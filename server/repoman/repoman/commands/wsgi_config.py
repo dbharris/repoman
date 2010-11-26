@@ -69,6 +69,7 @@ apache_template = """
 """
 
 class WSGIConfigCommand(Command):
+    #TODO: clean this up!!!
 
     min_args = 1
     max_args = 1
@@ -99,12 +100,12 @@ class WSGIConfigCommand(Command):
         apache_config.write(self.apache_template)
         apache_config.close()
         print "Customizing 'repoman.wsgi' with:"
-        print "\t WSGIScriptAlias\t<-- %s" % (self.wsgi_alias % (base_dir+'/'+self.args[0]))
+        print "\t WSGIScriptAlias\t<-- %s" % (self.wsgi_alias % (base_dir+'/'+'repoman.wsgi'))
         self.insert_into_file('repoman.conf', 'WSGIScriptAlias1',
-                               self.wsgi_alias % (base_dir+'/'+self.args[0]),
+                               self.wsgi_alias % (base_dir+'/'+'repoman.wsgi'),
                                indent=True)
         self.insert_into_file('repoman.conf', 'WSGIScriptAlias2',
-                               '#    ' + self.wsgi_alias % (base_dir+'/'+self.args[0]),
+                               '#    ' + self.wsgi_alias % (base_dir+'/'+'repoman.wsgi'),
                                indent=True)
 
         print 'Configuration Completed.'
