@@ -31,7 +31,7 @@ def print_help_menu():
     print "repoman info --name imagename "
     print "repoman save --force --name imagename [--(any other metadata tags)]"
     print "repoman get --name imagename"
-    print "repoman delete --name imagename [--force]"
+    #print "repoman delete --name imagename [--force]"
     print "repoman update [--force] --name imagename [--(any other metadata tags)]"
     print "repoman upload --file filename --name imagename [--(any other metadata tags)]"
     print "repoman share (--user username | --group groupname)  --name vmname"
@@ -40,7 +40,8 @@ def print_help_menu():
     print "\n"
     print "Other metadata tag examples: --hypervisor Xen, --os_variant RHEL"
     print "All defaults are set in repoclient.conf, set in /etc/repoclient/repoclient.conf by default"
-    print "Delete function has not been tested."
+    #print "Delete function has not been tested."
+    #Delete does not currently work.
     print " "
     sys.exit(0)
 
@@ -155,7 +156,8 @@ def main():
         except:
             print "The minimum metadata needed to upload an image is the name, specified with --name"
             sys.exit(0)
-        # Server is expecting Bool objects for readonly
+        
+        #Server is expecting Bool objects for readonly
         try:
             readonly = metadata['readonly']
             true_values = ['t', 'True', 'true']
@@ -163,7 +165,6 @@ def main():
                 metadata['readonly'] = True
             else:
                 metadata['readonly'] = False
-
         except:
             metadata['readonly'] = False
         image_list = repo.list_images_raw()
@@ -227,7 +228,7 @@ def main():
             print "Please enter at least a name as metadata."
             sys.exit(0)
         
-        # Server is expecting Bool objects for readonly
+        #Server is expecting Bool objects for readonly
         try:
             readonly = metadata['readonly']
             true_values = ['t', 'True', 'true']
@@ -235,7 +236,7 @@ def main():
                 metadata['readonly'] = True
             else:
                 metadata['readonly'] = False
-
+        
         except:
             metadata['readonly'] = False
 
@@ -297,7 +298,7 @@ def main():
         options, args = parser.parse_args(args=sys.argv[2:])
         if not options.username and not options.group:
             print "Please user either a user or a group to share the image with."
-            print "i.e. share --user username or share --group groupname"
+            print "i.e. share --user username or share --group groupname --name imagename"
             sys.exit(0)
         if options.username and options.group:
             print "Please select either a user or a group to share to."
@@ -330,7 +331,7 @@ def main():
             image_list[i] = repo.list_images_raw()[i].split('/')[6]
         if not options.username and not options.group:
             print "Please user either a user or a group to unshare the image with."
-            print "i.e. unshare --user username or unshare --group groupname"
+            print "i.e. unshare --user username or unshare --group groupname --name imagename"
             sys.exit(0)
         if options.username and options.group:
             print "Please select either a user or a group to unshare to."

@@ -2,7 +2,7 @@ repoclient:
 
 This package is designed to be installed on the VM to interface with the repoman server. 
 
-To begin, run setup.py.  This will place a repoclient.conf in /etc/repoclient/.  Edit this file to change the default repository and location of userkeys
+To begin, run setup.py.  This will place a repoclient.conf in /etc/repoclient/.  Either edit this file or copy it to ~/.repoclient and insert your usercert, userkey and repository location.
 
 
 Currently implemented commands:
@@ -11,7 +11,6 @@ repoman getuser [--all]
 repoman info --name imagename 
 repoman save --name imagename [--(any other metadata tags)]
 repoman get --name imagename
-repoman delete --name imagename [--force]
 repoman update [--force] --name imagename [--(any other metadata tags)]
 repoman share (--user username | --group groupname) [--read]  --image vmname
 repoman unshare (--user username | --group groupname) [--read]  --image  vmname
@@ -19,5 +18,3 @@ repoman unshare (--user username | --group groupname) [--read]  --image  vmname
 
 Other metadata tag examples: --hypervisor Xen, --os_variant RHEL
 All defaults are set in repoclient.conf, set in /etc/repoclient/repoclient.conf by default
-Delete function has not been tested.
-
