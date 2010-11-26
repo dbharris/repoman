@@ -27,14 +27,14 @@ class repoclient(object):
     def read_config_file(self):
         
         config = ConfigParser.RawConfigParser()
-        config.read("/etc/repoclient/repoclient.conf")
+        config.read(os.getenv("HOME")+'/.repoman/repoclient.conf')
 
         # read in some values that MUST be set:
         try:
             self.imagepath=config.get("ThisImage","image")
             self.mountpoint=config.get("ThisImage","mountpoint")
         except ConfigParser.NoSectionError:
-            print "Trouble reading config file. (/etc/repoclient/repoclient.conf"  
+            print "Trouble reading config file. ~/.repoman/repoclient.conf"  
             print "Make sure a mountpoint and image file are specified"
             sys.exit(1)
     
@@ -42,7 +42,7 @@ class repoclient(object):
             self.imagename=config.get("ThisImage","image")
             self.repository=config.get("ThisImage","repository")
         except ConfigParser.NoSectionError:
-            print "Trouble reading config file. (/etc/repoclient/repoclient.conf"  
+            print "Trouble reading config file. (~/repoman/repoclient.conf"  
             print "Make sure an imagename and repository are specified"
             sys.exit(1)
             
@@ -50,12 +50,12 @@ class repoclient(object):
             self.usercert=config.get("ThisImage","usercert")
             self.userkey=config.get("ThisImage","userkey")
         except ConfigParser.NoSectionError:
-            print "Trouble reading config file. (/etc/repoclient/repoclient.conf"  
+            print "Trouble reading config file. (~/repoman/repoclient.conf"  
             print "Make sure a usercert and userkey are specified"
             sys.exit(1)
         if not (os.path.exists(self.usercert) or os.path.exists(self.userkey)):
             print "Your certificate and/or key doesn't exist as specified in"
-            print "/etc/repoclient/repoclient.conf.  exiting."
+            print "~/repoman/repoclient.conf.  exiting."
             sys.exit(1)
         
         
