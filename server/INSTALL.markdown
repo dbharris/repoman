@@ -4,7 +4,11 @@ There are 2 ways to install repoman.
 
 1.  From an Egg
 
+    This is the recomended way to install and run repoman
+
 1.  From a checked out repository
+
+    This method will allow you to develop and test repoman
 
 
 ## Install from an Egg (recommended)
@@ -35,7 +39,8 @@ There are 2 ways to install repoman.
 1.  Create the database
         paster setup-app deploy.ini
 
-    Ensure that the `apache` user has read/write permissions on the database.
+    If using the default sqlite DB, ensure that the `apache` user has read/write
+    permissions on the database file and the base directory the database file is in.
 
 1.  Create the apache configs
         paster --plugin=repoman make-wsgi-config deploy.ini
