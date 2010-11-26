@@ -192,7 +192,8 @@ class repoclient(object):
 
     def delete(self, name):
         resp = self.rut.delete_image(self.repository, self.usercert, self.userkey, name)
-        print str(resp)
+        if not str(resp):
+            print "Image "+name+" deleted."
 
 
 

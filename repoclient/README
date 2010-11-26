@@ -9,12 +9,13 @@ Currently implemented commands:
 repoman list [--all]
 repoman getuser [--all]
 repoman info --name imagename 
-repoman save --name imagename [--(any other metadata tags)]
+repoman save --name imagename [--(any other metadata tags)] [--force]
 repoman get --name imagename
-repoman update [--force] --name imagename [--(any other metadata tags)]
-repoman share (--user username | --group groupname) [--read]  --image vmname
-repoman unshare (--user username | --group groupname) [--read]  --image  vmname
+repoman delete --name imagename [--force]
+repoman update --name imagename [--(any other metadata tags)] [--force]
+repoman share (--user username | --group groupname)  --image vmname
+repoman unshare (--user username | --group groupname)  --image  vmname
 
 
-Other metadata tag examples: --hypervisor Xen, --os_variant RHEL
-All defaults are set in repoclient.conf, set in /etc/repoclient/repoclient.conf by default
+Other metadata tag examples: --hypervisor Xen, --os_variant RHEL, --readonly true
+All defaults are set in repoclient.conf, set in /etc/repoclient/repoclient.conf by default (custom may be placed at ~/.repoclient)

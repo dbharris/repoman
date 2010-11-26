@@ -31,7 +31,7 @@ def print_help_menu():
     print "repoman info --name imagename "
     print "repoman save --force --name imagename [--(any other metadata tags)]"
     print "repoman get --name imagename"
-    #print "repoman delete --name imagename [--force]"
+    print "repoman delete --name imagename [--force]"
     print "repoman update [--force] --name imagename [--(any other metadata tags)]"
     print "repoman upload --file filename --name imagename [--(any other metadata tags)]"
     print "repoman share (--user username | --group groupname)  --name vmname"
@@ -40,8 +40,7 @@ def print_help_menu():
     print "\n"
     print "Other metadata tag examples: --hypervisor Xen, --os_variant RHEL"
     print "All defaults are set in repoclient.conf, set in /etc/repoclient/repoclient.conf by default"
-    #print "Delete function has not been tested."
-    #Delete does not currently work.
+    print "Delete function has not been tested."
     print " "
     sys.exit(0)
 
