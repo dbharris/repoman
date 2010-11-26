@@ -224,10 +224,11 @@ class ImagesController(BaseController):
 
         if image:
             inline_auth(AnyOf(OwnsImage(image), HasPermission('image_delete')), auth_403)
-            try:
-                storage.delete_image(image)
-            except Exception, e:
-                abort(500, 'Unable to remove image file from storage')
+            if image.raw_uploaded:
+                try:
+                    storage.delete_image(image)
+                except Exception, e:
+                    abort(500, 'Unable to remove image file from storage')
             meta.Session.delete(image.checksum)
             meta.Session.delete(image.shared)
             meta.Session.delete(image)
