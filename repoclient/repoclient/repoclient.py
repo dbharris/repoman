@@ -9,6 +9,8 @@ import imageutils,repoutils
 import sys,os
 from commands import getstatusoutput
 import pprint
+import os.path
+
 try:
     import json
 except:
@@ -25,37 +27,44 @@ class repoclient(object):
     
         
     def read_config_file(self):
-        
         config = ConfigParser.RawConfigParser()
-        config.read(os.getenv("HOME")+'/.repoman/repoclient.conf')
+        user_config = os.getenv("HOME")+'/.repoclient'
+        if os.path.isfile(os.getenv("HOME")+'/.repoclient'):
+            config.read(os.getenv("HOME")+'/.repoclient')
+        else:
+            config.read('/etc/repoclient/repoclient.conf')
 
         # read in some values that MUST be set:
         try:
             self.imagepath=config.get("ThisImage","image")
             self.mountpoint=config.get("ThisImage","mountpoint")
         except ConfigParser.NoSectionError:
-            print "Trouble reading config file. ~/.repoman/repoclient.conf"  
-            print "Make sure a mountpoint and image file are specified"
+            print "Trouble reading config file."  
+            print "Make sure a mountpoint and image file are specified in the config"
+            print "(either /etc/repoclient/repoclient.conf or ~/.repoclient)"
             sys.exit(1)
     
         try:
             self.imagename=config.get("ThisImage","image")
             self.repository=config.get("ThisImage","repository")
         except ConfigParser.NoSectionError:
-            print "Trouble reading config file. (~/repoman/repoclient.conf"  
-            print "Make sure an imagename and repository are specified"
+            print "Trouble reading config file."  
+            print "Make sure an imagename and repository are specified in the config"
+            print "(either /etc/repoclient/repoclient.conf or ~/.repoclient)"
             sys.exit(1)
             
         try:
             self.usercert=config.get("ThisImage","usercert")
             self.userkey=config.get("ThisImage","userkey")
         except ConfigParser.NoSectionError:
-            print "Trouble reading config file. (~/repoman/repoclient.conf"  
-            print "Make sure a usercert and userkey are specified"
+            print "Trouble reading config file."  
+            print "Make sure a usercert and userkey are specified in the config"
+            print "(either /etc/repoclient/repoclient.conf or ~/.repoclient)"
             sys.exit(1)
         if not (os.path.exists(self.usercert) or os.path.exists(self.userkey)):
             print "Your certificate and/or key doesn't exist as specified in"
-            print "~/repoman/repoclient.conf.  exiting."
+            print "the config file."
+            print "(either /etc/repoclient/repoclient.conf or ~/.repoclient)"
             sys.exit(1)
         
         
