@@ -3,15 +3,13 @@
 import simplejson
 import httplib
 import urllib
+import os, sys
 from os import getuid
+import ConfigParser
+import optparse
 
 HEADERS = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
 
-DEFAULT_CLI_CONFIG = {}
-
-DEFAULT_CLIENT_CONFIG = {'host':'localhost',
-                         'port':443,
-                         'cert':'/tmp/x509up_u%s' % getuid()}
 
 class RepomanError(Exception):
     def __init__(self, e):
@@ -295,9 +293,91 @@ class RepomanClient(object):
 
 
 class RepomanCLI(object):
-    def __init__(self):
-        pass
 
-    def make_parser(self):
-        pass
+    _config_places = ['$REPOMAN_CLIENT_CONFIG', '$HOME/.repoman/repoman.conf']
+    _proxy_places = ['$X509_USER_PROXY', '/tmp/x509up_u%s'%getuid()]
+
+    _default_config = {}
+    host = None
+    port = None
+
+    conn = None
+
+    def __init__(self):
+        self.config_file = None
+        for place in self._config_places:
+            place = os.path.expandvars(place)
+            if os.path.exists(place):
+                self.config_file = place
+                break
+
+        self.proxy = None
+        for place in self._proxy_places:
+            place = os.path.expandvars(place)
+            if os.path.exists(place):
+                self.proxy = place
+                break
+
+        try:
+            self.config = ConfigParser.SafeConfigParser()
+            self.config.read(self.config_file)
+            self.host = self.config.get('SERVER', 'host')
+            self.port = int(self.config.get('SERVER', 'port'))
+            #overwrite proxy if exists
+            if self.config.get('USER', 'proxy'):
+                self.proxy = self.config.get('USER', 'proxy')
+        except:
+            print "There is an error in your config file: '%s'" % self.config_file
+            sys.exit(1)
+
+        try:
+            self.conn = httplib.HTTPSConnection(host=self.host,
+                                                port=self.port,
+                                                cert_file=self.proxy)
+        except:
+            print 'Error getting connection to server.  Check your settings'
+            sys.exit(1)
+
+
+    def dispatch_command(self):
+        try:
+            func = getattr(self, sys.argv[1])
+            return func(self)
+        except:
+            print 'The command you tried to run does not exist: '%s'' % sys.argv[1]
+            sys.exit(1)
+
+    def users(self):
+
+        def list_all(args):
+
+
+        parser = optparse.OptionParser()
+        parser.add_option('--list', action='store_true', dest='list_all')
+        parser.add_option('--create', action='store_true', dest='create')
+        parser.add_option('--delete', action='store_true', dest='delete')
+        parser.add_option('--long', action='store_true', dest='long')
+        (opts, args) = parser.parse_args(sys.argv[2:])
+
+        if opts.list_all:
+            list_all(args)
+        elif opts.create:
+            create(args)
+        elif opts.delete:
+            delete(args)
+
+
+    def groups(self):
+        parser = optparse.OptionParser()
+        parser.add_option('--list', action='store_true', dest='list_all')
+        parser.add_option('--create', action='store_true', dest='create')
+        parser.add_option('--delete', action='store_true', dest='delete')
+        parser.add_option('--long', action='store_true', dest='long')
+
+    def images(self):
+        parser = optparse.OptionParser()
+        parser.add_option('--list', action='store_true', dest='list_all')
+        parser.add_option('--create', action='store_true', dest='create')
+        parser.add_option('--delete', action='store_true', dest='delete')
+        parser.add_option('--long', action='store_true', dest='long')
 
