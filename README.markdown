@@ -1,6 +1,19 @@
 # Repoman
 Repoman is a virtual machine image catalog and repository with a RESTful interface.
 
+If you have any issues or ideas for improving Repoman, please use the github issue
+tracker to allow others to follow along with problems and ideas.
+The issue tracker can be found at: https://github.com/hep-gc/repoman/issues
+
+## Install Guide
+1.  Install the server.
+
+    See `server/INSTALL.markdown` and follow the instructions for installing from an EGG.
+1.  Install the `repoclient` on any of your workstations you want to use.
+
+    See the documentation at `repoclient/README`
+
+
 ## Server Documentation
 See these files for documentation of the server side
 

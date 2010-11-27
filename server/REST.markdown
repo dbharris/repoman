@@ -10,6 +10,7 @@ URL | HTTP_METHOD | DESCRIPTION |
 /api/users/{user} | GET | display the user object for `user`
 /api/users/{user} | POST | modify the user object for `user`
 /api/users/{user} | DELETE | delete `user`
+/api/users/{user}/shared | GET | get a list of images shared with `user`
 /api/groups | GET | display a list of all groups
 /api/groups | POST | create a new group based on the POST params
 /api/groups/{group} | GET | display the group object for `group`
