@@ -9,6 +9,12 @@ import imageutils,repoutils
 import sys,os
 from commands import getstatusoutput
 import pprint
+import os.path
+
+try:
+    import json
+except:
+    import simplejson as json
 #write help
 
 
@@ -21,37 +27,44 @@ class repoclient(object):
     
         
     def read_config_file(self):
-        
         config = ConfigParser.RawConfigParser()
-        config.read("/etc/repoclient/repoclient.conf")
+        user_config = os.getenv("HOME")+'/.repoclient'
+        if os.path.isfile(os.getenv("HOME")+'/.repoclient'):
+            config.read(os.getenv("HOME")+'/.repoclient')
+        else:
+            config.read('/etc/repoclient/repoclient.conf')
 
         # read in some values that MUST be set:
         try:
             self.imagepath=config.get("ThisImage","image")
             self.mountpoint=config.get("ThisImage","mountpoint")
         except ConfigParser.NoSectionError:
-            print "Trouble reading config file. (/etc/repoclient/repoclient.conf"  
-            print "Make sure a mountpoint and image file are specified"
+            print "Trouble reading config file."  
+            print "Make sure a mountpoint and image file are specified in the config"
+            print "(either /etc/repoclient/repoclient.conf or ~/.repoclient)"
             sys.exit(1)
     
         try:
             self.imagename=config.get("ThisImage","imagename")
             self.repository=config.get("ThisImage","repository")
         except ConfigParser.NoSectionError:
-            print "Trouble reading config file. (/etc/repoclient/repoclient.conf"  
-            print "Make sure an imagename and repository are specified"
+            print "Trouble reading config file."  
+            print "Make sure an imagename and repository are specified in the config"
+            print "(either /etc/repoclient/repoclient.conf or ~/.repoclient)"
             sys.exit(1)
             
         try:
             self.usercert=config.get("ThisImage","usercert")
             self.userkey=config.get("ThisImage","userkey")
         except ConfigParser.NoSectionError:
-            print "Trouble reading config file. (/etc/repoclient/repoclient.conf"  
-            print "Make sure a usercert and userkey are specified"
+            print "Trouble reading config file."  
+            print "Make sure a usercert and userkey are specified in the config"
+            print "(either /etc/repoclient/repoclient.conf or ~/.repoclient)"
             sys.exit(1)
         if not (os.path.exists(self.usercert) or os.path.exists(self.userkey)):
             print "Your certificate and/or key doesn't exist as specified in"
-            print "/etc/repoclient/repoclient.conf.  exiting."
+            print "the config file."
+            print "(either /etc/repoclient/repoclient.conf or ~/.repoclient)"
             sys.exit(1)
         
         
@@ -110,32 +123,91 @@ class repoclient(object):
                 os.remove(self.lockfile)
                 sys.exit(1)
                 
-    def get_user(self, getuid=0):
-        me = self.rut.get_user(self.repository, self.usercert, self.userkey, uid=getuid)
+    def get_user(self):
+        user = self.rut.get_user(self.repository, self.usercert, self.userkey)
         print '\n'
-        for key in me:
-            print "  "+key+": \t",
-            print me[key]
+        for key in user:
+            if key == 'images':
+                print "  "+key+":"
+                for image in user['images']:
+                    print "  "+image
+            else:
+                print "  "+key+": \t",
+                print user[key]
         print '\n'
-    
+ 
     def list_users(self):
         users = self.rut.get_users(self.repository, self.usercert, self.userkey)
         print '\n'
         for user in users:
-            print "  "+user+": \t",
-            print users[user]
+            print '\n'
+            for key in user:
+                if key == 'images':
+                    print "  "+key+":"
+                    for image in user['images']:
+                        print "  "+image
+                else:
+                    print "  "+key+": \t",
+                    print user[key]
         print '\n'
     
-    def list_images(self,getuid=0):
-        images = self.rut.get_images(self.repository, self.usercert, self.userkey, uid=getuid)
+    def list_images(self):
+        images = self.rut.get_images(self.repository, self.usercert, self.userkey)
         print '\n    Images for user: '+images[0]+':\n'
         for image in images[1]:
             print "      ",
             print image
         print '\n'
+
+
+    def list_images_raw(self):
+        images = self.rut.get_images(self.repository, self.usercert, self.userkey)
+        return images[1]
+
+    def new_image(self, *args, **kwargs):
+        metadata = kwargs['metadata']
+        resp = self.rut.post_image_metadata('/api/images', self.repository, self.usercert, self.userkey, metadata=metadata)
+        if kwargs['replace']:
+            print "Updating metadata."
+            resp = self.rut.update_image_metadata('/api/images', self.repository, self.usercert, self.userkey, user_name=self.rut.get_username(self.repository,self.usercert,self.userkey), image_name=metadata['name'], metadata=metadata)
+            if resp.status == 200:
+                print "Metadata modification complete."
+            else:
+                print "Metadata was not modified: "+str(resp.status)
+        else:
+            if resp.status == 201:
+                print "Metadata uploaded, image created."
+            else:
+                print "Image was not created: response code "+str(resp.status)
+
+    def update_metadata(self, *args, **kwargs):
+        metadata = kwargs['metadata']
+        exists = kwargs['exists']
+        self.new_image(metadata=metadata, replace=exists)
         
+
+    def get_image_info(self, name):
+        resp = self.rut.get_image_metadata(self.repository, self.usercert, self.userkey, name)
         
-    def save_image(self, imagename):
+        json_resp = json.loads(resp)
+        return json_resp
+
+    def delete(self, name):
+        resp = self.rut.delete_image(self.repository, self.usercert, self.userkey, name)
+        if not str(resp):
+            print "Image "+name+" deleted."
+
+
+
+    def save_image(self, *args, **kwargs):
+        metadata = kwargs['metadata']
+        print "Posting new image metadata to the repository."
+        if kwargs['replace']:
+            print "Replacing existing image "+metadata['name']
+        else:
+            print "Creating new image on repository with name "+metadata['name']
+        self.new_image(metadata=metadata,replace=kwargs['replace'])
+    
         print '''
         
     Creating an image of the local filesystem.  
@@ -161,15 +233,73 @@ class repoclient(object):
     time, depending on the speed of your connection
     and the size of your image...
         '''
-        self.rut.put_image(self.repository,self.usercert,self.userkey, self.imagepath,imagename)
+        self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,metadata['name'])
         
         print '\n   Image successfully uploaded to  the repository at:\n    '
         print self.repository
     
+    def upload_image(self, file, *args, **kwargs):
+        metadata = kwargs['metadata']
+        name = kwargs['name']
+        print "Uploading image "+file+" to repository "+self.repository+" with name "+name
+        print "Posting new image metadata to the repository."
+        if kwargs['replace']:
+            print "Replacing existing image "+metadata['name']
+        else:
+            print "Creating new image on repository with name "+metadata['name']
+        self.new_image(metadata=metadata,replace=kwargs['replace'])
+
+        self.rut.post_image(self.repository,self.usercert,self.userkey,file,name)
+     
     def list_all_images(self):
         print self.rut.get_all_images(self.repository, self.usercert, self.userkey)   
         
           
     def post_image(self,imagename):  
-        self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,imagename,"a911ff8c547443628b19e5bfbaa3b6da")     
-        
+        self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,imagename)
+
+
+    def share_user(self, *args, **kwargs):
+        print "Sharing file "+kwargs['image']+"with user "+kwargs['user']
+        resp = self.rut.share_user(self.repository, self.usercert, self.userkey, user=kwargs['user'], image=kwargs['image']) 
+        if resp == 200:
+            print "Share complete."
+        else:
+            print "Share failed: HTTP code "+str(resp)
+
+    def share_group(self, *args, **kwargs):
+        print "Sharing file "+kwargs['image']+"with group "+kwargs['group']
+        resp = self.rut.share_group(self.repository, self.usercert, self.userkey, group=kwargs['group'], image=kwargs['image']) 
+        if resp == 200:
+            print "Share complete."
+        else:
+            print "Share failed: HTTP code "+str(resp)
+
+    def unshare_user(self, *args, **kwargs):
+        print "Unsharing file "+kwargs['image']+"with user "+kwargs['user']
+        resp = self.rut.unshare_user(self.repository, self.usercert, self.userkey, user=kwargs['user'], image=kwargs['image']) 
+        if resp == 200:
+            print "Unshare complete."
+        else:
+            print "Unshare failed: HTTP code "+str(resp)
+
+    def unshare_group(self, *args, **kwargs):
+        print "Unsharing file "+kwargs['image']+"with group "+kwargs['group']
+        resp = self.rut.unshare_group(self.repository, self.usercert, self.userkey, group=kwargs['group'],  image=kwargs['image'])
+        if resp == 200:
+            print "Unshare complete."
+        else:
+            print "Unshare failed: HTTP code "+str(resp)
+    
+    def get(self, *args, **kwargs):
+        try:
+            path = kwargs['path']
+        except:
+            path = './'
+        imagename = kwargs['name']
+        resp = self.get_image_info(imagename)
+        if resp['raw_file_uploaded']:
+            self.rut.get_image(self.repository,self.usercert,self.userkey,imagename,path)
+        else:
+            print "The raw image for "+imagename+" has not been uploaded yet."
+

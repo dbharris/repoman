@@ -1,0 +1,8 @@
+include COPYING
+include LICENSE
+include repoman/config/deployment.ini_tmpl
+include repoman/config/repoman.conf_tmpl
+include repoman/config/repoman.wsgi_tmpl
+recursive-include repoman/public *
+recursive-include repoman/templates *
+

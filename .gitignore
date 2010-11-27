@@ -18,4 +18,7 @@
 *.crt
 
 #/shurg
-/pylons/repository/apache/*.wsgi
+server/repoman/build/
+server/repoman/dist/
+server/repoman/repoman.egg-info/
+server/repoman/repoman.egg-info/*

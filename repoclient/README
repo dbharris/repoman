@@ -2,6 +2,24 @@ repoclient:
 
 This package is designed to be installed on the VM to interface with the repoman server. 
 
-Scripts are provided to create a local copy of the filesystem, and upload it to the repository.
+Installation:
 
-Upload hasn't been written yet.  Creating a local filesystem copy for upload works well now.  
+$ pip install repoclient
+
+This will place a repoclient.conf in /etc/repoclient/.  Either edit this file or copy it to ~/.repoclient and insert your usercert, userkey and repository location.
+
+
+Currently implemented commands:
+repoman list [--all]
+repoman getuser [--all]
+repoman info --name imagename 
+repoman save --name imagename [--(any other metadata tags)] [--force]
+repoman get --name imagename
+repoman delete --name imagename [--force]
+repoman update --name imagename [--(any other metadata tags)] [--force]
+repoman share (--user username | --group groupname)  --image vmname
+repoman unshare (--user username | --group groupname)  --image  vmname
+
+
+Other metadata tag examples: --hypervisor Xen, --os_variant RHEL, --readonly true
+All defaults are set in repoclient.conf, set in /etc/repoclient/repoclient.conf by default (custom may be placed at ~/.repoclient)

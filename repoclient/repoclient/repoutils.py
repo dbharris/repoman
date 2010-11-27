@@ -7,64 +7,147 @@ import urllib
 import urllib2
 import httplib
 import mimetypes, mimetools
-import os, stat
-import simplejson as json
-from commands import getstatusoutput
 import sys
-import pycurl
+import subprocess
+import urlparse
+
+HEADERS = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
 
 class repoutils(object):
     
-    def get_images(self,repo,cert,key,uid):
-        user = self.get_user(repo,cert,key,uid)
-        return (user['name'],user['images'])
-    
+    def post_image_metadata(self, url, repo, cert, key, headers=HEADERS, *args, **kwargs):
+        repo_https = self.repo(repo, cert, key)
+        params = urllib.urlencode(kwargs['metadata'])
+        repo_https.request('POST', '/api/images', params, headers)
+        return repo_https.getresponse()
+
+    def update_image_metadata(self, url, repo, cert, key, headers=HEADERS, *args, **kwargs):
+        repo_https = self.repo(repo, cert, key)
+        params = urllib.urlencode(kwargs['metadata'])
+        repo_https.request('POST', '/api/images/'+kwargs['user_name']+'/'+kwargs['image_name'], params, headers)
+        return repo_https.getresponse()
+       
+ 
+    def get_image_metadata(self, repo, cert, key, name):
+        id = self.get_user(repo,cert,key)
+        user_name = id['user_name']
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('GET', '/api/images/'+user_name+'/'+name)
+        resp = repo_https.getresponse()
+        return resp.read()
+
+    def delete_image(self, repo, cert, key, name):
+        #id = self.get_user(repo,cert,key)
+        #user_name = id['user_name']
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('DELETE', '/api/images/'+name)
+        resp = repo_https.getresponse()
+        return resp.read()
+
+    def share_user(self, repo, cert, key, *args, **kwargs):
+        id = self.get_user(repo,cert,key)
+        user_name = id['user_name']
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('POST', '/api/images/'+user_name+'/'+kwargs['image']+'/share/user/'+kwargs['user'])
+        resp = repo_https.getresponse()
+        return resp.status
+
+    def share_group(self, repo, cert, key, *args, **kwargs):
+        id = self.get_user(repo,cert,key)
+        user_name = id['user_name']
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('POST', '/api/images/'+user_name+'/'+kwargs['image']+'/share/group/'+kwargs['group'])
+        resp = repo_https.getresponse()
+        return resp.status
+
+    def unshare_user(self, repo, cert, key, *args, **kwargs):
+        id = self.get_user(repo,cert,key)
+        user_name = id['user_name']
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('DELETE', '/api/images/'+user_name+'/'+kwargs['image']+'/share/user/'+kwargs['user'])
+        resp = repo_https.getresponse()
+        return resp.status
+
+    def unshare_group(self, repo, cert, key, *args, **kwargs):
+        id = self.get_user(repo,cert,key)
+        user_name = id['user_name']
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('DELETE', '/api/images/'+user_name+'/'+kwargs['image']+'/share/group/'+kwargs['group'])
+        resp = repo_https.getresponse()
+        return resp.status
+ 
+    def repo(self, repo, cert, key):
+        hostname = urlparse.urlparse(repo)[1].split(':')[0]
+        return httplib.HTTPSConnection(hostname, 443, cert_file=cert, key_file=key)
+
+    def get_images(self,repo,cert,key):
+        user = self.get_user(repo,cert,key)
+        return (user['user_name'],user['images'])
+   
     def get_all_images(self,repo,cert,key):
-        return self.get_uri_response(repo+"/repository/images",cert,key)
-    
+        return self.get_uri_response(repo+"/api/images",cert,key)
+ 
     def get_users(self,repo,cert,key):
-        return self.get_uri_response(repo+"/repository/users",cert,key)
+        users =  self.get_uri_response(repo+"/api/users",cert,key)
+        i=0
+        users_info = [0]*len(users)
+        for url in users:
+            users_info[i] = self.get_uri_response(url,cert,key)
+            i = i + 1
+        return users_info
     
-    def get_my_id(self,repo,cert,key,uid):
-        if uid:
-            return uid
+    def get_my_id(self,repo,cert,key):
         ret, output = getstatusoutput("openssl x509 -subject -in "+cert)
         if ret:
             print "Error querying cert with openssl: "
             print output
             sys.exit(1)
         
-        my_dn=(output.split('\n')[0])[9:] 
+        my_dn=(output.split('\n')[0])[9:]
         user_data = self.get_users(repo,cert,key)
-        if user_data['client_dn']==my_dn:
-            return user_data['uuid']
+        
+        for user in user_data:
+            if user['client_dn'] in my_dn:
+                return user
+                #print user
         return None
     
      
-    def get_user(self,repo,cert,key,uid):
-        myid = self.get_my_id(repo,cert,key,uid)
-        return self.get_uri_response(repo+"/repository/users/"+str(myid),cert,key)
+    def get_user(self,repo,cert,key):
+        myid = self.get_my_id(repo,cert,key)
+        return myid
+        #return self.get_uri_response(repo+"/api/users/"+str(myid),cert,key)
         
     def get_uri_response(self,uri,cert,key):
         opener = urllib2.build_opener(HTTPSClientAuthHandler(key, cert))
         response = opener.open(uri)
-        return json.load(response)
-        
-        
-    def post_image(self,repo,cert,key,imagefile,imagename,uuid):
-        data = {
-                  'name': imagename,
-                  'file': open(imagefile, "rb")
-                  }
-        opener = urllib2.build_opener(HTTPSClientAuthHandler(key, cert),MultipartPostHandler)
-        response = opener.open(repo+"/repository/images", data)
-        print response
- 
+        json_response = json.load(response)
+        return json_response
 
-def get_content_type(filename):
-    return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+    def get_username(self,repo,cert,key):
+        id = self.get_user(repo,cert,key)
+        return id['user_name']
 
-        
+    def post_image(self,repo,cert,key,imagefile,imagename):
+        user_name = self.get_username(repo,cert,key)
+        print "Posting image "+imagefile+" with name "+imagename+" "
+        command = "curl -F \"file=@"+imagefile+"\""
+        command += " --cert "+cert+" --key "+key+" --insecure "+repo+"/api/images/raw/"+user_name+"/"+imagename+" > tmpfile"
+        p=subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+        for line in p.stdout.readlines():   
+            pass
+       
+    def get_image(self,repo,cert,key,imagename,path):
+        user_name = self.get_username(repo,cert,key)
+        print "Getting image "+imagename+" and storing it at "+path
+        command = "curl -o "+path+imagename+" --cert "+cert+" --key "+key+" --insecure "+repo+"/api/images/raw/"+user_name+"/"+imagename
+        p=subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+        for line in p.stdout.readlines():
+            pass
+     
+    def get_content_type(filename):
+        return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+
 class HTTPSClientAuthHandler(urllib2.HTTPSHandler):  
     def __init__(self, key, cert):  
         urllib2.HTTPSHandler.__init__(self)  
