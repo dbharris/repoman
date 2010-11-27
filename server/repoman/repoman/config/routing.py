@@ -199,12 +199,6 @@ def make_map(config):
     map.connect(None, '/api/images', controller='api/images', action='new',
                 conditions=dict(method=['POST']))
     
-    # Web UI
-
-    map.connect(None, '/webui/users', controller='webui/users', action='index')
- 
-    map.connect('user_info', '/webui/users/:(user)', controller='webui/users', action='user_info')
- 
     # Actions
     map.connect(None, 'api/actions/clone/image/:(image)', controller='api/actions',
                 action='clone_image',
