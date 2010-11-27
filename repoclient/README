@@ -2,7 +2,11 @@ repoclient:
 
 This package is designed to be installed on the VM to interface with the repoman server. 
 
-To begin, run setup.py.  This will place a repoclient.conf in /etc/repoclient/.  Either edit this file or copy it to ~/.repoclient and insert your usercert, userkey and repository location.
+Installation:
+
+$ pip install repoclient
+
+This will place a repoclient.conf in /etc/repoclient/.  Either edit this file or copy it to ~/.repoclient and insert your usercert, userkey and repository location.
 
 
 Currently implemented commands:
