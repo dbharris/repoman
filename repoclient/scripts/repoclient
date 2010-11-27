@@ -23,7 +23,7 @@ def ask_yes_or_no(*args, **kwargs):
     return False
 
 def print_help_menu():
-    print "Repoman Client 0.1b2"
+    print "Repoman Client 0.1"
     print " "
     print "Available commands:"
     print "repoman list [--all]"

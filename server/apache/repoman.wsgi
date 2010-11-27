@@ -2,7 +2,7 @@
 # Replace @@VIRTUAL_ENV@@ with the fullpath to your virtual environment
 
 import site
-site.addsitedir('@@VIRTUAL_ENV@@/lib/python2.4/site-packages')
+site.addsitedir('/opt/git/repoman/lib/python2.4/site-packages')
 
 import os, sys
 sys.path.append('@@VIRTUAL_ENV@@/repoman/server/repoman')
