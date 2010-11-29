@@ -12,6 +12,10 @@ There are 2 ways to install repoman.
 
 
 ## Install from an Egg (recommended)
+1.  Install prerequisites
+        yum install python-setuptools gcc sqlite sqlite-devel
+        easy_install pip virtualenv
+
 1.  Create a Virtual Environment
         virtualenv --no-site-packages /opt/repoman
 
