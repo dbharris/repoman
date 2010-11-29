@@ -10,7 +10,11 @@ import mimetypes, mimetools
 import sys
 import subprocess
 import urlparse
-from commands import getstatusoutput 
+from commands import getstatusoutput
+try:
+    import json
+except:
+    import simplejson as json 
 
 HEADERS = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
 
@@ -155,7 +159,22 @@ class HTTPSClientAuthHandler(urllib2.HTTPSHandler):
         self.key = key  
         self.cert = cert  
     def https_open(self, req): 
-        return self.do_open(self.getConnection, req)  
+        return self.do_open(self.getConnection, req)
+        #try:
+        #    return self.do_open(self.getConnection, req)  
+        #except out-of-date-exception:
+        #    print "Your grid proxy certificate appears to be out of date."
+        #    print "Please generate a new proxy with \"grid-proxy-init -rfc\""
+        #    sys.exit(1)
+        #except unknown-ca-exception:
+        #    print "The server is not accepting your certificate."
+        #    print "Ensure your proxy cert is RFC compliant with \"grid-proxy-info\""
+        #    print "and ensure that the repoman server's Apache server is set to accept proxy certificates."
+        #    sys.exit(1)
+        #except:
+        #    print "Unknown exception."
+        #    sys.exit(1) 
+         
     def getConnection(self, host, timeout=300):  
         return httplib.HTTPSConnection(host, key_file=self.key, cert_file=self.cert)  
     
