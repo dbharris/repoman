@@ -17,7 +17,7 @@ The issue tracker can be found at: https://github.com/hep-gc/repoman/issues
 ## Server Documentation
 See these files for documentation of the server side
 
-* `server/INSTALL.markdown` - some install realated stuff
+* hep-gc/repoman/server/INSTALL.markdown - some install realated stuff
 * `server/REST.markdown`    - overview of the REST api
 * `server/HOWTO.markdown`   - some quick examples
 
