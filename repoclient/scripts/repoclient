@@ -3,6 +3,7 @@ import sys
 import optparse
 import os
 sys.path.append('../')
+sys.path.append('./')
 from repoclient import repoclient
 
 repo = repoclient.repoclient()

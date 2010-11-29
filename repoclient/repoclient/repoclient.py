@@ -52,20 +52,26 @@ class repoclient(object):
             print "Make sure an imagename and repository are specified in the config"
             print "(either /etc/repoclient/repoclient.conf or ~/.repoclient)"
             sys.exit(1)
-            
-        try:
-            self.usercert=config.get("ThisImage","usercert")
-            self.userkey=config.get("ThisImage","userkey")
-        except ConfigParser.NoSectionError:
-            print "Trouble reading config file."  
-            print "Make sure a usercert and userkey are specified in the config"
-            print "(either /etc/repoclient/repoclient.conf or ~/.repoclient)"
-            sys.exit(1)
-        if not (os.path.exists(self.usercert) or os.path.exists(self.userkey)):
-            print "Your certificate and/or key doesn't exist as specified in"
-            print "the config file."
-            print "(either /etc/repoclient/repoclient.conf or ~/.repoclient)"
-            sys.exit(1)
+        
+        #attempt to define the usercert/userkey based on default grid-proxy-init values    
+        self.usercert='/tmp/x509up_u%s' % str(os.geteuid())
+        self.userkey='/tmp/x509up_u%s' % str(os.geteuid())
+        if not os.path.exists(self.usercert):
+            print 'Could not find a proxy cert at /tmp/x509up_u%s' % str(os.geteuid())
+            print 'Searching for a valid certificate location in the configuration file.'
+            try:
+                self.usercert=config.get("ThisImage","usercert")
+                self.userkey=config.get("ThisImage","userkey")
+            except ConfigParser.NoSectionError:
+                print "Could not find a certificate in the configuration file."  
+                print "Please either use grid-proxy-init to generate a new proxy cert or specify an alternate certifate in the configuration file."
+                print "(either /etc/repoclient/repoclient.conf or ~/.repoclient)"
+                sys.exit(1)
+            if not (os.path.exists(self.usercert) or os.path.exists(self.userkey)):
+                print "Your certificate and/or key doesn't exist as specified in"
+                print "the config file."
+                print "(either /etc/repoclient/repoclient.conf or ~/.repoclient)"
+                sys.exit(1)    
         
         
         #these values are optional, and are set if they don't exist
