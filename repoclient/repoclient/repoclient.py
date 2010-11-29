@@ -62,8 +62,13 @@ class repoclient(object):
             try:
                 self.usercert=config.get("ThisImage","usercert")
                 self.userkey=config.get("ThisImage","userkey")
-            except ConfigParser.NoSectionError:
+            except ConfigParser.NoOptionError:
                 print "Could not find a certificate in the configuration file."  
+                print "Please either use grid-proxy-init to generate a new proxy cert or specify an alternate certifate in the configuration file."
+                print "(either /etc/repoclient/repoclient.conf or ~/.repoclient)"
+                sys.exit(1)
+            except ConfigParser.NoSectionError:
+                print "Could not find a certificate in the configuration file."
                 print "Please either use grid-proxy-init to generate a new proxy cert or specify an alternate certifate in the configuration file."
                 print "(either /etc/repoclient/repoclient.conf or ~/.repoclient)"
                 sys.exit(1)
