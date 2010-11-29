@@ -10,15 +10,15 @@ This will place a repoclient.conf in /etc/repoclient/.  Either edit this file or
 
 
 Currently implemented commands:
-repoman list [--all]
-repoman getuser [--all]
-repoman info --name imagename 
-repoman save --name imagename [--(any other metadata tags)] [--force]
-repoman get --name imagename
-repoman delete --name imagename [--force]
-repoman update --name imagename [--(any other metadata tags)] [--force]
-repoman share (--user username | --group groupname)  --image vmname
-repoman unshare (--user username | --group groupname)  --image  vmname
+repoclient list [--all]
+repoclient getuser [--all]
+repoclient info --name imagename 
+repoclient save --name imagename [--(any other metadata tags)] [--force]
+repoclient get --name imagename
+repoclient delete --name imagename [--force]
+repoclient update --name imagename [--(any other metadata tags)] [--force]
+repoclient share (--user username | --group groupname)  --image vmname
+repoclient unshare (--user username | --group groupname)  --image  vmname
 
 
 Other metadata tag examples: --hypervisor Xen, --os_variant RHEL, --readonly true
