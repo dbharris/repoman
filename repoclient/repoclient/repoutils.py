@@ -10,6 +10,7 @@ import mimetypes, mimetools
 import sys
 import subprocess
 import urlparse
+from commands import getstatusoutput 
 
 HEADERS = {"Content-type":"application/x-www-form-urlencoded", "Accept": "text/plain"}
 
