@@ -1,0 +1,8 @@
+include README
+include setup.py
+include repoman_client/__init__.py
+include repoman_client/imageutils.py
+include repoman_client/repoman_client.py
+include repoman_client/repoutils.py
+include repoman_client/repoman-client.conf
+include scripts/repoman

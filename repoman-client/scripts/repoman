@@ -4,9 +4,9 @@ import optparse
 import os
 sys.path.append('../')
 sys.path.append('./')
-from repoclient import repoclient
+from repoman_client import repoman_client
 
-repo = repoclient.repoclient()
+repo = repoman_client.repoman_client()
 
 parser = optparse.OptionParser()
 
@@ -25,23 +25,23 @@ def ask_yes_or_no(*args, **kwargs):
     return False
 
 def print_help_menu():
-    print "Repoclient 0.1.1"
+    print "repoman-client 0.1.1"
     print " "
     print "Available commands:"
-    print "repoclient list [--all]"
-    print "repoclient getuser [--all]"
-    print "repoclient info --name imagename "
-    print "repoclient save --force --name imagename [--(any other metadata tags)]"
-    print "repoclient get --name imagename"
-    print "repoclient delete --name imagename [--force]"
-    print "repoclient update [--force] --name imagename [--(any other metadata tags)]"
-    print "repoclient upload --file filename --name imagename [--(any other metadata tags)]"
-    print "repoclient share (--user username | --group groupname)  --name vmname"
-    print "repoclient unshare (--user username | --group groupname)  --name  vmname"
-    print "repoclient --help or repoman help"
+    print "repoman list [--all]"
+    print "repoman getuser [--all]"
+    print "repoman info --name imagename "
+    print "repoman save --force --name imagename [--(any other metadata tags)]"
+    print "repoman get --name imagename"
+    print "repoman delete --name imagename [--force]"
+    print "repoman update [--force] --name imagename [--(any other metadata tags)]"
+    print "repoman upload --file filename --name imagename [--(any other metadata tags)]"
+    print "repoman share (--user username | --group groupname)  --name vmname"
+    print "repoman unshare (--user username | --group groupname)  --name  vmname"
+    print "repoman --help or repoman help"
     print "\n"
     print "Other metadata tag examples: --hypervisor Xen, --os_variant RHEL"
-    print "All defaults are set in repoclient.conf, set in /etc/repoclient/repoclient.conf by default.  User configs can be placed at ~/repoclient."
+    print "All defaults are set in repoman-client.conf, set in /etc/repoman-client/repoman-client.conf by default.  User configs can be placed at ~/repoman-client."
     print " "
     sys.exit(0)
 
@@ -97,7 +97,7 @@ def main():
                 if not force:
                     print 'WARNING!! This image already exists on the repository.'
                     if not ask_yes_or_no(force=True):
-                        print 'Exiting repoclient.'
+                        print 'Exiting repoman-client.'
                         sys.exit(2)
         print "Saving image "+name+" with the following metadata:"
         for key in metadata:
@@ -177,7 +177,7 @@ def main():
                 replace=True
                 print 'WARNING!! This image already exists on the repository.'
                 if not ask_yes_or_no():
-                    print 'Exiting repoclient.'
+                    print 'Exiting repoman-client.'
                     sys.exit(2)
         repo.upload_image(file, replace=replace, name=name, metadata=metadata)
         sys.exit(0)

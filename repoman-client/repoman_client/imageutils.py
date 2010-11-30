@@ -31,7 +31,7 @@ class imageutils(object):
         if(int(image_dirsize) < int(fs_bytes_used)):
             raise MountError("df ", "ERROR: Not enough space on filesystem. \n" +
                              "Check the path to your image ("+imagepath+") "+
-                             "in /etc/repoclient/repoclient.conf and retry")
+                             "in /etc/repoman-client/repoman-client.conf and retry")
         if(int(image_dirsize) < int(fs_size)):
             print ("WARNING: the directory you have specified for your image copy"+
                    "is smaller in size than the root directory.  Your new image"+

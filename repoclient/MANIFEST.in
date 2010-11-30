@@ -1,8 +1,0 @@
-include README
-include setup.py
-include repoclient/__init__.py
-include repoclient/imageutils.py
-include repoclient/repoclient.py
-include repoclient/repoutils.py
-include repoclient/repoclient.conf
-include scripts/repoclient
