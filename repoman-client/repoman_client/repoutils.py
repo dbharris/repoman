@@ -159,13 +159,22 @@ class HTTPSClientAuthHandler(urllib2.HTTPSHandler):
         self.key = key  
         self.cert = cert  
     def https_open(self, req): 
-        return self.do_open(self.getConnection, req)
-        #try:
-        #    return self.do_open(self.getConnection, req)  
-        #except out-of-date-exception:
-        #    print "Your grid proxy certificate appears to be out of date."
-        #    print "Please generate a new proxy with \"grid-proxy-init -rfc\""
-        #    sys.exit(1)
+        #return self.do_open(self.getConnection, req)
+        try:
+            return self.do_open(self.getConnection, req)  
+        except urllib2.URLError,e:
+            if 'error:14094415' in e.reason[1]:
+                print "SSL error: your grid proxy certificate appears to be out of date."
+                print "Please generate a new proxy with \"grid-proxy-init -rfc\""
+                sys.exit(1)
+            if 'error:14094418' in e.reason[1]:
+                print "SSL error: unknown certificate authority."
+                print "Make sure your grid proxy certificate was generated with \"grid-proxy-init -rfc\"."
+                print "Also ensure that the repository's Apache server is set to accept proxy certificates (see documentation)"
+                sys.exit(1)
+            else:
+                print "SSL error:" + e.reason[1]
+                sys.exit(1)
         #except unknown-ca-exception:
         #    print "The server is not accepting your certificate."
         #    print "Ensure your proxy cert is RFC compliant with \"grid-proxy-info\""
