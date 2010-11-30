@@ -17,8 +17,14 @@
 *.cert
 *.crt
 
-#/shurg
+#/shrug
 server/repoman/build/
 server/repoman/dist/
 server/repoman/repoman.egg-info/
 server/repoman/repoman.egg-info/*
+repoman-client/dist/
+repoman-client/repoman-client.egg-info/
+repoman-client/repoman-client.egg-info/*
+repoman-client/build/
+*.old
+*~

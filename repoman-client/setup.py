@@ -19,8 +19,8 @@ setup(name='repoman-client',
     author_email='fransham@uvic.ca, dbharris@uvic.ca',
     url='http://github.com/hep-gc/repoman',
     install_requires=["simplejson"],
-    packages=['repoman-client'],
-    scripts=['scripts/repoman-client'],
-    data_files=[('/etc/repoman-client/',['repoclient/repoman-client.conf'])]
+    packages=['repoman_client'],
+    scripts=['scripts/repoman'],
+    data_files=[('/etc/repoman-client/',['repoman_client/repoman-client.conf'])]
 )
 
