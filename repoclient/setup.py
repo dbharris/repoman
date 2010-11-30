@@ -13,7 +13,7 @@ if not os.path.exists('/etc/repoclient'):
     mkpath('/etc/repoclient')
 
 setup(name='repoclient',
-    version='0.1',
+    version='0.1.1',
     description='Client to connect to Repoman image repository.',
     author='Kyle Fransham, Drew Harris',
     author_email='fransham@uvic.ca, dbharris@uvic.ca',

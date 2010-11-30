@@ -1,15 +1,27 @@
-repoclient:
+repoclient 0.1.1:
 
-This package is designed to be installed on the VM to interface with the repoman server. 
+NOTE: this client is intended to be installed virtual machine images
 
-Installation:
+1.    Install prerequisites
+      $ yum install python-setuptools
+      $ easy_install pip
 
-$ pip install repoclient
+2.    Install repoclient
+      $ pip install repoclient
 
-This will place a repoclient.conf in /etc/repoclient/.  Either edit this file or copy it to ~/.repoclient and insert your usercert, userkey and repository location.
+3.    Copy the file file to your home directory
+      $ cp /etc/repoclient/repoclient.conf ~/.repoclient
 
+4.    Edit ~/.repoclient and change the repository line to point to your Repoman repository in the form https://HOST:PORT.
+      Repoclient will check /tmp/x509up_u%USER_ID% for a proxy certificate to authenticate with the repoman server. If you'd like to override this, uncomment the lines userkey and usercert and specify a location manually.
+5.    Run repoclient with the command repoclient.
+
+Repoclient uses grid certificates to authenticate with the repoman server.
+Ensure that you have a valid, RFC-compliant grid proxy certificate before running repoclient.
+(e.g. $ grid-proxy-init -rfc)
 
 Currently implemented commands:
+
 repoclient list [--all]
 repoclient getuser [--all]
 repoclient info --name imagename 
