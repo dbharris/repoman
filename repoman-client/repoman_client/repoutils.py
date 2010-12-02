@@ -40,10 +40,14 @@ class repoutils(object):
         repo_https.request('GET', '/api/images/'+user_name+'/'+name)
         resp = repo_https.getresponse()
         return resp.read()
-
+        
+    def get_user_images(self, repo, cert, key, user):
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('GET', '/api/users/'+user+'/images')
+        resp = repo_https.getresponse()
+        return resp.read()
+        
     def delete_image(self, repo, cert, key, name):
-        #id = self.get_user(repo,cert,key)
-        #user_name = id['user_name']
         repo_https = self.repo(repo, cert, key)
         repo_https.request('DELETE', '/api/images/'+name)
         resp = repo_https.getresponse()
@@ -175,15 +179,7 @@ class HTTPSClientAuthHandler(urllib2.HTTPSHandler):
             else:
                 print "SSL error:" + e.reason[1]
                 sys.exit(1)
-        #except unknown-ca-exception:
-        #    print "The server is not accepting your certificate."
-        #    print "Ensure your proxy cert is RFC compliant with \"grid-proxy-info\""
-        #    print "and ensure that the repoman server's Apache server is set to accept proxy certificates."
-        #    sys.exit(1)
-        #except:
-        #    print "Unknown exception."
-        #    sys.exit(1) 
-         
+                 
     def getConnection(self, host, timeout=300):  
         return httplib.HTTPSConnection(host, key_file=self.key, cert_file=self.cert)  
     

@@ -1,7 +1,7 @@
 '''
 Created on Oct 5, 2010
 
-@author: fransham
+@author: fransham, dbharris
 '''
 
 import ConfigParser
@@ -162,13 +162,31 @@ class repoman_client(object):
                     print user[key]
         print '\n'
     
-    def list_images(self):
-        images = self.rut.get_images(self.repository, self.usercert, self.userkey)
-        print '\n    Images for user: '+images[0]+':\n'
-        for image in images[1]:
-            print "      ",
-            print image
-        print '\n'
+    def list_user_images(self, user, *args):
+        images = json.loads(self.rut.get_user_images(self.repository, self.usercert, self.userkey, user))
+        if args[0]:
+            print "Images for user "+user+":"
+            for image in images:
+                print image
+        else:
+            print "Images for user "+user+":"
+            for image in images:
+                print image.split('/')[6]
+    
+    
+    
+    def list_images(self, *args):
+        if args[0]:
+            images = self.rut.get_images(self.repository, self.usercert, self.userkey)
+            print 'Images for user '+images[0]+':'
+            for image in images[1]:
+                print image
+        else:
+            images = self.rut.get_images(self.repository, self.usercert, self.userkey)
+            print 'Images for user '+images[0]+':'
+            for image in images[1]:
+                print image.split('/')[6]
+            
 
 
     def list_images_raw(self):
@@ -263,7 +281,9 @@ class repoman_client(object):
         self.rut.post_image(self.repository,self.usercert,self.userkey,file,name)
      
     def list_all_images(self):
-        print self.rut.get_all_images(self.repository, self.usercert, self.userkey)   
+        image_list = self.rut.get_all_images(self.repository, self.usercert, self.userkey)
+        for item in image_list:
+            print item
         
           
     def post_image(self,imagename):  
