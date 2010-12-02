@@ -24,11 +24,6 @@ def ask_yes_or_no(*args, **kwargs):
         return True
     return False
     
-def list_image_names():
-    image_list = repo.list_images_raw()
-    for i in xrange(len(repo.list_images_raw())):
-        image_list[i] = repo.list_images_raw()[i].split('/')[6]
-    return image_list
 
 def print_help_menu():
     print "repoman-client 0.1.2"
@@ -41,7 +36,7 @@ def main():
         sys.exit(0)
     else:
         command = sys.argv[1]
-        # args = sys.argv[1:]
+        
 
 
     if command == 'list-images':
@@ -70,28 +65,22 @@ def main():
         sys.exit(0)
 
     if command == 'list-users':
-        # --long
-        # --all | --user USERNAME | --group GROUPNAME
         parser.add_argument('--long', action='store_true', default=False)
-        parser.add_argument('--sharedwith', action='store')
-        parser.add_argument('--all', action='store_true', default=False)
-        parser.add_argument('--user', action='store')
         parser.add_argument('--group', action='store')
-        
-        repo.list_users()
+        args = parser.parse_args(args=sys.argv[2:])
+        if not args.group is None:
+            repo.list_group_members(args.long, args.group)
+        else:
+            repo.list_users(args.long)
         sys.exit(0)
         
         
     if command == 'list-groups':
-        # --long
-        # --sharedwith USERNAME/GROUPNAME
-        # --all | --user USERNAME
-        options, args = parser.parse_args(args=sys.argv[2:])
-        if options.all:
-            repo.list_groups()
-            sys.exit(0)
-        else:
-            repo.get_use()
+    	#DONE
+        parser.add_argument('--long', action='store_true', default=False)
+        #parser.add_argument('--group', action='store')
+        args = parser.parse_args(args=sys.argv[2:])
+        repo.list_groups(args.long)
         sys.exit(0)
         
 
@@ -141,15 +130,12 @@ def main():
         
         
     if command == 'modify-image':
-        # --image [USER/]IMAGE [--METAVAR VALUE ...]
-        
-        
-        try:
-            name = metadata['name']
-        except:
-            print "Please enter at least a name as metadata."
-            sys.exit(0)
-        
+        # [USER/]IMAGE [--METAVAR VALUE ...]
+        parser.add_argument('image')
+        args = parser.parse_known_args(args=sys.argv[2:])
+        image = args[0].image
+        metadata = dict([(args[1][i].strip('-'), args[1][i+1]) for i in range(0, len(args[1]) - 1, 2)])
+        metadata['name'] = image
         #Server is expecting Bool objects for readonly
         try:
             readonly = metadata['readonly']
@@ -161,31 +147,13 @@ def main():
         
         except:
             metadata['readonly'] = False
-
-        image_list = repo.list_images_raw()
-        exists = False
-        for i in xrange(len(repo.list_images_raw())):
-            image_list[i] = repo.list_images_raw()[i].split('/')[6]
-            if image_list[i] == name:
-                exists = True
-        if not force and exists:
-            print "Warning! This image name already has metadata on the server."
-            if ask_yes_or_no(force=True):
-                print "Updating image "+name+" with metadata: "
-                for key in metadata:
-                    print key+": "+str(metadata[key])
-                repo.update_metadata(metadata=metadata, exists=exists)
-            else:
-                print "Exiting repoman."
-                sys.exit(0)
-        else:
-            print "Updating image "+name+" with metadata: "
-            for key in metadata:
-                print key+": "+str(metadata[key])
-            repo.update_metadata(metadata=metadata, exists=exists)
+            
+        print "Updating image "+metadata['name']+" with metadata: "
+        for key in metadata:
+             print key+": "+str(metadata[key])
+        repo.update_metadata(metadata=metadata, exists=True)
         sys.exit(0)
-        
-        
+
         
     if command == 'download-image':
         # --image [USER/]IMAGE [--dest DEST]
@@ -217,7 +185,7 @@ def main():
     if command == 'view-image':
         # --image [USER/]IMAGE
         
-        list_images()
+        repo.list_images(False)
 
         parser.add_option('-n','--name',action="store",type="string",dest="name")
         options, args = parser.parse_args(args=sys.argv[2:])
@@ -236,12 +204,50 @@ def main():
             sys.exit(2)
         sys.exit(0)
         
+    
+    
         
         
     if command == 'create-image':
         # [--file FILE] [--METAVAR VALUE ...]
+        parser.add_argument('--file', action='store')
+        args = parser.parse_known_args(args=sys.argv[2:])
+        metadata = dict([(args[1][i].strip('-'), args[1][i+1]) for i in range(0, len(args[1]) - 1, 2)])
+        #Server is expecting Bool objects for readonly
+        try:
+            readonly = metadata['readonly']
+            true_values = ['t', 'True', 'true']
+            if true_values.count(metadata['readonly']):
+                metadata['readonly'] = True
+            else:
+                metadata['readonly'] = False
         
-        repo.create_image(args)
+        except:
+            metadata['readonly'] = False
+        try:
+            try:
+                name = metadata['name']
+            except:
+                metadata['name'] = args[0].file
+                name = metadata['name']
+        except:
+            print "Please enter either a filename or a name as part of the metadata."
+            sys.exit(1)            
+        
+        print "Creating image "+name+" with metadata: "
+        for key in metadata:
+            print key+": "+str(metadata[key])
+        repo.update_metadata(metadata=metadata, replace=False)
+        if args[0].file is not None:
+            print "Uploading image file "+args[0].file+'...'
+            if not os.path.isfile(args[0].file):
+                print "The file you specified does not exist."
+                sys.exit(1)
+            else:
+                repo.upload_image(args[0].file, name=metadata['name'], metadata=metadata)
+                sys.exit(0)
+                
+            
         sys.exit(0)
         
     if command == 'share-image':

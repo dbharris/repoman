@@ -147,20 +147,29 @@ class repoman_client(object):
                 print user[key]
         print '\n'
  
-    def list_users(self):
-        users = self.rut.get_users(self.repository, self.usercert, self.userkey)
-        print '\n'
-        for user in users:
+    def list_users(self, *args):
+        if args[0]:
+            #list long
+            users = self.rut.get_users(self.repository, self.usercert, self.userkey, args[0])
             print '\n'
-            for key in user:
-                if key == 'images':
-                    print "  "+key+":"
-                    for image in user['images']:
-                        print "  "+image
-                else:
-                    print "  "+key+": \t",
-                    print user[key]
-        print '\n'
+            for user in users:
+                print '\n'
+                for key in user:
+                    if key == 'images':
+                        print "  "+key+":"
+                        for image in user['images']:
+                            print "  "+image
+                    else:
+                        print "  "+key+": \t",
+                        print user[key]
+            print '\n'
+        else:
+            users = self.rut.get_users(self.repository, self.usercert, self.userkey, args[0])
+            
+            print "Users:"
+            for user in users:
+                print user.split('/')[5]
+            
     
     def list_user_images(self, user, *args):
         images = json.loads(self.rut.get_user_images(self.repository, self.usercert, self.userkey, user))
@@ -186,6 +195,25 @@ class repoman_client(object):
             print 'Images for user '+images[0]+':'
             for image in images[1]:
                 print image.split('/')[6]
+                
+    def list_group_members(self, *args):
+        
+        if args[0]:
+            members = self.rut.list_group_members(self.repository, self.usercert, self.userkey, args[0], args[1])
+            print members
+        else:
+            members = self.rut.list_group_members(self.repository, self.usercert, self.userkey, args[0], args[1])
+            print members
+            
+    def list_groups(self, *args):
+        if args[0]:
+            groups = json.loads(self.rut.list_groups(self.repository, self.usercert, self.userkey))
+            for group in groups:
+                print group
+        else:
+            groups = json.loads(self.rut.list_groups(self.repository, self.usercert, self.userkey))
+            for group in groups:
+                print group.split('/')[5]
             
 
 
@@ -193,27 +221,35 @@ class repoman_client(object):
         images = self.rut.get_images(self.repository, self.usercert, self.userkey)
         return images[1]
 
-    def new_image(self, *args, **kwargs):
+    def update_metadata(self, *args, **kwargs):
         metadata = kwargs['metadata']
         resp = self.rut.post_image_metadata('/api/images', self.repository, self.usercert, self.userkey, metadata=metadata)
-        if kwargs['replace']:
+        if kwargs['exists']:
             print "Updating metadata."
+            images = self.list_images_raw()
+            exists = False
+            for image in images:
+                if metadata['name'] == image.split('/')[6]:
+                    exists = True
+            if not exists:
+                print "This image does not exist.  Please create it with repoman create-image."
+                sys.exit(1)
             resp = self.rut.update_image_metadata('/api/images', self.repository, self.usercert, self.userkey, user_name=self.rut.get_username(self.repository,self.usercert,self.userkey), image_name=metadata['name'], metadata=metadata)
             if resp.status == 200:
                 print "Metadata modification complete."
+                
             else:
                 print "Metadata was not modified: "+str(resp.status)
         else:
             if resp.status == 201:
                 print "Metadata uploaded, image created."
+            elif resp.status == 409:
+                print "This image already exists.  Please modify it with modify-image or choose a new name."
+                sys.exit(1)
             else:
                 print "Image was not created: response code "+str(resp.status)
+            
 
-    def update_metadata(self, *args, **kwargs):
-        metadata = kwargs['metadata']
-        exists = kwargs['exists']
-        self.new_image(metadata=metadata, replace=exists)
-        
 
     def get_image_info(self, name):
         resp = self.rut.get_image_metadata(self.repository, self.usercert, self.userkey, name)
@@ -235,7 +271,7 @@ class repoman_client(object):
             print "Replacing existing image "+metadata['name']
         else:
             print "Creating new image on repository with name "+metadata['name']
-        self.new_image(metadata=metadata,replace=kwargs['replace'])
+        self.update_metadata(metadata=metadata,replace=kwargs['replace'])
     
         print '''
         
@@ -267,7 +303,10 @@ class repoman_client(object):
         print '\n   Image successfully uploaded to  the repository at:\n    '
         print self.repository
     
-    def upload_image(self, file, *args, **kwargs):
+    
+    
+    	#THIS IS OLD
+    def upload_image_old(self, file, *args, **kwargs):
         metadata = kwargs['metadata']
         name = kwargs['name']
         print "Uploading image "+file+" to repository "+self.repository+" with name "+name
@@ -276,9 +315,14 @@ class repoman_client(object):
             print "Replacing existing image "+metadata['name']
         else:
             print "Creating new image on repository with name "+metadata['name']
-        self.new_image(metadata=metadata,replace=kwargs['replace'])
+        self.update_metadata(metadata=metadata,replace=kwargs['replace'])
 
         self.rut.post_image(self.repository,self.usercert,self.userkey,file,name)
+     
+    def upload_image(self, file, *args, **kwargs):
+        metadata=kwargs['metadata']
+        print "Uploading image "+file+" to repository "+self.repository+" with name "+metadata['name']
+        self.rut.post_image(self.repository,self.usercert,self.userkey,file,metadata['name'])
      
     def list_all_images(self):
         image_list = self.rut.get_all_images(self.repository, self.usercert, self.userkey)

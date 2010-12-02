@@ -84,6 +84,8 @@ class repoutils(object):
         repo_https.request('DELETE', '/api/images/'+user_name+'/'+kwargs['image']+'/share/group/'+kwargs['group'])
         resp = repo_https.getresponse()
         return resp.status
+        
+    
  
     def repo(self, repo, cert, key):
         hostname = urlparse.urlparse(repo)[1].split(':')[0]
@@ -96,14 +98,34 @@ class repoutils(object):
     def get_all_images(self,repo,cert,key):
         return self.get_uri_response(repo+"/api/images",cert,key)
  
-    def get_users(self,repo,cert,key):
+    def get_users(self,repo,cert,key, *args):
         users =  self.get_uri_response(repo+"/api/users",cert,key)
-        i=0
-        users_info = [0]*len(users)
-        for url in users:
-            users_info[i] = self.get_uri_response(url,cert,key)
-            i = i + 1
-        return users_info
+        if not args[0]:
+            return users
+        else:
+            i=0
+            users_info = [0]*len(users)
+            for url in users:
+                users_info[i] = self.get_uri_response(url,cert,key)
+                i = i + 1
+            return users_info
+            
+            
+            
+    def list_group_members(self,repo,cert,key,*args):
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('GET', '/api/groups/'+args[1]+'/users')
+        resp = repo_https.getresponse()
+        return resp.read()
+        
+    
+    def list_groups(self,repo,cert,key):
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('GET', '/api/groups')
+        resp = repo_https.getresponse()
+        return resp.read()
+        
+            
     
     def get_my_id(self,repo,cert,key):
         ret, output = getstatusoutput("openssl x509 -subject -in "+cert)
@@ -113,7 +135,7 @@ class repoutils(object):
             sys.exit(1)
         
         my_dn=(output.split('\n')[0])[9:]
-        user_data = self.get_users(repo,cert,key)
+        user_data = self.get_users(repo,cert,key, True)
         
         for user in user_data:
             if user['client_dn'] in my_dn:
