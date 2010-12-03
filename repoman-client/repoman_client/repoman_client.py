@@ -189,6 +189,20 @@ class repoman_client(object):
                     print resp[key]
                         
             print '\n'
+            
+    def describe_group(self, group):
+        resp = self.rut.query_group(self.repository, self.usercert, self.userkey, group)
+        if str(404) in resp:
+            print "Group not found."
+        
+        else:
+            resp = json.loads(resp)
+            print '\n'
+            for key in resp:
+                print "  "+key+": \t",
+                print resp[key]
+            print '\n'
+            
         
     def create_user(self, metadata):
         resp = self.rut.create_user(self.repository, self.usercert, self.userkey, metadata)

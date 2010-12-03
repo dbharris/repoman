@@ -259,6 +259,14 @@ def main():
         repo.describe_user(args.user)
         sys.exit(0)
         
+    if command == 'describe-group':
+        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+    	#DONE
+        parser.add_argument('group')
+        args = parser.parse_args(args=sys.argv[2:])
+        repo.describe_group(args.group)
+        sys.exit(0)
+        
         
             
         

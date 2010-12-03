@@ -156,6 +156,11 @@ class repoutils(object):
         resp = repo_https.getresponse()
         return resp.read()
         
+    def query_group(self,repo,cert,key,group):
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('GET', '/api/groups/'+group)
+        resp = repo_https.getresponse()
+        return resp.read()
             
     
     def get_my_id(self,repo,cert,key):
