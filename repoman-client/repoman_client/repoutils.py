@@ -45,16 +45,8 @@ class repoutils(object):
         return repo_https.getresponse()
  
     def get_image_metadata(self, repo, cert, key, image, **kwargs):
-        try:
-            user_name = kwargs['user']
-            
-        except:
-            id = self.get_user(repo,cert,key)
-            user_name = id['user_name']
-        
-        
         repo_https = self.repo(repo, cert, key)
-        repo_https.request('GET', '/api/images/'+user_name+'/'+image)
+        repo_https.request('GET', '/api/images/'+image)
         resp = repo_https.getresponse()
         return resp.read()
         
@@ -111,6 +103,12 @@ class repoutils(object):
     def remove_group(self, repo, cert, key, group):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('DELETE', '/api/groups/'+group)
+        resp = repo_https.getresponse()
+        return resp.status
+        
+    def remove_image(self, repo, cert, key, image, **kwargs):
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('DELETE', '/api/images/'+image)
         resp = repo_https.getresponse()
         return resp.status
  
@@ -201,10 +199,9 @@ class repoutils(object):
         for line in p.stdout.readlines():   
             pass
        
-    def get_image(self,repo,cert,key,imagename,path):
-        user_name = self.get_username(repo,cert,key)
-        print "Getting image "+imagename+" and storing it at "+path
-        command = "curl -o "+path+imagename+" --cert "+cert+" --key "+key+" --insecure "+repo+"/api/images/raw/"+user_name+"/"+imagename
+    def download_image(self,repo,cert,key,image,dest):
+        print "Downloading image "+image+" and storing it at "+dest
+        command = "curl "+repo+"/api/images/raw/"+image+" -o "+dest+" --cert "+cert+" --key "+key+" --insecure"
         p=subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
         for line in p.stdout.readlines():
             pass

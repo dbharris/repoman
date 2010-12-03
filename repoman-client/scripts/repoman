@@ -5,6 +5,7 @@ import os
 sys.path.append('../')
 sys.path.append('./')
 from repoman_client import repoman_client
+import os.path
 
 repo = repoman_client.repoman_client()
 
@@ -142,7 +143,7 @@ def main():
         parser.add_argument('--force','-f', action='store_true', default=False)
         args = parser.parse_args(args=sys.argv[2:])
         if args.force:
-            repo.remove_user(args.group)
+            repo.remove_group(args.group)
         else:
             print 'Deleting user '+args.group+'...'
             if ask_yes_or_no(force=True):
@@ -151,6 +152,20 @@ def main():
                 print 'Exiting repoman.'
         sys.exit(0)
         
+    if command == 'remove-image':
+        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser.add_argument('image')
+        parser.add_argument('--force','-f', action='store_true', default=False)
+        args = parser.parse_args(args=sys.argv[2:])
+        if args.force:
+            repo.remove_image(args.image)
+        else:
+            print 'Deleting image '+args.image+'...'
+            if ask_yes_or_no(force=True):
+                repo.remove_image(args.image)
+            else:
+                print 'Exiting repoman.'
+        sys.exit(0)
         
         
         
@@ -202,31 +217,13 @@ def main():
     if command == 'download-image':
         parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
         # --image [USER/]IMAGE [--dest DEST]
-        
-        list_image_names()
-        if not options.name:
-            print "Please enter on of the following names:"
-            for item in image_list:
-                print item
-        else:
-            exists = False
-            for item in image_list:
-                if item == options.name:
-                    exists = True
-            if exists:
-                if options.path:
-                    repo.get(name=options.name,path=options.path)
-                else:
-                    repo.get(name=options.name)
-            else: 
-               print "Image did not match any of your images on the server."
-               print "Please enter on of the following names:"           
-               for item in image_list:
-                   print item
-        sys.exit(0)             
-        
-        
-        
+        parser.add_argument('image')
+        parser.add_argument('--dest', default='./')
+        args = parser.parse_args(args=sys.argv[2:])
+        repo.get(args.image,args.dest)
+        sys.exit(0)
+                  
+
     if command == 'describe-image':
         parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
         # DONE
@@ -292,8 +289,11 @@ def main():
         except:
             print "Please enter either a filename or a name as part of the metadata."
             sys.exit(1)            
-        
-        print "Creating image "+name+" with metadata: "
+        try:
+            print "Creating image "+name+" with metadata: "
+        except:
+            print "Please specify metadata in the form --metavar value."
+            sys.exit(1)
         for key in metadata:
             print key+": "+str(metadata[key])
         repo.update_metadata(metadata=metadata, replace=False)
@@ -378,35 +378,7 @@ def main():
             sys.exit(2)
         sys.exit(0)
         
-        
-        name
-        
-    if command == 'remove-image':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        if not options.name:
-            print "Please specify a name with --name image_name"
-            sys.exit(0)
-        image_list = repo.list_images_raw()
-        exists = False
-        for i in xrange(len(repo.list_images_raw())):
-            image_list[i] = repo.list_images_raw()[i].split('/')[6]
-            if image_list[i] == options.name:
-                exists = Trueparser.add_argument('image')
-        if not exists:
-            print "That image does not exist on the repository."
-        else:
-            print "Deleting image "+options.name
-            if options.force:
-                repo.delete(options.name)
-                sys.exit(2)
-            if ask_yes_or_no(force=options.force):
-                repo.delete(options.name)
-            else:
-                print "Exiting repoman."
-                sys.exit(0)
-        sys.exit(0)
-        
-        
+    
     if command == 'snapshot-system':
         parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
         # --noupload --METAVARS VALUE
@@ -449,46 +421,15 @@ def main():
         
     if command == 'upload-image':
         parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        # --name NAME --METAVARS VALUE
+        parser.add_argument('image')
+        parser.add_argument('--file', required=True)
+        args = parser.parse_args(args=sys.argv[2:])
+        if not os.path.isfile(args.file):
+            print "The file "+args.file+" does not exist.  Please try again."
+            sys.exit(0)
+        else:
+            repo.upload_image(args.file,image=args.image)
         
-        try:
-            file = metadata['file']
-            del metadata['file']
-        except:
-            print "Please specify a file to upload with --file file_name"
-            sys.exit(0)
-        if not os.path.isfile(file):
-            print "The file "+file+" does not exist.  Please try again."
-            sys.exit(0)
-        try:
-            name = metadata['name']
-        except:
-            print "The minimum metadata needed to upload an image is the name, specified with --name"
-            sys.exit(0)
-        
-        #Server is expecting Bool objects for readonly
-        try:
-            readonly = metadata['readonly']
-            true_values = ['t', 'True', 'true']
-            if true_values.count(metadata['readonly']):
-                metadata['readonly'] = True
-            else:
-                metadata['readonly'] = False
-        except:
-            metadata['readonly'] = False
-        image_list = repo.list_images_raw()
-        for i in xrange(len(repo.list_images_raw())):
-            image_list[i] = repo.list_images_raw()[i].split('/')[6]
-        print "Uploading..."
-        replace=False
-        for item in image_list:
-            if item == metadata['name']:
-                replace=True
-                print 'WARNING!! This image already exists on the repository.'
-                if not ask_yes_or_no():
-                    print 'Exiting repoman-client.'
-                    sys.exit(2)
-        repo.upload_image(file, replace=replace, name=name, metadata=metadata)
         sys.exit(0)
         
         

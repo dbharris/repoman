@@ -229,7 +229,15 @@ class repoman_client(object):
             print 'Group '+group+' not found.'
         else:
             print 'Unknown HTTP response code '+resp
-        
+            
+    def remove_image(self, image, **kwargs):
+        resp = self.rut.remove_image(self.repository, self.usercert, self.userkey, image)
+        if resp == 200:
+            print 'Image '+image+' has been deleted.'
+        elif resp == 404:
+            print 'Image '+image+' not found.'
+        else:
+            print 'Unknown HTTP response code '+resp
         
             
     
@@ -286,7 +294,7 @@ class repoman_client(object):
     def update_metadata(self, *args, **kwargs):
         metadata = kwargs['metadata']
         resp = self.rut.post_image_metadata('/api/images', self.repository, self.usercert, self.userkey, metadata=metadata)
-        if kwargs['exists']:
+        if kwargs['replace']:
             print "Updating metadata."
             images = self.list_images_raw()
             exists = False
@@ -314,12 +322,7 @@ class repoman_client(object):
 
 
     def describe_image(self, image, *args, **kwargs):
-        try:
-            user = kwargs['user']
-            
-            resp = self.rut.get_image_metadata(self.repository, self.usercert, self.userkey, image, user=user)
-        except:
-            resp = self.rut.get_image_metadata(self.repository, self.usercert, self.userkey, image)
+        resp = self.rut.get_image_metadata(self.repository, self.usercert, self.userkey, image)
         if str(404) in resp:
             return 404
         else:
@@ -374,24 +377,13 @@ class repoman_client(object):
     
     
     
-    	#THIS IS OLD
-    def upload_image_old(self, file, *args, **kwargs):
-        metadata = kwargs['metadata']
-        name = kwargs['name']
-        print "Uploading image "+file+" to repository "+self.repository+" with name "+name
-        print "Posting new image metadata to the repository."
-        if kwargs['replace']:
-            print "Replacing existing image "+metadata['name']
-        else:
-            print "Creating new image on repository with name "+metadata['name']
-        self.update_metadata(metadata=metadata,replace=kwargs['replace'])
-
-        self.rut.post_image(self.repository,self.usercert,self.userkey,file,name)
+    
      
     def upload_image(self, file, *args, **kwargs):
-        metadata=kwargs['metadata']
-        print "Uploading image "+file+" to repository "+self.repository+" with name "+metadata['name']
-        self.rut.post_image(self.repository,self.usercert,self.userkey,file,metadata['name'])
+        print "Uploading image "+file+" with name "+kwargs['image']
+        self.rut.post_image(self.repository,self.usercert,self.userkey,file,kwargs['image'])
+         
+        
      
     def list_all_images(self):
         image_list = self.rut.get_all_images(self.repository, self.usercert, self.userkey)
@@ -435,15 +427,10 @@ class repoman_client(object):
         else:
             print "Unshare failed: HTTP code "+str(resp)
     
-    def get(self, *args, **kwargs):
-        try:
-            path = kwargs['path']
-        except:
-            path = './'
-        imagename = kwargs['name']
-        resp = self.describe_image(imagename)
+    def get(self, image, dest):
+        resp = self.describe_image(image)
         if resp['raw_file_uploaded']:
-            self.rut.get_image(self.repository,self.usercert,self.userkey,imagename,path)
+            self.rut.download_image(self.repository,self.usercert,self.userkey,image,dest)
         else:
-            print "The raw image for "+imagename+" has not been uploaded yet."
+            print "The raw image for "+image+" has not been uploaded yet."
 
