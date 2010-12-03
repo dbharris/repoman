@@ -28,3 +28,5 @@ repoman-client/repoman-client.egg-info/*
 repoman-client/build/
 *.old
 *~
+*.img
+tmpfile

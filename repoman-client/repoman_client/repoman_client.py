@@ -49,7 +49,7 @@ class repoman_client(object):
             self.repository=config.get("ThisImage","repository")
         except ConfigParser.NoSectionError:
             print "Trouble reading config file."  
-            print "Make sure an imagename and repository are specified in the config"
+            print "Make.. everyone knows that! :P sure an imagename and repository are specified in the config"
             print "(either /etc/repoman-client/repoman-client.conf or ~/.repoman-client)"
             sys.exit(1)
         
@@ -151,7 +151,7 @@ class repoman_client(object):
         if args[0]:
             #list long
             users = self.rut.get_users(self.repository, self.usercert, self.userkey, args[0])
-            print '\n'
+            
             for user in users:
                 print '\n'
                 for key in user:
@@ -169,6 +169,68 @@ class repoman_client(object):
             print "Users:"
             for user in users:
                 print user.split('/')[5]
+                
+    def describe_user(self, user):
+    
+        resp = self.rut.query_user(self.repository, self.usercert, self.userkey, user)
+        if str(404) in resp:
+            print "User not found."
+        
+        else:
+            resp = json.loads(resp)
+            print '\n'
+            for key in resp:
+                if key == 'images':
+                    print "  "+key+":"
+                    for image in resp['images']:
+                        print "  "+image
+                else:
+                    print "  "+key+": \t",
+                    print resp[key]
+                        
+            print '\n'
+        
+    def create_user(self, metadata):
+        resp = self.rut.create_user(self.repository, self.usercert, self.userkey, metadata)
+        if resp.status == 200:
+            print 'User '+metadata['user_name']+' created.'
+        elif resp.status == 409:
+            print 'Username or client_dn conflict.  Maybe this user was already created?'
+        elif resp.status == 400:
+            print 'Invalid or insufficient parameters. Minimum parameters are: user_name, email, full_name, cert_dn. '
+        else:
+            print 'Unknown HTTP response code '+resp.status
+            
+    def create_group(self, metadata):
+        resp = self.rut.create_group(self.repository, self.usercert, self.userkey, metadata)
+        if resp.status == 200:
+            print 'Group '+metadata['name']+' created.'
+        elif resp.status == 409:
+            print 'Name conflict.  Maybe this group was already created?'
+        elif resp.status == 400:
+            print 'Invalid or insufficient parameters.  Minimum parameters: name.'
+        else:
+            print 'Unknown HTTP response code '+resp.status
+            
+    def remove_user(self, user):
+        resp = self.rut.remove_user(self.repository, self.usercert, self.userkey, user)
+        if resp == 200:
+            print 'User '+user+' has been deleted.'
+        elif resp == 404:
+            print 'User '+user+' not found.'
+        else:
+            print 'Unknown HTTP response code '+resp
+            
+    def remove_group(self, group):
+        resp = self.rut.remove_group(self.repository, self.usercert, self.userkey, group)
+        if resp == 200:
+            print 'Group '+group+' has been deleted.'
+        elif resp == 404:
+            print 'Group '+group+' not found.'
+        else:
+            print 'Unknown HTTP response code '+resp
+        
+        
             
     
     def list_user_images(self, user, *args):
@@ -251,12 +313,19 @@ class repoman_client(object):
             
 
 
-    def get_image_info(self, name):
-        resp = self.rut.get_image_metadata(self.repository, self.usercert, self.userkey, name)
-        
-        json_resp = json.loads(resp)
-        return json_resp
-
+    def describe_image(self, image, *args, **kwargs):
+        try:
+            user = kwargs['user']
+            
+            resp = self.rut.get_image_metadata(self.repository, self.usercert, self.userkey, image, user=user)
+        except:
+            resp = self.rut.get_image_metadata(self.repository, self.usercert, self.userkey, image)
+        if str(404) in resp:
+            return 404
+        else:
+            return json.loads(resp)
+            
+    
     def delete(self, name):
         resp = self.rut.delete_image(self.repository, self.usercert, self.userkey, name)
         if not str(resp):
@@ -372,7 +441,7 @@ class repoman_client(object):
         except:
             path = './'
         imagename = kwargs['name']
-        resp = self.get_image_info(imagename)
+        resp = self.describe_image(imagename)
         if resp['raw_file_uploaded']:
             self.rut.get_image(self.repository,self.usercert,self.userkey,imagename,path)
         else:

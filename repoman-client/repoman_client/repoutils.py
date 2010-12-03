@@ -31,13 +31,30 @@ class repoutils(object):
         params = urllib.urlencode(kwargs['metadata'])
         repo_https.request('POST', '/api/images/'+kwargs['user_name']+'/'+kwargs['image_name'], params, headers)
         return repo_https.getresponse()
-       
- 
-    def get_image_metadata(self, repo, cert, key, name):
-        id = self.get_user(repo,cert,key)
-        user_name = id['user_name']
+        
+    def create_user(self, repo, cert, key, metadata, headers=HEADERS):
         repo_https = self.repo(repo, cert, key)
-        repo_https.request('GET', '/api/images/'+user_name+'/'+name)
+        params = urllib.urlencode(metadata)
+        repo_https.request('POST', '/api/users', params, headers)
+        return repo_https.getresponse()
+       
+    def create_group(self, repo, cert, key, metadata, headers=HEADERS):
+        repo_https = self.repo(repo, cert, key)
+        params = urllib.urlencode(metadata)
+        repo_https.request('POST', '/api/groups', params, headers)
+        return repo_https.getresponse()
+ 
+    def get_image_metadata(self, repo, cert, key, image, **kwargs):
+        try:
+            user_name = kwargs['user']
+            
+        except:
+            id = self.get_user(repo,cert,key)
+            user_name = id['user_name']
+        
+        
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('GET', '/api/images/'+user_name+'/'+image)
         resp = repo_https.getresponse()
         return resp.read()
         
@@ -85,7 +102,17 @@ class repoutils(object):
         resp = repo_https.getresponse()
         return resp.status
         
-    
+    def remove_user(self, repo, cert, key, user):
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('DELETE', '/api/users/'+user)
+        resp = repo_https.getresponse()
+        return resp.status
+        
+    def remove_group(self, repo, cert, key, group):
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('DELETE', '/api/groups/'+group)
+        resp = repo_https.getresponse()
+        return resp.status
  
     def repo(self, repo, cert, key):
         hostname = urlparse.urlparse(repo)[1].split(':')[0]
@@ -122,6 +149,12 @@ class repoutils(object):
     def list_groups(self,repo,cert,key):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('GET', '/api/groups')
+        resp = repo_https.getresponse()
+        return resp.read()
+        
+    def query_user(self,repo,cert,key,user):
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('GET', '/api/users/'+user)
         resp = repo_https.getresponse()
         return resp.read()
         
