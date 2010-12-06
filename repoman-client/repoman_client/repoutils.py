@@ -74,19 +74,15 @@ class repoutils(object):
         resp = repo_https.getresponse()
         return resp.read()
 
-    def share_user(self, repo, cert, key, *args, **kwargs):
-        id = self.get_user(repo,cert,key)
-        user_name = id['user_name']
+    def share_user(self, repo, cert, key, image, user):
         repo_https = self.repo(repo, cert, key)
-        repo_https.request('POST', '/api/images/'+user_name+'/'+kwargs['image']+'/share/user/'+kwargs['user'])
+        repo_https.request('POST', '/api/images/'+image+'/share/user/'+user)
         resp = repo_https.getresponse()
         return resp.status
 
     def share_group(self, repo, cert, key, *args, **kwargs):
-        id = self.get_user(repo,cert,key)
-        user_name = id['user_name']
         repo_https = self.repo(repo, cert, key)
-        repo_https.request('POST', '/api/images/'+user_name+'/'+kwargs['image']+'/share/group/'+kwargs['group'])
+        repo_https.request('POST', '/api/images/'+image+'/share/group/'+group)
         resp = repo_https.getresponse()
         return resp.status
 

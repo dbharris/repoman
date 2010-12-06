@@ -318,30 +318,17 @@ def main():
         
     if command == 'share-image':
         parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        # --name [USER/]NAME (--user USER | --group GROUP)
-                
-        if not options.username and not options.group:
-            print "Please user either a user or a group to share the image with."
-            print "i.e. share --user username or share --group groupname --name imagename"
+        parser.add_argument('image')
+        parser.add_argument('--user')
+        parser.add_argument('--group')
+        args = parser.parse_args(args=sys.argv[2:])
+        if args.user:
+            print "Sharing image "+args.image+" with user "+args.user+"..."
+            repo.share_user(args.image, args.user)
             sys.exit(0)
-        if options.username and options.group:
-            print "Please select either a user or a group to share to."
-            sys.exit(0)
-        if not options.image:
-            image_list = repo.list_images_raw()
-            for i in xrange(len(repo.list_images_raw())):
-                image_list[i] = repo.list_images_raw()[i].split('/')[6]
-            print "Please enter an image to share."
-            print "i.e. share --user username --name imagename"
-            print "The images you own on the server are:"
-            for item in image_list:
-                print item
-            sys.exit(2)
-        if options.username:
-            repo.share_user(user=options.username,image=options.image)
-            sys.exit(0)
-        if options.group:
-            repo.share_group(group=options.group,image=options.image)
+        if args.group:
+            print "Sharing image "+args.image+" with group "+args.group+"..."
+            repo.share_group(args.image,args.group)
             sys.exit(0)
         sys.exit(0)
         

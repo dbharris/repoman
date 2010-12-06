@@ -422,15 +422,14 @@ class repoman_client(object):
         self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,imagename)
 
 
-    def share_user(self, *args, **kwargs):
-        print "Sharing file "+kwargs['image']+"with user "+kwargs['user']
-        resp = self.rut.share_user(self.repository, self.usercert, self.userkey, user=kwargs['user'], image=kwargs['image']) 
+    def share_user(self, image, user):
+        resp = self.rut.share_user(self.repository, self.usercert, self.userkey, image, user) 
         if resp == 200:
             print "Share complete."
         else:
             print "Share failed: HTTP code "+str(resp)
 
-    def share_group(self, *args, **kwargs):
+    def share_group(self, image, group):
         print "Sharing file "+kwargs['image']+"with group "+kwargs['group']
         resp = self.rut.share_group(self.repository, self.usercert, self.userkey, group=kwargs['group'], image=kwargs['image']) 
         if resp == 200:
@@ -438,7 +437,7 @@ class repoman_client(object):
         else:
             print "Share failed: HTTP code "+str(resp)
 
-    def unshare_user(self, *args, **kwargs):
+    def unshare_user(self, image, user):
         print "Unsharing file "+kwargs['image']+"with user "+kwargs['user']
         resp = self.rut.unshare_user(self.repository, self.usercert, self.userkey, user=kwargs['user'], image=kwargs['image']) 
         if resp == 200:
@@ -446,7 +445,7 @@ class repoman_client(object):
         else:
             print "Unshare failed: HTTP code "+str(resp)
 
-    def unshare_group(self, *args, **kwargs):
+    def unshare_group(self, image, group):
         print "Unsharing file "+kwargs['image']+"with group "+kwargs['group']
         resp = self.rut.unshare_group(self.repository, self.usercert, self.userkey, group=kwargs['group'],  image=kwargs['image'])
         if resp == 200:
