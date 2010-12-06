@@ -127,6 +127,18 @@ class repoutils(object):
         repo_https.request('DELETE', '/api/groups/'+group+'/users/'+user)
         resp = repo_https.getresponse()
         return resp.status
+        
+    def add_permission(self, repo, cert, key, group, permission):
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('POST', '/api/groups/'+group+'/permissions/'+permission)
+        resp = repo_https.getresponse()
+        return resp.status
+        
+    def remove_permission(self, repo, cert, key, group, permission):
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('DELETE', '/api/groups/'+group+'/permissions/'+permission)
+        resp = repo_https.getresponse()
+        return resp.status
  
     def repo(self, repo, cert, key):
         hostname = urlparse.urlparse(repo)[1].split(':')[0]

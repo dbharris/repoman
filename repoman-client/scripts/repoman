@@ -91,7 +91,9 @@ def main():
     elif command == 'whoami':
         # long
         parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        if options.long:
+        parser.add_argument('--long', default=False, action="store_true")
+        args = parser.parse_args(args=sys.argv[2:])
+        if args.long:
             repo.get_user()
         else:
             repo.get_username()
@@ -417,6 +419,22 @@ def main():
         parser.add_argument('--users', nargs='+')
         args = parser.parse_args(args=sys.argv[2:])
         repo.remove_users_from_group(args.group, args.users)
+        sys.exit(0)
+        
+    elif command == 'add-permissions':
+        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser.add_argument('group')
+        parser.add_argument('--permissions', nargs='+')
+        args = parser.parse_args(args=sys.argv[2:])
+        repo.add_permissions(args.group, args.permissions)
+        sys.exit(0)
+        
+    elif command == 'remove-permissions':
+        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser.add_argument('group')
+        parser.add_argument('--permissions', nargs='+')
+        args = parser.parse_args(args=sys.argv[2:])
+        repo.remove_permissions(args.group, args.permissions)
         sys.exit(0)
                 
 

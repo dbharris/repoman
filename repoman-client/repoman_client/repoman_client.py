@@ -146,6 +146,9 @@ class repoman_client(object):
                 print "  "+key+": \t",
                 print user[key]
         print '\n'
+        
+    def get_username(self):
+        print self.rut.get_username(self.repository, self.usercert, self.userkey)
  
     def list_users(self, *args):
         if args[0]:
@@ -334,7 +337,7 @@ class repoman_client(object):
             if not exists:
                 print "This image does not exist.  Please create it with repoman create-image."
                 sys.exit(1)
-            resp = self.rut.update_image_metadata('/api/images', self.repository, self.usercert, self.userkey, user_name=self.rut.get_username(self.repository,self.usercert,self.userkey), image_name=metadata['name'], metadata=metadata)
+            resp = self.rut.update_image_metadata('/api/images', self.repository, self.usercert, self.userkey, image_name=metadata['name'], metadata=metadata)
             if resp.status == 200:
                 print "Metadata modification complete."
                 
@@ -487,6 +490,30 @@ class repoman_client(object):
                     print "HTTP error "+resp
                 sys.exit(1)
         print "Users successfully removed from group "+group+"."
+        
+    def add_permissions(self, group, permissions):
+        for permission in permissions:
+            resp = self.rut.add_permission(self.repository, self.usercert, self.userkey, group, permission)
+            if not resp == 200:
+                if resp == 404 or resp == 400:
+                    print "Group or permission not found."
+                else:
+                    print "HTTP error "+resp
+                sys.exit(1)
+        print "Permissions succesfully added to group "+group+"."
+        
+    def remove_permissions(self, group, permissions):
+        for permission in permissions:
+            resp = self.rut.remove_permission(self.repository, self.usercert, self.userkey, group, permission)
+            if not resp == 200:
+                if resp == 404 or resp == 400:
+                    print "Group or permission not found."
+                else:
+                    print "HTTP error "+resp
+                sys.exit(1)
+        print "Permissions "+permissions+" succesfully removed from group "+group+"."
+
+
     
     def get(self, image, dest):
         resp = self.describe_image(image)
