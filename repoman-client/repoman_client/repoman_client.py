@@ -135,7 +135,7 @@ class repoman_client(object):
                 sys.exit(1)
                 
     def get_user(self):
-        user = self.rut.get_user(self.repository, self.usercert, self.userkey)
+        user = self.rut.get_my_id(self.repository, self.usercert, self.userkey)
         print '\n'
         for key in user:
             if key == 'images':
@@ -285,6 +285,42 @@ class repoman_client(object):
             for image in images:
                 print image.split('/')[6]
     
+    def list_images_sharedwith(self, long):
+        images = json.loads(self.rut.get_user_images_sharedwith(self.repository, self.usercert, self.userkey))
+        if long:
+            print "Images shared with "+self.rut.get_username(self.repository, self.usercert, self.userkey)+":"
+            for image in images:
+                print image
+            sys.exit(0)
+        else:
+            print "Images shared with "+self.rut.get_username(self.repository, self.usercert, self.userkey)+":"
+            sys.exit(0)
+            
+    def list_images_sharedwith_user(self, user, long):
+        images = json.loads(self.rut.get_user_images_sharedwith_user(self.repository, self.usercert, self.userkey, user))
+        if long:
+            print "Images shared with "+user+":"
+            for image in images:
+                print image
+            sys.exit(0)
+        else:
+            print "Images shared with "+user+":"
+            for image in images:
+                print image.split('/')[6]
+            sys.exit(0)
+            
+    def list_images_sharedwith_group(self, group, long):
+        images = json.loads(self.rut.get_user_images_sharedwith_group(self.repository, self.usercert, self.userkey, group))
+        if long:
+            print "Images shared with "+group+":"
+            for image in images:
+                print image
+            sys.exit(0)
+        else:
+            print "Images shared with "+group+":"
+            for image in images:
+                print image.split('/')[6]
+            sys.exit(0)
     
     
     def list_images(self, *args):
@@ -299,22 +335,39 @@ class repoman_client(object):
             for image in images[1]:
                 print image.split('/')[6]
                 
-    def list_group_members(self, *args):
-        
-        if args[0]:
-            members = self.rut.list_group_members(self.repository, self.usercert, self.userkey, args[0], args[1])
+    def list_group_members(self, group, long):
+        if long:
+            members = self.rut.list_group_members(self.repository, self.usercert, self.userkey, group)
             print members
+            
         else:
-            members = self.rut.list_group_members(self.repository, self.usercert, self.userkey, args[0], args[1])
+            members = self.rut.list_group_members(self.repository, self.usercert, self.userkey, group)
             print members
+            
+            
             
     def list_groups(self, *args):
         if args[0]:
             groups = json.loads(self.rut.list_groups(self.repository, self.usercert, self.userkey))
             for group in groups:
-                print group
+                self.describe_group(group.split('/')[5])
+                
         else:
             groups = json.loads(self.rut.list_groups(self.repository, self.usercert, self.userkey))
+            print "Groups:"
+            for group in groups:
+                print group.split('/')[5]
+                
+                
+    def list_users_groups(self, user, long):
+        if long:
+            groups = json.loads(self.rut.query_user(self.repository, self.usercert, self.userkey, user))['groups']
+            for group in groups:
+                self.describe_group(group.split('/')[5])
+            
+        else:
+            groups = json.loads(self.rut.query_user(self.repository, self.usercert, self.userkey, user))['groups']
+            print "Groups:"
             for group in groups:
                 print group.split('/')[5]
             
@@ -327,7 +380,7 @@ class repoman_client(object):
     def update_metadata(self, *args, **kwargs):
         metadata = kwargs['metadata']
         resp = self.rut.post_image_metadata('/api/images', self.repository, self.usercert, self.userkey, metadata=metadata)
-        if kwargs['replace']:
+        if kwargs['exists']:
             print "Updating metadata."
             images = self.list_images_raw()
             exists = False
@@ -417,8 +470,9 @@ class repoman_client(object):
      
     def list_all_images(self):
         image_list = self.rut.get_all_images(self.repository, self.usercert, self.userkey)
+        print "All images:"
         for item in image_list:
-            print item
+            print item.split('/')[6]
         
           
     def post_image(self,imagename):  
@@ -511,14 +565,19 @@ class repoman_client(object):
                 else:
                     print "HTTP error "+resp
                 sys.exit(1)
-        print "Permissions "+permissions+" succesfully removed from group "+group+"."
+        print "Permissions succesfully removed from group "+group+"."
 
 
     
     def get(self, image, dest):
         resp = self.describe_image(image)
+        if resp == 404:
+            print "Image "+image+" does not exist."
+            sys.exit(1)
         if resp['raw_file_uploaded']:
             self.rut.download_image(self.repository,self.usercert,self.userkey,image,dest)
         else:
             print "The raw image for "+image+" has not been uploaded yet."
+            sys.exit(0)
+        print "Image downloaded successfully."
 

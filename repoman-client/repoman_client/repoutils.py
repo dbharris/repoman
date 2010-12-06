@@ -29,7 +29,7 @@ class repoutils(object):
     def update_image_metadata(self, url, repo, cert, key, headers=HEADERS, *args, **kwargs):
         repo_https = self.repo(repo, cert, key)
         params = urllib.urlencode(kwargs['metadata'])
-        repo_https.request('POST', '/api/images/'+kwargs['user_name']+'/'+kwargs['image_name'], params, headers)
+        repo_https.request('POST', '/api/images/'+kwargs['image_name'], params, headers)
         return repo_https.getresponse()
         
     def create_user(self, repo, cert, key, metadata, headers=HEADERS):
@@ -65,6 +65,30 @@ class repoutils(object):
     def get_user_images(self, repo, cert, key, user):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('GET', '/api/users/'+user+'/images')
+        resp = repo_https.getresponse()
+        return resp.read()
+        
+    def get_user_images_sharedwith(self, repo, cert, key):
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('GET', '/api/users/'+self.get_username(repo, cert, key)+'/shared')
+        resp = repo_https.getresponse()
+        return resp.read()
+        
+    def get_user_images_sharedwith_user(self, repo, cert, key, user):
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('GET', '/api/users/'+user+'/shared')
+        resp = repo_https.getresponse()
+        if not resp.status == 200:
+            if resp.status == 404:
+                print "User "+user+" not found."
+            else:
+                print "HTTP error code "+resp.status
+            sys.exit(0)
+        return resp.read()
+        
+    def get_user_images_sharedwith_group(self, repo, cert, key, group):
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('GET', '/api/groups/'+group+'/shared')
         resp = repo_https.getresponse()
         return resp.read()
         
@@ -145,7 +169,7 @@ class repoutils(object):
         return httplib.HTTPSConnection(hostname, 443, cert_file=cert, key_file=key)
 
     def get_images(self,repo,cert,key):
-        user = self.get_user(repo,cert,key)
+        user = self.get_my_id(repo,cert,key)
         return (user['user_name'],user['images'])
    
     def get_all_images(self,repo,cert,key):
@@ -165,11 +189,14 @@ class repoutils(object):
             
             
             
-    def list_group_members(self,repo,cert,key,*args):
+    def list_group_members(self,repo,cert,key,group):
+        print group
         repo_https = self.repo(repo, cert, key)
-        repo_https.request('GET', '/api/groups/'+args[1]+'/users')
+        repo_https.request('GET', '/api/groups/'+group+'/users')
         resp = repo_https.getresponse()
-        return resp.read()
+        print str(resp.status)
+        sys.exit(0)
+        #return resp.read()
         
     
     def list_groups(self,repo,cert,key):
@@ -207,11 +234,7 @@ class repoutils(object):
                 #print user
         return None
     
-     
-    def get_user(self,repo,cert,key):
-        myid = self.get_my_id(repo,cert,key)
-        return myid
-        #return self.get_uri_response(repo+"/api/users/"+str(myid),cert,key)
+
         
     def get_uri_response(self,uri,cert,key):
         opener = urllib2.build_opener(HTTPSClientAuthHandler(key, cert))
@@ -220,14 +243,14 @@ class repoutils(object):
         return json_response
 
     def get_username(self,repo,cert,key):
-        id = self.get_user(repo,cert,key)
+        id = self.get_my_id(repo,cert,key)
         return id['user_name']
 
     def post_image(self,repo,cert,key,imagefile,imagename):
         user_name = self.get_username(repo,cert,key)
         print "Posting image "+imagefile+" with name "+imagename+" "
         command = "curl -F \"file=@"+imagefile+"\""
-        command += " --cert "+cert+" --key "+key+" --insecure "+repo+"/api/images/raw/"+user_name+"/"+imagename+" > tmpfile"
+        command += " --cert "+cert+" --key "+key+" --insecure "+repo+"/api/images/raw/"+imagename+" > tmpfile"
         p=subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
         for line in p.stdout.readlines():   
             pass

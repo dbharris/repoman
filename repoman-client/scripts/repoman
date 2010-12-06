@@ -43,16 +43,23 @@ def main():
     if command == 'list-images':
         # DONE
         parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        parser.add_argument('--long', action='store_true', default=False)
-        parser.add_argument('--sharedwith', action='store')
-        parser.add_argument('--all', action='store_true', default=False)
-        parser.add_argument('--user', action='store')
-        parser.add_argument('--group', action='store')
+        parser.add_argument('--long','-l', action='store_true', default=False)
+        parser.add_argument('--sharedwith', action='store_true', default=False)
+        parser.add_argument('--all','-a', action='store_true', default=False)
+        parser.add_argument('--user','-u', action='store')
+        parser.add_argument('--group','-g', action='store')
         args = parser.parse_args(args=sys.argv[2:])
         if args.all:
         
             repo.list_all_images()
-        elif not args.user is None:
+        elif args.sharedwith:
+            if args.user:
+                repo.list_images_sharedwith_user(args.user, args.long)
+            elif args.group:
+                repo.list_images_sharedwith_group(args.group, args.long)
+            else:
+                repo.list_images_sharedwith(args.long)
+        elif args.user:
             if args.long:
                 repo.list_user_images(args.user, args.long)
             else:
@@ -68,11 +75,11 @@ def main():
 
     elif command == 'list-users':
         parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        parser.add_argument('--long', action='store_true', default=False)
-        parser.add_argument('--group', action='store')
+        parser.add_argument('--long','-l', action='store_true', default=False)
+        parser.add_argument('--group','-g', action='store')
         args = parser.parse_args(args=sys.argv[2:])
-        if not args.group is None:
-            repo.list_group_members(args.long, args.group)
+        if args.group:
+            repo.list_group_members(args.group, args.long)
         else:
             repo.list_users(args.long)
         sys.exit(0)
@@ -81,10 +88,16 @@ def main():
     elif command == 'list-groups':
         parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
     	#DONE
-        parser.add_argument('--long', action='store_true', default=False)
-        #parser.add_argument('--group', action='store')
+        parser.add_argument('--long','-l', action='store_true', default=False)
+        parser.add_argument('--all','-a', action='store_true', default=False)
+        parser.add_argument('--user','-u')
         args = parser.parse_args(args=sys.argv[2:])
-        repo.list_groups(args.long)
+        if args.user:
+            repo.list_users_groups(args.user, args.long)
+        elif args.all:
+            repo.list_groups(args.long)
+        else:
+            repo.list_users_groups(repo.get_username(), args.long)
         sys.exit(0)
         
 
@@ -204,6 +217,9 @@ def main():
         parser.add_argument('image')
         parser.add_argument('--dest', default='./')
         args = parser.parse_args(args=sys.argv[2:])
+        if not os.path.split(args.dest)[1]:
+            if '/' in args.image:
+                args.dest = args.dest+args.image.split('/')[1]
         repo.get(args.image,args.dest)
         sys.exit(0)
                   
@@ -224,7 +240,6 @@ def main():
         if resp == 404:
             print '\n'
             print "This image does not exist."
-            repo.list_images(False)
             print '\n'
             sys.exit(1)
         else:
@@ -256,8 +271,9 @@ def main():
         parser.add_argument('user')
         args = parser.parse_known_args(args=sys.argv[2:])
         metadata = dict([(args[1][i].strip('-'), args[1][i+1]) for i in range(0, len(args[1]) - 1, 2)])
-        print args[0].user
-        print metadata
+        print "Modifying user "+args[0].user+" with metadata:"
+        for item in metadata:
+            print item+": "+metadata[item]
         repo.modify_user(args[0].user, metadata)
         sys.exit(0)
 
@@ -293,7 +309,7 @@ def main():
             try:
                 name = metadata['name']
             except:
-                metadata['name'] = args[0].file
+                metadata['name'] = os.path.split(args[0].file)[1]
                 name = metadata['name']
         except:
             print "Please enter either a filename or a name as part of the metadata."
@@ -312,7 +328,7 @@ def main():
                 print "The file you specified does not exist."
                 sys.exit(1)
             else:
-                repo.upload_image(args[0].file, name=metadata['name'], metadata=metadata)
+                repo.upload_image(args[0].file, image=metadata['name'], metadata=metadata)
                 sys.exit(0)
                 
             
@@ -426,6 +442,9 @@ def main():
         parser.add_argument('group')
         parser.add_argument('--permissions', nargs='+')
         args = parser.parse_args(args=sys.argv[2:])
+        if not args.permissions:
+            print "Please enter at least one permission to add."
+            sys.exit(1)
         repo.add_permissions(args.group, args.permissions)
         sys.exit(0)
         
@@ -434,6 +453,9 @@ def main():
         parser.add_argument('group')
         parser.add_argument('--permissions', nargs='+')
         args = parser.parse_args(args=sys.argv[2:])
+        if not args.permissions:
+            print "Please enter at least one permission to remove."
+            sys.exit(1)
         repo.remove_permissions(args.group, args.permissions)
         sys.exit(0)
                 
