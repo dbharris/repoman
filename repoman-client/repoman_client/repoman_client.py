@@ -426,32 +426,67 @@ class repoman_client(object):
         resp = self.rut.share_user(self.repository, self.usercert, self.userkey, image, user) 
         if resp == 200:
             print "Share complete."
+        elif resp == 404:
+            print "Image not found."
+        elif resp == 400 or resp == 403:
+            print "User not found."
         else:
             print "Share failed: HTTP code "+str(resp)
 
     def share_group(self, image, group):
-        print "Sharing file "+kwargs['image']+"with group "+kwargs['group']
-        resp = self.rut.share_group(self.repository, self.usercert, self.userkey, group=kwargs['group'], image=kwargs['image']) 
+        resp = self.rut.share_group(self.repository, self.usercert, self.userkey, image, group) 
         if resp == 200:
             print "Share complete."
+        elif resp == 404:
+            print "Image not found."
+        elif resp == 400 or resp == 403:
+            print "Group not found."
         else:
             print "Share failed: HTTP code "+str(resp)
 
     def unshare_user(self, image, user):
-        print "Unsharing file "+kwargs['image']+"with user "+kwargs['user']
-        resp = self.rut.unshare_user(self.repository, self.usercert, self.userkey, user=kwargs['user'], image=kwargs['image']) 
+        resp = self.rut.unshare_user(self.repository, self.usercert, self.userkey, image, user) 
         if resp == 200:
             print "Unshare complete."
+        elif resp == 404:
+            print "Image not found."
+        elif resp == 400 or resp == 403:
+            print "User not found."
         else:
             print "Unshare failed: HTTP code "+str(resp)
 
     def unshare_group(self, image, group):
-        print "Unsharing file "+kwargs['image']+"with group "+kwargs['group']
-        resp = self.rut.unshare_group(self.repository, self.usercert, self.userkey, group=kwargs['group'],  image=kwargs['image'])
+        resp = self.rut.unshare_group(self.repository, self.usercert, self.userkey, image, group) 
         if resp == 200:
             print "Unshare complete."
+        elif resp == 404:
+            print "Image not found."
+        elif resp == 400 or resp == 403:
+            print "Group not found."
         else:
-            print "Unshare failed: HTTP code "+str(resp)
+            print "Share failed: HTTP code "+str(resp)
+            
+    def add_users_to_group(self, group, users):
+        for user in users:
+            resp = self.rut.add_user_to_group(self.repository, self.usercert, self.userkey, group, user)
+            if not resp == 200:
+                if resp == 404:
+                    print "User or group not found."
+                else:
+                    print "HTTP error "+resp
+                sys.exit(1)
+        print "Users successfully added to group "+group+"."
+        
+    def remove_users_from_group(self, group, users):
+        for user in users:
+            resp = self.rut.remove_user_from_group(self.repository, self.usercert, self.userkey, group, user)
+            if not resp == 200:
+                if resp == 404:
+                    print "User or group not found."
+                else:
+                    print "HTTP error "+resp
+                sys.exit(1)
+        print "Users successfully removed from group "+group+"."
     
     def get(self, image, dest):
         resp = self.describe_image(image)

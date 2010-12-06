@@ -80,25 +80,21 @@ class repoutils(object):
         resp = repo_https.getresponse()
         return resp.status
 
-    def share_group(self, repo, cert, key, *args, **kwargs):
+    def share_group(self, repo, cert, key, image, group):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('POST', '/api/images/'+image+'/share/group/'+group)
         resp = repo_https.getresponse()
         return resp.status
 
-    def unshare_user(self, repo, cert, key, *args, **kwargs):
-        id = self.get_user(repo,cert,key)
-        user_name = id['user_name']
+    def unshare_user(self, repo, cert, key, image, user):
         repo_https = self.repo(repo, cert, key)
-        repo_https.request('DELETE', '/api/images/'+user_name+'/'+kwargs['image']+'/share/user/'+kwargs['user'])
+        repo_https.request('DELETE', '/api/images/'+image+'/share/user/'+user)
         resp = repo_https.getresponse()
         return resp.status
 
-    def unshare_group(self, repo, cert, key, *args, **kwargs):
-        id = self.get_user(repo,cert,key)
-        user_name = id['user_name']
+    def unshare_group(self, repo, cert, key, image, group):
         repo_https = self.repo(repo, cert, key)
-        repo_https.request('DELETE', '/api/images/'+user_name+'/'+kwargs['image']+'/share/group/'+kwargs['group'])
+        repo_https.request('DELETE', '/api/images/'+image+'/share/group/'+group)
         resp = repo_https.getresponse()
         return resp.status
         
@@ -117,6 +113,18 @@ class repoutils(object):
     def remove_image(self, repo, cert, key, image, **kwargs):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('DELETE', '/api/images/'+image)
+        resp = repo_https.getresponse()
+        return resp.status
+        
+    def add_user_to_group(self, repo, cert, key, group, user):
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('POST', '/api/groups/'+group+'/users/'+user)
+        resp = repo_https.getresponse()
+        return resp.status
+        
+    def remove_user_from_group(self, repo, cert, key, group, user):
+        repo_https = self.repo(repo, cert, key)
+        repo_https.request('DELETE', '/api/groups/'+group+'/users/'+user)
         resp = repo_https.getresponse()
         return resp.status
  
