@@ -253,7 +253,23 @@ class repoman_client(object):
         else:
             print 'Unknown HTTP response code '+resp
         
+    def modify_user(self, user, metadata):
+        resp = self.rut.modify_user(self.repository, self.usercert, self.userkey, user, metadata)
+        if resp.status == 200:
+            print 'User '+user+' has been modified.'
+        elif resp.status == 404:
+            print 'User '+image+' not found.'
+        else:
+            print 'Unknown HTTP response code '+resp
             
+    def modify_group(self, group, metadata):
+        resp = self.rut.modify_group(self.repository, self.usercert, self.userkey, group, metadata)
+        if resp.status == 200:
+            print 'Group '+group+' has been modified.'
+        elif resp.status == 404:
+            print 'Group '+group+' not found.'
+        else:
+            print 'Unknown HTTP response code '+resp
     
     def list_user_images(self, user, *args):
         images = json.loads(self.rut.get_user_images(self.repository, self.usercert, self.userkey, user))
@@ -389,10 +405,7 @@ class repoman_client(object):
         print '\n   Image successfully uploaded to  the repository at:\n    '
         print self.repository
     
-    
-    
-    
-     
+
     def upload_image(self, file, *args, **kwargs):
         print "Uploading image "+file+" with name "+kwargs['image']
         self.rut.post_image(self.repository,self.usercert,self.userkey,file,kwargs['image'])

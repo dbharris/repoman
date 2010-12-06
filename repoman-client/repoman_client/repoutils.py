@@ -37,6 +37,18 @@ class repoutils(object):
         params = urllib.urlencode(metadata)
         repo_https.request('POST', '/api/users', params, headers)
         return repo_https.getresponse()
+        
+    def modify_user(self, repo, cert, key, user, metadata, headers=HEADERS):
+        repo_https = self.repo(repo, cert, key)
+        params = urllib.urlencode(metadata)
+        repo_https.request('POST', '/api/users/'+user, params, headers)
+        return repo_https.getresponse()
+        
+    def modify_group(self, repo, cert, key, group, metadata, headers=HEADERS):
+        repo_https = self.repo(repo, cert, key)
+        params = urllib.urlencode(metadata)
+        repo_https.request('POST', '/api/groups/'+group, params, headers)
+        return repo_https.getresponse()
        
     def create_group(self, repo, cert, key, metadata, headers=HEADERS):
         repo_https = self.repo(repo, cert, key)

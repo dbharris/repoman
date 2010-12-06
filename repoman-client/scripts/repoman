@@ -167,25 +167,7 @@ def main():
                 print 'Exiting repoman.'
         sys.exit(0)
         
-        
-        
-    if command == 'modify-user':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        # --user USERNAME [--METAVAR VALUE ...]
-        
-        print 'todo'
-        #repo.modify_user(args)
-        sys.exit(0)
-        
-        
-    if command == 'modify-group':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        # --group GROUPNAME [--METAVAR VALUE ...]
-        
-        print 'todo'
-        #repo.modify_group(args)
-        sys.exit(0)
-        
+
         
     if command == 'modify-image':
         parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
@@ -267,8 +249,25 @@ def main():
         repo.describe_group(args.group)
         sys.exit(0)
         
-        
-            
+    if command == 'modify-user':
+        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser.add_argument('user')
+        args = parser.parse_known_args(args=sys.argv[2:])
+        metadata = dict([(args[1][i].strip('-'), args[1][i+1]) for i in range(0, len(args[1]) - 1, 2)])
+        print args[0].user
+        print metadata
+        repo.modify_user(args[0].user, metadata)
+        sys.exit(0)
+
+    if command == 'modify-group':
+        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser.add_argument('group')
+        args = parser.parse_known_args(args=sys.argv[2:])
+        metadata = dict([(args[1][i].strip('-'), args[1][i+1]) for i in range(0, len(args[1]) - 1, 2)])
+        print args[0].group
+        print metadata
+        repo.modify_group(args[0].group, metadata)
+        sys.exit(0)     
         
         
     if command == 'create-image':
