@@ -146,7 +146,10 @@ class repoman_client(object):
                 print "  "+key+": \t",
                 print user[key]
         print '\n'
-        
+       
+    def return_username(self):
+        return self.rut.get_username(self.repository, self.usercert, self.userkey)
+ 
     def get_username(self):
         print self.rut.get_username(self.repository, self.usercert, self.userkey)
  
@@ -176,11 +179,11 @@ class repoman_client(object):
     def describe_user(self, user):
     
         resp = self.rut.query_user(self.repository, self.usercert, self.userkey, user)
-        if str(404) in resp:
+        if resp.status == 404:
             print "User not found."
         
         else:
-            resp = json.loads(resp)
+            resp = json.loads(resp.read())
             print '\n'
             for key in resp:
                 if key == 'images':
@@ -195,11 +198,11 @@ class repoman_client(object):
             
     def describe_group(self, group):
         resp = self.rut.query_group(self.repository, self.usercert, self.userkey, group)
-        if str(404) in resp:
+        if resp.status == 404:
             print "Group not found."
         
         else:
-            resp = json.loads(resp)
+            resp = json.loads(resp.read())
             print '\n'
             for key in resp:
                 print "  "+key+": \t",
@@ -216,7 +219,7 @@ class repoman_client(object):
         elif resp.status == 400:
             print 'Invalid or insufficient parameters. Minimum parameters are: user_name, email, full_name, cert_dn. '
         else:
-            print 'Unknown HTTP response code '+resp.status
+            print 'Unknown HTTP response code '+str(resp.status)
             
     def create_group(self, metadata):
         resp = self.rut.create_group(self.repository, self.usercert, self.userkey, metadata)
@@ -227,34 +230,34 @@ class repoman_client(object):
         elif resp.status == 400:
             print 'Invalid or insufficient parameters.  Minimum parameters: name.'
         else:
-            print 'Unknown HTTP response code '+resp.status
+            print 'Unknown HTTP response code '+str(resp.status)
             
     def remove_user(self, user):
         resp = self.rut.remove_user(self.repository, self.usercert, self.userkey, user)
-        if resp == 200:
+        if resp.status == 200:
             print 'User '+user+' has been deleted.'
-        elif resp == 404:
+        elif resp.status == 404:
             print 'User '+user+' not found.'
         else:
-            print 'Unknown HTTP response code '+resp
+            print 'Unknown HTTP response code '+str(resp.status)
             
     def remove_group(self, group):
         resp = self.rut.remove_group(self.repository, self.usercert, self.userkey, group)
-        if resp == 200:
+        if resp.status == 200:
             print 'Group '+group+' has been deleted.'
-        elif resp == 404:
+        elif resp.status == 404:
             print 'Group '+group+' not found.'
         else:
-            print 'Unknown HTTP response code '+resp
+            print 'Unknown HTTP response code '+str(resp.status)
             
     def remove_image(self, image, **kwargs):
         resp = self.rut.remove_image(self.repository, self.usercert, self.userkey, image)
-        if resp == 200:
+        if resp.status == 200:
             print 'Image '+image+' has been deleted.'
-        elif resp == 404:
+        elif resp.status == 404:
             print 'Image '+image+' not found.'
         else:
-            print 'Unknown HTTP response code '+resp
+            print 'Unknown HTTP response code '+str(resp.status)
         
     def modify_user(self, user, metadata):
         resp = self.rut.modify_user(self.repository, self.usercert, self.userkey, user, metadata)
@@ -263,7 +266,7 @@ class repoman_client(object):
         elif resp.status == 404:
             print 'User '+image+' not found.'
         else:
-            print 'Unknown HTTP response code '+resp
+            print 'Unknown HTTP response code '+str(resp.status)
             
     def modify_group(self, group, metadata):
         resp = self.rut.modify_group(self.repository, self.usercert, self.userkey, group, metadata)
@@ -272,10 +275,14 @@ class repoman_client(object):
         elif resp.status == 404:
             print 'Group '+group+' not found.'
         else:
-            print 'Unknown HTTP response code '+resp
+            print 'Unknown HTTP response code '+str(resp.status)
     
     def list_user_images(self, user, *args):
-        images = json.loads(self.rut.get_user_images(self.repository, self.usercert, self.userkey, user))
+        resp = self.rut.get_user_images(self.repository, self.usercert, self.userkey, user)
+        if resp.status == 404:
+            print "User does not exist."
+            sys.exit(1)
+        images = json.loads(resp.read())
         if args[0]:
             print "Images for user "+user+":"
             for image in images:
@@ -286,7 +293,11 @@ class repoman_client(object):
                 print image.split('/')[6]
     
     def list_images_sharedwith(self, long):
-        images = json.loads(self.rut.get_user_images_sharedwith(self.repository, self.usercert, self.userkey))
+        resp = self.rut.get_user_images_sharedwith(self.repository, self.usercert, self.userkey)
+        if resp.status == 404:
+            print "User not found."
+            sys.exit(1)
+        images = json.loads(resp.read())
         if long:
             print "Images shared with "+self.rut.get_username(self.repository, self.usercert, self.userkey)+":"
             for image in images:
@@ -297,7 +308,11 @@ class repoman_client(object):
             sys.exit(0)
             
     def list_images_sharedwith_user(self, user, long):
-        images = json.loads(self.rut.get_user_images_sharedwith_user(self.repository, self.usercert, self.userkey, user))
+        resp = self.rut.get_user_images_sharedwith_user(self.repository, self.usercert, self.userkey, user)
+        if resp.status == 404:
+            print "User "+user+" not found."
+            sys.exit(1)
+        images = json.loads(resp.read())
         if long:
             print "Images shared with "+user+":"
             for image in images:
@@ -310,7 +325,11 @@ class repoman_client(object):
             sys.exit(0)
             
     def list_images_sharedwith_group(self, group, long):
-        images = json.loads(self.rut.get_user_images_sharedwith_group(self.repository, self.usercert, self.userkey, group))
+        resp = self.rut.get_user_images_sharedwith_group(self.repository, self.usercert, self.userkey, group)
+        if resp.status == 404:
+            print "User "+user+" not found."
+            sys.exit(1)
+        images = json.loads(resp.read())
         if long:
             print "Images shared with "+group+":"
             for image in images:
@@ -336,40 +355,49 @@ class repoman_client(object):
                 print image.split('/')[6]
                 
     def list_group_members(self, group, long):
+        members = self.rut.list_group_members(self.repository, self.usercert, self.userkey, group)
+        if members.status == 404:
+            print "Group not found."
+            sys.exit(1)
         if long:
-            members = self.rut.list_group_members(self.repository, self.usercert, self.userkey, group)
-            print members
-            
+            print str(members.read())
         else:
-            members = self.rut.list_group_members(self.repository, self.usercert, self.userkey, group)
-            print members
+            print str(members.read())
             
             
             
     def list_groups(self, *args):
+        resp = self.rut.list_groups(self.repository, self.usercert, self.userkey)
+        if not resp.status == 200:
+            print "An error occurred."
+            sys.exit(1)
         if args[0]:
-            groups = json.loads(self.rut.list_groups(self.repository, self.usercert, self.userkey))
+            groups = json.loads(resp.read())
             for group in groups:
                 self.describe_group(group.split('/')[5])
                 
         else:
-            groups = json.loads(self.rut.list_groups(self.repository, self.usercert, self.userkey))
+            groups = json.loads(resp.read())
             print "Groups:"
             for group in groups:
                 print group.split('/')[5]
                 
                 
     def list_users_groups(self, user, long):
+        resp = self.rut.query_user(self.repository, self.usercert, self.userkey, user)
+        if resp.status == 404:
+            print "User not found."
+            sys.exit(1)
         if long:
-            groups = json.loads(self.rut.query_user(self.repository, self.usercert, self.userkey, user))['groups']
+            groups = json.loads(resp.read())['groups']
             for group in groups:
                 self.describe_group(group.split('/')[5])
-            
         else:
-            groups = json.loads(self.rut.query_user(self.repository, self.usercert, self.userkey, user))['groups']
+            groups = json.loads(resp.read())['groups']
             print "Groups:"
             for group in groups:
                 print group.split('/')[5]
+        sys.exit(0)
             
 
 
@@ -382,20 +410,13 @@ class repoman_client(object):
         resp = self.rut.post_image_metadata('/api/images', self.repository, self.usercert, self.userkey, metadata=metadata)
         if kwargs['exists']:
             print "Updating metadata."
-            images = self.list_images_raw()
-            exists = False
-            for image in images:
-                if metadata['name'] == image.split('/')[6]:
-                    exists = True
-            if not exists:
-                print "This image does not exist.  Please create it with repoman create-image."
-                sys.exit(1)
+            
             resp = self.rut.update_image_metadata('/api/images', self.repository, self.usercert, self.userkey, image_name=metadata['name'], metadata=metadata)
             if resp.status == 200:
                 print "Metadata modification complete."
                 
             else:
-                print "Metadata was not modified: "+str(resp.status)
+                print "Metadata was not modified: "+str(resp.status)+" error returned by the server."
         else:
             if resp.status == 201:
                 print "Metadata uploaded, image created."
@@ -409,10 +430,10 @@ class repoman_client(object):
 
     def describe_image(self, image, *args, **kwargs):
         resp = self.rut.get_image_metadata(self.repository, self.usercert, self.userkey, image)
-        if str(404) in resp:
+        if resp.status == 404:
             return 404
         else:
-            return json.loads(resp)
+            return json.loads(resp.read())
             
     
     def delete(self, name):

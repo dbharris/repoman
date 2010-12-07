@@ -60,43 +60,37 @@ class repoutils(object):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('GET', '/api/images/'+image)
         resp = repo_https.getresponse()
-        return resp.read()
+        return resp
         
     def get_user_images(self, repo, cert, key, user):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('GET', '/api/users/'+user+'/images')
         resp = repo_https.getresponse()
-        return resp.read()
+        return resp
         
     def get_user_images_sharedwith(self, repo, cert, key):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('GET', '/api/users/'+self.get_username(repo, cert, key)+'/shared')
         resp = repo_https.getresponse()
-        return resp.read()
+        return resp
         
     def get_user_images_sharedwith_user(self, repo, cert, key, user):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('GET', '/api/users/'+user+'/shared')
         resp = repo_https.getresponse()
-        if not resp.status == 200:
-            if resp.status == 404:
-                print "User "+user+" not found."
-            else:
-                print "HTTP error code "+resp.status
-            sys.exit(0)
-        return resp.read()
+        return resp
         
     def get_user_images_sharedwith_group(self, repo, cert, key, group):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('GET', '/api/groups/'+group+'/shared')
         resp = repo_https.getresponse()
-        return resp.read()
+        return resp
         
     def delete_image(self, repo, cert, key, name):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('DELETE', '/api/images/'+name)
         resp = repo_https.getresponse()
-        return resp.read()
+        return resp
 
     def share_user(self, repo, cert, key, image, user):
         repo_https = self.repo(repo, cert, key)
@@ -190,32 +184,29 @@ class repoutils(object):
             
             
     def list_group_members(self,repo,cert,key,group):
-        print group
         repo_https = self.repo(repo, cert, key)
         repo_https.request('GET', '/api/groups/'+group+'/users')
         resp = repo_https.getresponse()
-        print str(resp.status)
-        sys.exit(0)
-        #return resp.read()
+        return resp
         
     
     def list_groups(self,repo,cert,key):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('GET', '/api/groups')
         resp = repo_https.getresponse()
-        return resp.read()
+        return resp
         
     def query_user(self,repo,cert,key,user):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('GET', '/api/users/'+user)
         resp = repo_https.getresponse()
-        return resp.read()
+        return resp
         
     def query_group(self,repo,cert,key,group):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('GET', '/api/groups/'+group)
         resp = repo_https.getresponse()
-        return resp.read()
+        return resp
             
     
     def get_my_id(self,repo,cert,key):

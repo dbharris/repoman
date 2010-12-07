@@ -97,7 +97,7 @@ def main():
         elif args.all:
             repo.list_groups(args.long)
         else:
-            repo.list_users_groups(repo.get_username(), args.long)
+            repo.list_users_groups(repo.return_username(), args.long)
         sys.exit(0)
         
 
@@ -204,7 +204,20 @@ def main():
         except:
             metadata['readonly'] = False
             
+        images = repo.list_images_raw()
+        exists = False
+        for image in images:
+            if metadata['name'] == image.split('/')[6]:
+                exists = True
+        if not exists:
+            print "This image does not exist."
+            sys.exit(1)
+                
+                
         print "Updating image "+metadata['name']+" with metadata: "
+        
+        
+                
         for key in metadata:
              print key+": "+str(metadata[key])
         repo.update_metadata(metadata=metadata, exists=True)
