@@ -104,7 +104,7 @@ def main():
     elif command == 'whoami':
         # long
         parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        parser.add_argument('--long', default=False, action="store_true")
+        parser.add_argument('--long','-l', default=False, action="store_true")
         args = parser.parse_args(args=sys.argv[2:])
         if args.long:
             repo.get_user()
@@ -226,9 +226,17 @@ def main():
         
     elif command == 'download-image':
         parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        images = repo.list_images_raw()
+        exists = False
+        for image in images:
+            if metadata['name'] == image.split('/')[6]:
+                exists = True
+        if not exists:
+            print "This image does not exist."
+            sys.exit(1)
         # --image [USER/]IMAGE [--dest DEST]
         parser.add_argument('image')
-        parser.add_argument('--dest', default='./')
+        parser.add_argument('--dest','-d', default='./')
         args = parser.parse_args(args=sys.argv[2:])
         if not os.path.split(args.dest)[1]:
             if '/' in args.image:
@@ -334,7 +342,7 @@ def main():
             sys.exit(1)
         for key in metadata:
             print key+": "+str(metadata[key])
-        repo.update_metadata(metadata=metadata, replace=False)
+        repo.update_metadata(metadata=metadata, exists=False)
         if args[0].file is not None:
             print "Uploading image file "+args[0].file+'...'
             if not os.path.isfile(args[0].file):
@@ -350,8 +358,8 @@ def main():
     elif command == 'share-image':
         parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
         parser.add_argument('image')
-        parser.add_argument('--user')
-        parser.add_argument('--group')
+        parser.add_argument('--user','-u')
+        parser.add_argument('--group','-g')
         args = parser.parse_args(args=sys.argv[2:])
         if args.user:
             print "Sharing image "+args.image+" with user "+args.user+"..."
@@ -367,8 +375,8 @@ def main():
     elif command == 'unshare-image':
         parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
         parser.add_argument('image')
-        parser.add_argument('--user')
-        parser.add_argument('--group')
+        parser.add_argument('--user','-u')
+        parser.add_argument('--group','-g')
         args = parser.parse_args(args=sys.argv[2:])
         if args.user:
             print "Unsharing image "+args.image+" with user "+args.user+"..."
@@ -383,40 +391,64 @@ def main():
     
     elif command == 'snapshot-system':
         parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        # --noupload --METAVARS VALUE
+        parser.add_argument('--upload', action='store_true', default=False)
+        parser.add_argument('--force','-f', action='store_true', default=False)
+        args = parser.parse_known_args(args=sys.argv[2:])
+        metadata = dict([(args[1][i].strip('-'), args[1][i+1]) for i in range(0, len(args[1]) - 1, 2)])
+        if args[0].upload:
+            try:
+                name = metadata['name']
+            except:
+                print "Please enter at least a name as metadata with --name IMAGE_NAME."
+                sys.exit(1)
+            images = repo.list_images_raw()
+            exists = False
+            for image in images:
+                if metadata['name'] == image.split('/')[6]:
+                    exists = True
+                    if not args[0].force:
+                        print 'WARNING!! This image already exists on the repository.'
+                        if not ask_yes_or_no(force=True):
+                            print 'Exiting repoman-client.'
+                            sys.exit(2)
         
-        image_list = repo.list_images_raw()
-        for i in xrange(len(repo.list_images_raw())):
-            image_list[i] = repo.list_images_raw()[i].split('/')[6]
-
+            print "Snapshotting system and uploading with the following metadata:"
+            for key in metadata:
+                print key+": "+metadata[key]
+            repo.save_image(metadata=metadata,replace=exists, snapshot_complete=False)
+            sys.exit(0)
+        else:
+            repo.snapshot_system()
+            print "Local filesystem synced and prepared for upload at "+self.mountpount+"."
+            print "To upload this image to the repository, run repoman upload-snapshot --META VALUE."
+            sys.exit(0)
+            
+    elif command == 'upload-snapshot':
+        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser.add_argument('--force','-f', action='store_true', default=False)
+        args = parser.parse_known_args(args=sys.argv[2:])
+        metadata = dict([(args[1][i].strip('-'), args[1][i+1]) for i in range(0, len(args[1]) - 1, 2)])
         try:
             name = metadata['name']
-
         except:
-            print '''    Please either specify an image name with the --name flag
-        or specify metadata with --name [name] --os_type [os_type] etc..
-        The images available to you are:
-                  ''' 
-            for item in image_list:
-                print item
-            print '''
-        select one of these images to overwrite, or specify a new image name
-        see --help for more details
-                  '''
-            sys.exit(2)
-        replace=False
-        for item in image_list:
-            if item == name:
-                replace=True
-                if not force:
+            print "Please enter at least a name as metadata with --name IMAGE_NAME."
+            sys.exit(1)
+            
+        images = repo.list_images_raw()
+        exists = False
+        for image in images:
+            if metadata['name'] == image.split('/')[6]:
+                exists = True
+                if not args[0].force:
                     print 'WARNING!! This image already exists on the repository.'
                     if not ask_yes_or_no(force=True):
                         print 'Exiting repoman-client.'
                         sys.exit(2)
-        print "Saving image "+name+" with the following metadata:"
+        
+        print "Snapshotting image "+name+" with the following metadata:"
         for key in metadata:
             print key+": "+metadata[key]
-        repo.save_image(metadata=metadata,replace=replace)
+        repo.upload_snapshot(metadata=metadata,replace=replace, snapshot_complete=True)
         sys.exit(0)
         
         
@@ -426,18 +458,28 @@ def main():
         parser.add_argument('image')
         parser.add_argument('--file', required=True)
         args = parser.parse_args(args=sys.argv[2:])
+        
         if not os.path.isfile(args.file):
             print "The file "+args.file+" does not exist.  Please try again."
             sys.exit(0)
-        else:
-            repo.upload_image(args.file,image=args.image)
+            
+        images = repo.list_images_raw()
+        exists = False
+        for image in images:
+            if args.image == image.split('/')[6]:
+                exists = True
+        if not exists:
+            print "This image does not exist."
+            sys.exit(0)
+            
+        repo.upload_image(args.file,image=args.image)
         
         sys.exit(0)
         
     elif command == 'add-users-to-group':
         parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
         parser.add_argument('group')
-        parser.add_argument('--users', nargs='+')
+        parser.add_argument('--users','-u', nargs='+')
         args = parser.parse_args(args=sys.argv[2:])
         repo.add_users_to_group(args.group, args.users)
         sys.exit(0)
@@ -445,7 +487,7 @@ def main():
     elif command == 'remove-users-from-group':
         parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
         parser.add_argument('group')
-        parser.add_argument('--users', nargs='+')
+        parser.add_argument('--users','-u', nargs='+')
         args = parser.parse_args(args=sys.argv[2:])
         repo.remove_users_from_group(args.group, args.users)
         sys.exit(0)
@@ -471,7 +513,7 @@ def main():
             sys.exit(1)
         repo.remove_permissions(args.group, args.permissions)
         sys.exit(0)
-                
+
 
     elif command == 'help' or command == '--help':
         print_help_menu()

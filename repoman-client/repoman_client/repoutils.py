@@ -132,7 +132,7 @@ class repoutils(object):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('DELETE', '/api/images/'+image)
         resp = repo_https.getresponse()
-        return resp.status
+        return resp
         
     def add_user_to_group(self, repo, cert, key, group, user):
         repo_https = self.repo(repo, cert, key)

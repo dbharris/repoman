@@ -57,13 +57,11 @@ class repoman_client(object):
         self.usercert='/tmp/x509up_u%s' % str(os.geteuid())
         self.userkey='/tmp/x509up_u%s' % str(os.geteuid())
         if not os.path.exists(self.usercert):
-            print 'Could not find a proxy cert at /tmp/x509up_u%s' % str(os.geteuid())
-            print 'Searching for a valid certificate location in the configuration file.'
             try:
                 self.usercert=config.get("ThisImage","usercert")
                 self.userkey=config.get("ThisImage","userkey")
             except ConfigParser.NoOptionError:
-                print "Could not find a certificate in the configuration file."  
+                print "Could not find a certificate in the configuration file or at /tmp/x509up_u%USERID%."  
                 print "Please either use grid-proxy-init to generate a new proxy cert or specify an alternate certifate in the configuration file."
                 print "(either /etc/repoman-client/repoman-client.conf or ~/.repoman-client)"
                 sys.exit(1)
@@ -133,6 +131,7 @@ class repoman_client(object):
                 print e.msg
                 os.remove(self.lockfile)
                 sys.exit(1)
+                
                 
     def get_user(self):
         user = self.rut.get_my_id(self.repository, self.usercert, self.userkey)
@@ -443,21 +442,33 @@ class repoman_client(object):
 
 
 
-    def save_image(self, *args, **kwargs):
+    def upload_snapshot(self, *args, **kwargs):
         metadata = kwargs['metadata']
         print "Posting new image metadata to the repository."
-        if kwargs['replace']:
-            print "Replacing existing image "+metadata['name']
-        else:
-            print "Creating new image on repository with name "+metadata['name']
-        self.update_metadata(metadata=metadata,replace=kwargs['replace'])
-    
-        print '''
         
-    Creating an image of the local filesystem.  
-    This can take up to 10 minutes or more
-    Please be patient ...
-    test
+        self.update_metadata(metadata=metadata,exists=kwargs['replace'])
+        
+        if not kwargs['snapshot_complete']:
+            self.snapshot_system()
+             
+        print '''
+
+        Uploading to the image repository. This can also take 
+        time, depending on the speed of your connection
+        and the size of your image...
+        '''
+        self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,metadata['name'])
+        
+        print '\n   Image successfully uploaded to  the repository at:\n    '
+        print self.repository
+        
+        
+    def snapshot_system(self):
+        print '''
+        Creating an image of the local filesystem.  
+        This can take up to 10 minutes or more.
+        Please be patient ...
+        test
         '''
         if not self.iut.check_mounted(self.imagepath, self.mountpoint):
             print "Creating a new image:"
@@ -467,20 +478,12 @@ class repoman_client(object):
             print "Sync is already running...what?"
             self.create_local_bundle()
         else:
-            print "syncing image"
+            print "Syncing image."
             self.iut.sync_filesystem(self.mountpoint, self.excl_dirs)
             
-        print '''
-        
-    Local copy of filesystem created.  Uploading
-    to the image repository.  This can also take 
-    time, depending on the speed of your connection
-    and the size of your image...
-        '''
-        self.rut.post_image(self.repository,self.usercert,self.userkey, self.imagepath,metadata['name'])
-        
-        print '\n   Image successfully uploaded to  the repository at:\n    '
-        print self.repository
+        print "Snapshot process complete."
+
+            
     
 
     def upload_image(self, file, *args, **kwargs):
