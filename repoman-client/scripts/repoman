@@ -6,10 +6,7 @@ sys.path.append('../')
 sys.path.append('./')
 from repoman_client import repoman_client
 import os.path
-
 repo = repoman_client.repoman_client()
-
-
 
 def ask_yes_or_no(*args, **kwargs):
     try:
@@ -27,8 +24,41 @@ def ask_yes_or_no(*args, **kwargs):
     
 
 def print_help_menu():
-    print "repoman-client 0.1.2"
-    print "root help menu (pre-subcommand)"
+    print "Repoman-Client 0.2"
+    print 'usage: repoman [subcommand]'
+    print " "
+    print "Manages VMs, users and groups on a Repoman repository."
+    print "All defaults set in /etc/repoman-client/repoman-client.conf"
+    print "Copy this file to ~/.repoman-client and insert your repository's address."
+    print " "
+    print "Possible subcommands:"
+    print "Run \"repoman [subcommand] --help|-h\" for a complete list of options."
+    print ""
+    print "  list-users | li                list users"
+    print "  list-groups | lg               list groups"
+    print "  create-user | cu               create a user"
+    print "  create-group | cg              create a group"
+    print "  create-image | ci              create an image"
+    print "  modify-user | mu               modify user metadata"
+    print "  modify-group | mg              modify group metadata"
+    print "  modify-image | mi              modify image metadata"
+    print "  remove-user | ru               remove a user"
+    print "  remove-group | rg              remove a group"
+    print "  remove-image | ri              remove an image"
+    print "  describe-user | du             describe a user"
+    print "  describe-group | dg            describe a group"
+    print "  describe-image | di            describe an image"
+    print "  download-image | get           download an image"
+    print "  upload-image | ui              upload an image"
+    print "  share-image | si               share an image with a user or group"
+    print "  unshare-image | usi            unshare an image with a user or group"
+    print "  add-users-to-group | aug       add users to a group"
+    print "  from-users-from-group | rug    remove users from a group"
+    print "  add-permissions | ap           add permissions to a group"
+    print "  remove-permissions | rp        add permissions to a group"
+    print "  snapshot-system | ss           snapshot current system and store locally or upload."
+    print "  upload-snapshot | us           upload a snapshot to the server."
+    print "  whoami                         returns current username or user information"
     sys.exit(0)
 
 def main():
@@ -187,7 +217,7 @@ def main():
         sys.exit(0)
         
         
-    elif command == 'remove-image' or 'ri':
+    elif command == 'remove-image' or command == 'ri':
         parser = argparse.ArgumentParser(prog='repoman remove-image', description='Removes an from the Repoman repository.', usage='%(prog)s [user/]image [--force | -f]')
         parser.add_argument('image')
         parser.add_argument('--force','-f', action='store_true', default=False)
@@ -243,7 +273,7 @@ def main():
         images = repo.list_images_raw()
         exists = False
         for image in images:
-            if metadata['name'] == image.split('/')[6]:
+            if args.image == image.split('/')[6]:
                 exists = True
         if not exists:
             print "This image does not exist."
@@ -251,6 +281,9 @@ def main():
         if not os.path.split(args.dest)[1]:
             if '/' in args.image:
                 args.dest = args.dest+args.image.split('/')[1]
+            else:
+                args.dest = args.dest+args.image
+                args.image = repo.return_username()+'/'+args.image
         repo.get(args.image,args.dest)
         sys.exit(0)
                   
@@ -416,11 +449,12 @@ def main():
             print "Snapshotting system and uploading with the following metadata:"
             for key in metadata:
                 print key+": "+metadata[key]
+            repo.update_metadata(metadata=metadata, exists=exists)
             repo.upload_snapshot(metadata=metadata,replace=exists, snapshot_complete=False)
             sys.exit(0)
         else:
             repo.snapshot_system()
-            print "Local filesystem synced and prepared for upload at "+self.mountpount+"."
+            print "Local filesystem synced and prepared for upload at "+repo.mountpount+"."
             print "To upload this image to the repository, run repoman upload-snapshot --META VALUE."
             sys.exit(0)
 
@@ -448,7 +482,8 @@ def main():
         print "Snapshotting image "+name+" with the following metadata:"
         for key in metadata:
             print key+": "+metadata[key]
-        repo.upload_snapshot(metadata=metadata,replace=replace, snapshot_complete=True)
+        repo.update_metadata(metadata=metadata, exists=exists)
+        repo.upload_snapshot(metadata=metadata,replace=exists, snapshot_complete=True)
         sys.exit(0)
         
         

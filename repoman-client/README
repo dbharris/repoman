@@ -1,6 +1,6 @@
-repoman-client 0.1.1:
+Repoman-Client 0.2:
 
-NOTE: this client is intended to be installed virtual machine images
+Install process:
 
 1.    Install prerequisites
       $ yum install python-setuptools
@@ -20,18 +20,117 @@ Repoman-client uses grid certificates to authenticate with the repoman server.
 Ensure that you have a valid, RFC-compliant grid proxy certificate before running repoman.
 (e.g. $ grid-proxy-init -rfc)
 
-Currently implemented commands:
+Available Sub-Commands
 
-repoman list [--all]
-repoman getuser [--all]
-repoman info --name imagename 
-repoman save --name imagename [--(any other metadata tags)] [--force]
-repoman get --name imagename
-repoman delete --name imagename [--force]
-repoman update --name imagename [--(any other metadata tags)] [--force]
-repoman share (--user username | --group groupname)  --image vmname
-repoman unshare (--user username | --group groupname)  --image  vmname
+list-users [--long] [--group GROUP]
+    list-users 
+        list all users
+    list-users --group GROUP
+        list all the users in GROUP
 
+list-groups [--all] [--long] [--user USER]
+    list-groups 
+        list current users groups
+    list-groups --all 
+        list all groups
+    list-groups --user USER 
+        list all groups USER is part of
 
-Other metadata tag examples: --hypervisor Xen, --os_variant RHEL, --readonly true
+list-images [--long] [--sharedwith] [--all | --user USER | --group GROUP]
+    list-images 
+        list the current users images
+    list-images --all
+        list all images for ALL users
+    list-images --sharedwith 
+        list all images shared with you
+    list-images --user USER 
+        list images for the USER
+    list-images --sharedwith --user USER 
+        list images shared with USER
+    list-images --sharedwith --group GROUP
+        list images shared with GROUP
+
+create-user --METAVAR VALUE ...
+    create a new user based on metadata specified
+
+create-group --METAVAR VALUE ...
+    create a new group based on metadata specified
+
+create-image [--file FILE] [--METAVAR VALUE ...]
+    create a new image based on metadata specified
+    create-image --variable value ... 
+        creates the metadata for an image. You need to upload the image seperatly.
+    create-image --file FILE --variable value ... 
+        creates the image metadata and uploads the file in one go.
+
+modify-user USER [--METAVAR VALUE ...]
+    update the user USER with the metadata specified
+
+modify-group GROUP [--METAVAR VALUE ...]
+    update the group GROUP with the metadata specified
+
+modify-image [USER/]IMAGE [--METAVAR VALUE ...]
+    update the existing image IMAGE with the metadata specified
+
+remove-user USER
+    remove the user USER from repoman
+
+remove-group GROUP
+    remove the group GROUP from repoman
+
+remove-image [USER/]IMAGE
+    remove the image [USER/]IMAGE from repoman
+
+download-image [USER/]IMAGE [--dest DEST]
+    download the raw image [USER/]IMAGE and optionally save it to DEST
+
+upload-image [USER/]IMAGE --file FILE
+    upload FILE to the existing repoman image [USER/]IMAGE
+
+describe-user USER
+    view the metadata for the user USER
+
+describe-group GROUP
+    view the metadata for the group GROUP
+
+describe-image [USER/]IMAGE
+    view the metadata for the image '[USER/]IMAGE'
+
+share-image [USER/]IMAGE (--user USER | --group GROUP)
+    share the image [USER/]IMAGE with either GROUP or USER
+
+unshare-image [USER/]IMAGE (--user USER | --group GROUP)
+    unshare the image [USER/]IMAGE with either GROUP or USER
+
+add-users-to-group GROUP --users USER1 [USER2 ...]
+    add users USER1, USER2, ... to the group GROUP
+
+remove-users-from-group GROUP --users USER1 [USER2 ...]
+    remove the users USER1, USER2, ... from the group GROUP
+
+add-permissions GROUP --permissions PERMISSION1 [PERMISSION2 ...]
+    add the PERMISSION, PERMISSION2, ... permissions to the group GROUP
+
+remove-permissions GROUP --permissions PERMSISSION1 [PERMISSION2 ...]
+    remove the PERMISSION1, PERMISSION2, ... permissions from the group GROUP
+
+whoami
+    get the currently logged in user
+
+snapshot-system [--upload] [--force] [--METAVAR VALUE ...]
+    snapshot-system 
+        snapshot your system locally (to the destination specified in repoman-client.conf), but do not yet bundle for upload
+    snapshot-system --upload --name test_image.gz --description "blah blah balh"
+        snapshot the system, bundle it and upload it.
+    snapshot-system --force --upload --name test_image.gz --description "blah blah balh"
+        same as the command without the --force option, with the exception that it will overwrite an existing image if there is a naming conflict.
+
+upload-snapshot [--force] --METAVAR VALUE ...
+    bundle and upload the latest snapshot
+    upload-snapshot --name test_image.gz --description "blah blah balh"
+        upload the latest snapshot to the server with the specified metadata.
+        if the image destination already exists an error will be generated
+    upload-snapshot --force --name test_image.gz --description "blah blah balh"
+        the --force option will overwrite an existing image if there is a name conflict
+
 All defaults are set in repoman-client.conf, set in /etc/repoman-client/repoman-client.conf by default (custom may be placed at ~/.repoman-client)
