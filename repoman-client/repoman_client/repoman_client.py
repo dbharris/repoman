@@ -49,7 +49,7 @@ class repoman_client(object):
             self.repository=config.get("ThisImage","repository")
         except ConfigParser.NoSectionError:
             print "Trouble reading config file."  
-            print "Make.. everyone knows that! :P sure an imagename and repository are specified in the config"
+            print "Make sure an imagename and repository are specified in the config"
             print "(either /etc/repoman-client/repoman-client.conf or ~/.repoman-client)"
             sys.exit(1)
         
