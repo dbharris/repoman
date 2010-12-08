@@ -430,9 +430,18 @@ class repoman_client(object):
     def describe_image(self, image, *args, **kwargs):
         resp = self.rut.get_image_metadata(self.repository, self.usercert, self.userkey, image)
         if resp.status == 404:
-            return 404
+            print '\n'
+            print "This image does not exist."
+            print '\n'
+            sys.exit(1)
         else:
-            return json.loads(resp.read())
+            resp = json.loads(resp.read())
+            print '\n'
+            for key in resp:
+                print key+": \t",
+                print resp[key]
+            print '\n'
+        sys.exit(0)
             
     
     def delete(self, name):

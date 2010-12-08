@@ -42,12 +42,12 @@ def main():
 
     if command == 'list-images':
         # DONE
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        parser.add_argument('--long','-l', action='store_true', default=False)
-        parser.add_argument('--sharedwith', action='store_true', default=False)
-        parser.add_argument('--all','-a', action='store_true', default=False)
-        parser.add_argument('--user','-u', action='store')
-        parser.add_argument('--group','-g', action='store')
+        parser = argparse.ArgumentParser(prog='repoman list-images', description='Lists images on the Repoman repository.', usage='%(prog)s [--long | -l] [--all | -a] [--sharedwith] [--sharedwith [[--user | -u] USER] | [[--group | -g] GROUP]]] [[--user | -u] USER] [[--group | -g] GROUP]')
+        parser.add_argument('--long','-l', action='store_true', default=False, help='display full URLs')
+        parser.add_argument('--sharedwith', action='store_true', default=False, help='list all images shared with current user')
+        parser.add_argument('--all','-a', action='store_true', default=False, help='list all images')
+        parser.add_argument('--user','-u', action='store', help='list user\'s images')
+        parser.add_argument('--group','-g', action='store', help='list group\'s images')
         args = parser.parse_args(args=sys.argv[2:])
         if args.all:
         
@@ -74,9 +74,9 @@ def main():
         sys.exit(0)
 
     elif command == 'list-users':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        parser.add_argument('--long','-l', action='store_true', default=False)
-        parser.add_argument('--group','-g', action='store')
+        parser = argparse.ArgumentParser(prog='repoman list-users', description='Lists users on the Repoman repository.', usage='%(prog)s [--long | -l] [[--group | -g] GROUP]')
+        parser.add_argument('--long','-l', action='store_true', default=False, help='display full user information')
+        parser.add_argument('--group','-g', action='store', help='display users in group')
         args = parser.parse_args(args=sys.argv[2:])
         if args.group:
             repo.list_group_members(args.group, args.long)
@@ -86,11 +86,11 @@ def main():
         
         
     elif command == 'list-groups':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser = argparse.ArgumentParser(prog='repoman list-groups', description='Lists groups on the Repoman repository.', usage='%(prog)s [--long | -l] [--all | -a] [[--user | -u] USER]')
     	#DONE
-        parser.add_argument('--long','-l', action='store_true', default=False)
-        parser.add_argument('--all','-a', action='store_true', default=False)
-        parser.add_argument('--user','-u')
+        parser.add_argument('--long','-l', action='store_true', default=False, help='display full group information')
+        parser.add_argument('--all','-a', action='store_true', default=False, help='display all groups')
+        parser.add_argument('--user','-u', help='display groups that user is a member of')
         args = parser.parse_args(args=sys.argv[2:])
         if args.user:
             repo.list_users_groups(args.user, args.long)
@@ -103,8 +103,8 @@ def main():
 
     elif command == 'whoami':
         # long
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        parser.add_argument('--long','-l', default=False, action="store_true")
+        parser = argparse.ArgumentParser(prog='repoman whoami', description='List current username and user information.', usage='%(prog)s [--long | -l])')
+        parser.add_argument('--long','-l', default=False, action="store_true", help='displays current user information')
         args = parser.parse_args(args=sys.argv[2:])
         if args.long:
             repo.get_user()
@@ -116,9 +116,23 @@ def main():
     elif command == 'create-user':
         # --metavar value
         # minimum: user_name, email, cert_dn, full_name
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser = argparse.ArgumentParser()
         args = parser.parse_known_args(args=sys.argv[2:])
         metadata = dict([(args[1][i].strip('-'), args[1][i+1]) for i in range(0, len(args[1]) - 1, 2)])
+        if not set (('user_name','email','cert_dn','full_name')) <= set(metadata):
+            print 'usage: repoman create-user --user_name USERNAME --email USER_EMAIL --cert_dn USER_CERT_DN --full_name "FULL NAME"'
+            print " "
+            print "Creates users on the Repoman repository."
+            print " "
+            print "required arguments:"
+            print "  --user_name           new user's username"
+            print "  --email               new user's email address"
+            print "  --cert_dn             new user's distinguished name"
+            print "  --full_name           new user's full name in quotes"
+            print ""
+            print "optional arguments:"
+            print "   -h, --help           show this help message and exit"
+            sys.exit(0)
         print "Creating user with metadata:"
         for item in metadata:
             print item+": "+metadata[item]
@@ -128,9 +142,22 @@ def main():
     elif command == 'create-group':
         # --metavar value
         # minimum: name
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser = argparse.ArgumentParser()
         args = parser.parse_known_args(args=sys.argv[2:])
         metadata = dict([(args[1][i].strip('-'), args[1][i+1]) for i in range(0, len(args[1]) - 1, 2)])
+        if not set (('name')) <= set(metadata):
+            print 'usage: repoman create-group --name GROUP_NAME'
+            print " "
+            print "Creates groups on the Repoman repository."
+            print " "
+            print "required arguments:"
+            print "   --name               name of group to be created"
+            print ""
+            print "optional arguments:"
+            print "   -h, --help           show this help message and exit"
+            
+            sys.exit(0)
+            
         print "Creating group with metadata:"
         for item in metadata:
             print item+": "+metadata[item]
@@ -138,9 +165,9 @@ def main():
         sys.exit(0)
         
     elif command == 'remove-user':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        parser.add_argument('user')
-        parser.add_argument('--force','-f', action='store_true', default=False)
+        parser = argparse.ArgumentParser(prog='repoman remove-user', description='Removes a user from the Repoman repository.', usage='%(prog)s user [--force | -f]')
+        parser.add_argument('user', help='user to remove')
+        parser.add_argument('--force','-f', action='store_true', default=False, help='overrides the confirmation message')
         args = parser.parse_args(args=sys.argv[2:])
         if args.force:
             repo.remove_user(args.user)
@@ -153,7 +180,7 @@ def main():
         sys.exit(0)
             
     elif command == 'remove-group':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser = argparse.ArgumentParser(prog='repoman remove-group', description='Removes a group from the Repoman repository.', usage='%(prog)s group [--force | -f]')
         parser.add_argument('group')
         parser.add_argument('--force','-f', action='store_true', default=False)
         args = parser.parse_args(args=sys.argv[2:])
@@ -168,7 +195,7 @@ def main():
         sys.exit(0)
         
     elif command == 'remove-image':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser = argparse.ArgumentParser(prog='repoman remove-image', description='Removes an from the Repoman repository.', usage='%(prog)s [user/]image [--force | -f]')
         parser.add_argument('image')
         parser.add_argument('--force','-f', action='store_true', default=False)
         args = parser.parse_args(args=sys.argv[2:])
@@ -185,9 +212,8 @@ def main():
 
         
     elif command == 'modify-image':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        # [USER/]IMAGE [--METAVAR VALUE ...]
-        parser.add_argument('image')
+        parser = argparse.ArgumentParser(prog='repoman modify-image', description='Updates the metadata for an image in the Repoman repository.', usage='%(prog)s [user/]image [--META_KEY META_VALUE]')
+        parser.add_argument('image', help='image to modify')
         args = parser.parse_known_args(args=sys.argv[2:])
         image = args[0].image
         metadata = dict([(args[1][i].strip('-'), args[1][i+1]) for i in range(0, len(args[1]) - 1, 2)])
@@ -225,7 +251,10 @@ def main():
 
         
     elif command == 'download-image':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser = argparse.ArgumentParser(prog='repoman download-image', description='Downloads an image from the Repoman repository.', usage='%(prog)s [user/]image [[--dest | -d] DESTINATION]')
+        parser.add_argument('image', help='image to download')
+        parser.add_argument('--dest','-d', default='./', help='destination to save file to. defaults to current directory.')
+        args = parser.parse_args(args=sys.argv[2:])
         images = repo.list_images_raw()
         exists = False
         for image in images:
@@ -234,10 +263,6 @@ def main():
         if not exists:
             print "This image does not exist."
             sys.exit(1)
-        # --image [USER/]IMAGE [--dest DEST]
-        parser.add_argument('image')
-        parser.add_argument('--dest','-d', default='./')
-        args = parser.parse_args(args=sys.argv[2:])
         if not os.path.split(args.dest)[1]:
             if '/' in args.image:
                 args.dest = args.dest+args.image.split('/')[1]
@@ -246,41 +271,30 @@ def main():
                   
 
     elif command == 'describe-image':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser = argparse.ArgumentParser(prog='repoman describe-image', description='Prints detailed information about an image.', usage='%(prog)s [user/]image')
         # DONE
-        parser.add_argument('image')
+        parser.add_argument('image', help='image to describe')
         args = parser.parse_args(args=sys.argv[2:])
         
         if '/' in args.image:
             user = args.image.split('/')[0]
             image = args.image.split('/')[1]
-            resp = repo.describe_image(image, user=user)
+            repo.describe_image(image, user=user)
         else:
             image = args.image
-            resp = repo.describe_image(args.image)
-        if resp == 404:
-            print '\n'
-            print "This image does not exist."
-            print '\n'
-            sys.exit(1)
-        else:
-            print '\n'
-            for key in resp:
-                print key+": \t",
-                print str(resp[key])
-            print '\n'
+            repo.describe_image(args.image)
             sys.exit(0)
             
     elif command == 'describe-user':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser = argparse.ArgumentParser(prog='repoman describe-user', description='Prints detailed information about a user.', usage='%(prog)s user')
     	#DONE
-        parser.add_argument('user')
+        parser.add_argument('user', help='user to describe')
         args = parser.parse_args(args=sys.argv[2:])
         repo.describe_user(args.user)
         sys.exit(0)
         
     elif command == 'describe-group':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser = argparse.ArgumentParser(prog='repoman describe-group', description='Prints detailed information about a group.', usage='%(prog)s group')
     	#DONE
         parser.add_argument('group')
         args = parser.parse_args(args=sys.argv[2:])
@@ -288,7 +302,7 @@ def main():
         sys.exit(0)
         
     elif command == 'modify-user':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser = argparse.ArgumentParser(prog='repoman modify-user', description='Updates the metadata for a user in the Repoman repository.', usage='%(prog)s user [--META_KEY META_VALUE]')
         parser.add_argument('user')
         args = parser.parse_known_args(args=sys.argv[2:])
         metadata = dict([(args[1][i].strip('-'), args[1][i+1]) for i in range(0, len(args[1]) - 1, 2)])
@@ -299,7 +313,7 @@ def main():
         sys.exit(0)
 
     elif command == 'modify-group':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser = argparse.ArgumentParser(prog='repoman modify-group', description='Updates the metadata for a group in the Repoman repository.', usage='%(prog)s group [--META_KEY META_VALUE]')
         parser.add_argument('group')
         args = parser.parse_known_args(args=sys.argv[2:])
         metadata = dict([(args[1][i].strip('-'), args[1][i+1]) for i in range(0, len(args[1]) - 1, 2)])
@@ -310,11 +324,32 @@ def main():
         
         
     elif command == 'create-image':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser = argparse.ArgumentParser(prog='repoman create-image', description='Creates an image on the Repoman repository.  The minimum required metadata is --name NAME.  If a file to upload is specified but a name is not, the name is set to the filename.', usage='%(prog)s [--file FILENAME] [--META_KEY VALUE]')
         # [--file FILE] [--METAVAR VALUE ...]
-        parser.add_argument('--file', action='store')
+        parser.add_argument('--file', action='store', help='specifies a full to upload. if no name specified, defaults to filename')
         args = parser.parse_known_args(args=sys.argv[2:])
         metadata = dict([(args[1][i].strip('-'), args[1][i+1]) for i in range(0, len(args[1]) - 1, 2)])
+        try:
+            name = metadata['name']
+        except:
+            try:
+                metadata['name'] = os.path.split(args[0].file)[1]
+                name = metadata['name']
+            except:
+                print 'usage: repoman create-image [--file FILENAME] [--META_KEY VALUE]'
+                print " "
+                print "Creates an image on the Repoman repository."
+                print "The minimum required metadata is --name NAME."
+                print "If a file to upload is specified but a name is not, the name is set to the filename."
+                print " "
+                print "optional arguments:"
+                print "   --file FILENAME      upload an image file with the metadata"
+                print "   --META_KEY VALUE     add metadata to the image"     
+                print "   -h, --help           show this help message and exit"
+                
+                sys.exit(0)
+                
+        
         #Server is expecting Bool objects for readonly
         try:
             readonly = metadata['readonly']
@@ -326,20 +361,11 @@ def main():
         
         except:
             metadata['readonly'] = False
-        try:
-            try:
-                name = metadata['name']
-            except:
-                metadata['name'] = os.path.split(args[0].file)[1]
-                name = metadata['name']
-        except:
-            print "Please enter either a filename or a name as part of the metadata."
+        
+        
+        
             sys.exit(1)            
-        try:
-            print "Creating image "+name+" with metadata: "
-        except:
-            print "Please specify metadata in the form --metavar value."
-            sys.exit(1)
+        print "Creating image "+name+" with metadata: "
         for key in metadata:
             print key+": "+str(metadata[key])
         repo.update_metadata(metadata=metadata, exists=False)
@@ -356,10 +382,10 @@ def main():
         sys.exit(0)
         
     elif command == 'share-image':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        parser.add_argument('image')
-        parser.add_argument('--user','-u')
-        parser.add_argument('--group','-g')
+        parser = argparse.ArgumentParser(prog='repoman share-image', description='Shares an image with another user or group.', usage='%(prog)s image [[--user | -u] USERNAME] [[ --group | -g] GROUPNAME]')
+        parser.add_argument('image', help='image to share')
+        parser.add_argument('--user','-u', help='user to share with')
+        parser.add_argument('--group','-g', help='group to share with')
         args = parser.parse_args(args=sys.argv[2:])
         if args.user:
             print "Sharing image "+args.image+" with user "+args.user+"..."
