@@ -22,13 +22,19 @@ Ensure that you have a valid, RFC-compliant grid proxy certificate before runnin
 
 Available Sub-Commands
 
-list-users [--long] [--group GROUP]
+help | h | --help | -h 
+    returns this message
+
+about
+    returns information about the client
+    
+list-users | lu [--long] [--group GROUP]
     list-users 
         list all users
     list-users --group GROUP
         list all the users in GROUP
 
-list-groups [--all] [--long] [--user USER]
+list-groups | lg [--all] [--long] [--user USER]
     list-groups 
         list current users groups
     list-groups --all 
@@ -36,7 +42,7 @@ list-groups [--all] [--long] [--user USER]
     list-groups --user USER 
         list all groups USER is part of
 
-list-images [--long] [--sharedwith] [--all | --user USER | --group GROUP]
+list-images | li [--long] [--sharedwith] [--all | --user USER | --group GROUP]
     list-images 
         list the current users images
     list-images --all
@@ -50,74 +56,74 @@ list-images [--long] [--sharedwith] [--all | --user USER | --group GROUP]
     list-images --sharedwith --group GROUP
         list images shared with GROUP
 
-create-user --METAVAR VALUE ...
+create-user | cu --METAVAR VALUE ...
     create a new user based on metadata specified
 
-create-group --METAVAR VALUE ...
+create-group | cg --METAVAR VALUE ...
     create a new group based on metadata specified
 
-create-image [--file FILE] [--METAVAR VALUE ...]
+create-image | ci [--file FILE] [--METAVAR VALUE ...]
     create a new image based on metadata specified
     create-image --variable value ... 
         creates the metadata for an image. You need to upload the image seperatly.
     create-image --file FILE --variable value ... 
         creates the image metadata and uploads the file in one go.
 
-modify-user USER [--METAVAR VALUE ...]
+modify-user | mu USER [--METAVAR VALUE ...]
     update the user USER with the metadata specified
 
-modify-group GROUP [--METAVAR VALUE ...]
+modify-group | mg GROUP [--METAVAR VALUE ...]
     update the group GROUP with the metadata specified
 
-modify-image [USER/]IMAGE [--METAVAR VALUE ...]
+modify-image | mi [USER/]IMAGE [--METAVAR VALUE ...]
     update the existing image IMAGE with the metadata specified
 
-remove-user USER
+remove-user | ru USER
     remove the user USER from repoman
 
-remove-group GROUP
+remove-group | rg GROUP
     remove the group GROUP from repoman
 
-remove-image [USER/]IMAGE
+remove-image | ri [USER/]IMAGE
     remove the image [USER/]IMAGE from repoman
 
-download-image [USER/]IMAGE [--dest DEST]
+download-image | get [USER/]IMAGE [--dest DEST]
     download the raw image [USER/]IMAGE and optionally save it to DEST
 
-upload-image [USER/]IMAGE --file FILE
+upload-image | ui [USER/]IMAGE --file FILE
     upload FILE to the existing repoman image [USER/]IMAGE
 
-describe-user USER
+describe-user | du USER
     view the metadata for the user USER
 
-describe-group GROUP
+describe-group | dg GROUP
     view the metadata for the group GROUP
 
-describe-image [USER/]IMAGE
+describe-image | di [USER/]IMAGE
     view the metadata for the image '[USER/]IMAGE'
 
-share-image [USER/]IMAGE (--user USER | --group GROUP)
+share-image | si [USER/]IMAGE (--user USER | --group GROUP)
     share the image [USER/]IMAGE with either GROUP or USER
 
-unshare-image [USER/]IMAGE (--user USER | --group GROUP)
+unshare-image | usi [USER/]IMAGE (--user USER | --group GROUP)
     unshare the image [USER/]IMAGE with either GROUP or USER
 
-add-users-to-group GROUP --users USER1 [USER2 ...]
+add-users-to-group | aug GROUP --users USER1 [USER2 ...]
     add users USER1, USER2, ... to the group GROUP
 
-remove-users-from-group GROUP --users USER1 [USER2 ...]
+remove-users-from-group | rug GROUP --users USER1 [USER2 ...]
     remove the users USER1, USER2, ... from the group GROUP
 
-add-permissions GROUP --permissions PERMISSION1 [PERMISSION2 ...]
+add-permissions | ap GROUP --permissions PERMISSION1 [PERMISSION2 ...]
     add the PERMISSION, PERMISSION2, ... permissions to the group GROUP
 
-remove-permissions GROUP --permissions PERMSISSION1 [PERMISSION2 ...]
+remove-permissions | rp GROUP --permissions PERMSISSION1 [PERMISSION2 ...]
     remove the PERMISSION1, PERMISSION2, ... permissions from the group GROUP
 
 whoami
     get the currently logged in user
 
-snapshot-system [--upload] [--force] [--METAVAR VALUE ...]
+snapshot-system | ss [--upload] [--force] [--METAVAR VALUE ...]
     snapshot-system 
         snapshot your system locally (to the destination specified in repoman-client.conf), but do not yet bundle for upload
     snapshot-system --upload --name test_image.gz --description "blah blah balh"
@@ -125,7 +131,7 @@ snapshot-system [--upload] [--force] [--METAVAR VALUE ...]
     snapshot-system --force --upload --name test_image.gz --description "blah blah balh"
         same as the command without the --force option, with the exception that it will overwrite an existing image if there is a naming conflict.
 
-upload-snapshot [--force] --METAVAR VALUE ...
+upload-snapshot | us [--force] --METAVAR VALUE ...
     bundle and upload the latest snapshot
     upload-snapshot --name test_image.gz --description "blah blah balh"
         upload the latest snapshot to the server with the specified metadata.

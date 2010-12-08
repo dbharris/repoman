@@ -36,8 +36,8 @@ class repoman_client(object):
 
         # read in some values that MUST be set:
         try:
-            self.imagepath=config.get("ThisImage","image")
-            self.mountpoint=config.get("ThisImage","mountpoint")
+            self.imagepath=os.path.expanduser(config.get("ThisImage","image"))
+            self.mountpoint=os.path.expanduser(config.get("ThisImage","mountpoint"))
         except ConfigParser.NoSectionError:
             print "Trouble reading config file."  
             print "Make sure a mountpoint and image file are specified in the config"
@@ -45,11 +45,10 @@ class repoman_client(object):
             sys.exit(1)
     
         try:
-            self.imagename=config.get("ThisImage","imagename")
             self.repository=config.get("ThisImage","repository")
         except ConfigParser.NoSectionError:
             print "Trouble reading config file."  
-            print "Make sure an imagename and repository are specified in the config"
+            print "Make sure a repository is specified in the config"
             print "(either /etc/repoman-client/repoman-client.conf or ~/.repoman-client)"
             sys.exit(1)
         
@@ -58,8 +57,8 @@ class repoman_client(object):
         self.userkey='/tmp/x509up_u%s' % str(os.geteuid())
         if not os.path.exists(self.usercert):
             try:
-                self.usercert=config.get("ThisImage","usercert")
-                self.userkey=config.get("ThisImage","userkey")
+                self.usercert=os.path.expanduser(config.get("ThisImage","usercert"))
+                self.userkey=os.path.expanduser(config.get("ThisImage","userkey"))
             except ConfigParser.NoOptionError:
                 print "Could not find a certificate in the configuration file or at /tmp/x509up_u%USERID%."  
                 print "Please either use grid-proxy-init to generate a new proxy cert or specify an alternate certifate in the configuration file."
@@ -93,6 +92,20 @@ class repoman_client(object):
         except ConfigParser.NoOptionError:
             self.excl_dirs = self.mountpoint
                        
+    def return_usercert(self):
+        return self.usercert
+        
+    def return_userkey(self):
+        return self.userkey
+        
+    def return_repo(self):
+        return self.repository
+        
+    def return_snapshot_location(self):
+        return self.imagepath
+        
+    def return_snapshot_mount(self):
+        return self.mountpoint
     
     def create_image(self):        
         self.iut.create_image(self.imagepath)
@@ -453,9 +466,7 @@ class repoman_client(object):
 
     def upload_snapshot(self, *args, **kwargs):
         metadata = kwargs['metadata']
-        print "Posting new image metadata to the repository."
         
-        self.update_metadata(metadata=metadata,exists=kwargs['replace'])
         
         if not kwargs['snapshot_complete']:
             self.snapshot_system()
@@ -603,10 +614,16 @@ class repoman_client(object):
 
     
     def get(self, image, dest):
-        resp = self.describe_image(image)
-        if resp == 404:
-            print "Image "+image+" does not exist."
-            sys.exit(1)
+        resp = self.rut.get_image_metadata(self.repository, self.usercert, self.userkey, image)
+        if not resp.status == 200:
+            if resp.status == 404:
+                print "Image "+image+" does not exist."
+                sys.exit(1)
+            else:
+                print "Unknown error "+resp.status
+                sys.exit(1)
+        print "Downloading image "+image+" and storing it at "+dest+"."
+        resp = json.loads(resp.read())
         if resp['raw_file_uploaded']:
             self.rut.download_image(self.repository,self.usercert,self.userkey,image,dest)
         else:
