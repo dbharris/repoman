@@ -90,7 +90,7 @@ def main():
             file = open(user_config, 'w')    
         args = parser.parse_args(args=sys.argv[2:])
         if not args.usercert and not args.userkey:
-            file.write(create_config.create_config(args.repo, args.snapshot_location, args.mount_location, False))
+            file.write(make_config.make_config(args.repo, args.snapshot_location, args.mount_location, False))
             file.close()
             print "Config file successfully written."
             sys.exit(0)
@@ -98,7 +98,7 @@ def main():
             print "Custom usercert and userkey must both be defined or neither.  If neither are defined Repoman-client will look in the default grid proxy location (/tmp/x509up_uUSER_ID) and in the environment variable REPOMAN_CLIENT_CONFIG."
             sys.exit(1)
         else:
-            file.write(create_config.create_config(args.repo, args.snapshot_location, args.mount_location, True, usercert=args.usercert, userkey=args.userkey))
+            file.write(make_config.make_config(args.repo, args.snapshot_location, args.mount_location, True, usercert=args.usercert, userkey=args.userkey))
             file.close()
             print "Config file successfully written."
             sys.exit(0)
@@ -281,14 +281,14 @@ def main():
         metadata['name'] = image
         #Server is expecting Bool objects for readonly
         try:
-            readonly = metadata['readonly']
+            read_only = metadata['read_only']
             true_values = ['t', 'True', 'true']
-            if true_values.count(metadata['readonly']):
-                metadata['readonly'] = True
+            if true_values.count(metadata['read_only']):
+                metadata['read_only'] = True
             else:
-                metadata['readonly'] = False
+                metadata['read_only'] = False
         except:
-            metadata['readonly'] = False
+            pass
         images = repo.list_images_raw()
         exists = False
         for image in images:
@@ -405,14 +405,14 @@ def main():
                 sys.exit(0)
         #Server is expecting Bool objects for readonly
         try:
-            readonly = metadata['readonly']
+            read_only = metadata['read_only']
             true_values = ['t', 'True', 'true']
-            if true_values.count(metadata['readonly']):
-                metadata['readonly'] = True
+            if true_values.count(metadata['read_only']):
+                metadata['read_only'] = True
             else:
-                metadata['readonly'] = False
+                metadata['read_only'] = False
         except:
-            metadata['readonly'] = False
+            pass
         print "Creating image "+name+" with metadata: "
         for key in metadata:
             print key+": "+str(metadata[key])
@@ -484,6 +484,15 @@ def main():
                         if not ask_yes_or_no(force=True):
                             print 'Exiting repoman-client.'
                             sys.exit(2)
+            try:
+                read_only = metadata['read_only']
+                true_values = ['t', 'True', 'true']
+                if true_values.count(metadata['read_only']):
+                    metadata['read_only'] = True
+                else:
+                    metadata['read_only'] = False
+            except:
+                pass
             print "Snapshotting system and uploading with the following metadata:"
             for key in metadata:
                 print key+": "+metadata[key]
