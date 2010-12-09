@@ -4,5 +4,5 @@ include repoman_client/__init__.py
 include repoman_client/imageutils.py
 include repoman_client/repoman_client.py
 include repoman_client/repoutils.py
-include repoman_client/repoman-client.conf
+include repoman_client/make_config.py
 include scripts/repoman

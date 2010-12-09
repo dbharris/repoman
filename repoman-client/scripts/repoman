@@ -5,8 +5,8 @@ import os
 sys.path.append('../')
 sys.path.append('./')
 from repoman_client import repoman_client
+from repoman_client import make_config
 import os.path
-repo = repoman_client.repoman_client()
 
 def ask_yes_or_no(*args, **kwargs):
     try:
@@ -68,7 +68,44 @@ def main():
         sys.exit(0)
     else:
         command = sys.argv[1]
-
+        
+    if command == 'make-config' or command == 'mc':
+        parser = argparse.ArgumentParser(prog='repoman make-config', description='Removes permissions from a group on the repository.')
+        parser.add_argument('--repo', help='full address of your repository (https://REPO:PORT)', required=True)
+        parser.add_argument('--snapshot_location', help='location to store the image snapshot (default is /tmp/fscopy.img)', default='/tmp/fscopy.img')
+        parser.add_argument('--mount_location', help='location to mount the image snapshot (default is /mnt/fscopy)', default='/mnt/fscopy/')
+        parser.add_argument('--usercert', help='allows the user to specify a custom usercert (rather than a grid proxy)')
+        parser.add_argument('--userkey', help='allows the user to specify a custom userkey (rather than a grid proxy)')
+        user_config = os.getenv("HOME")+'/.repoman-client'
+        if os.path.isfile(user_config):
+            print "WARNING! You already have a configuration file at ~/.repoman-client."
+            print "Do you wish to overwrite?"
+            k=raw_input("[y/N]")
+            if k in ('y', 'ye', 'yes'):
+                file = open(user_config, 'w')
+            else:
+                print "Exiting repoman-client."
+                sys.exit(0)  
+        else:
+            file = open(user_config, 'w')    
+        args = parser.parse_args(args=sys.argv[2:])
+        if not args.usercert and not args.userkey:
+            file.write(create_config.create_config(args.repo, args.snapshot_location, args.mount_location, False))
+            file.close()
+            print "Config file successfully written."
+            sys.exit(0)
+        elif (args.usercert and not args.userkey) or (args.userkey and not args.usercert):
+            print "Custom usercert and userkey must both be defined or neither.  If neither are defined Repoman-client will look in the default grid proxy location (/tmp/x509up_uUSER_ID) and in the environment variable REPOMAN_CLIENT_CONFIG."
+            sys.exit(1)
+        else:
+            file.write(create_config.create_config(args.repo, args.snapshot_location, args.mount_location, True, usercert=args.usercert, userkey=args.userkey))
+            file.close()
+            print "Config file successfully written."
+            sys.exit(0)
+        sys.exit(0)
+        
+    else:  
+        repo = repoman_client.repoman_client()
 
     if command == 'list-images' or command == 'li':
         parser = argparse.ArgumentParser(prog='repoman list-images', description='Lists images on the Repoman repository.', usage='%(prog)s [--long | -l] [--all | -a] [--sharedwith] [--sharedwith [[--user | -u] USER] | [[--group | -g] GROUP]]] [[--user | -u] USER] [[--group | -g] GROUP]')
@@ -199,7 +236,7 @@ def main():
             if ask_yes_or_no(force=True):
                 repo.remove_user(args.user)
             else:
-                print 'Exiting repoman.'
+                print 'Exiting repoman-client.'
         sys.exit(0)
            
             
@@ -215,7 +252,7 @@ def main():
             if ask_yes_or_no(force=True):
                 repo.remove_group(args.group)
             else:
-                print 'Exiting repoman.'
+                print 'Exiting repoman-client.'
         sys.exit(0)
         
         
@@ -231,7 +268,7 @@ def main():
             if ask_yes_or_no(force=True):
                 repo.remove_image(args.image)
             else:
-                print 'Exiting repoman.'
+                print 'Exiting repoman-client.'
         sys.exit(0)
 
         
@@ -566,6 +603,12 @@ def main():
         print "Snapshot image location:     "+repo.return_snapshot_location()
         print "Snapshot mount location:     "+repo.return_snapshot_mount()
         sys.exit(0)
+        
+    
+        
+        
+
+
 
     elif command == 'help' or command == '--help' or command == '-h':
         print_help_menu()

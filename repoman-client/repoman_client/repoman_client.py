@@ -29,10 +29,18 @@ class repoman_client(object):
     def read_config_file(self):
         config = ConfigParser.RawConfigParser()
         user_config = os.getenv("HOME")+'/.repoman-client'
-        if os.path.isfile(os.getenv("HOME")+'/.repoman-client'):
-            config.read(os.getenv("HOME")+'/.repoman-client')
+        env_config = os.getenv("REPOMAN_CLIENT_CONFIG")
+        if env_config:
+            if os.path.isfile(env_config):
+                config.read(env_config)
         else:
-            config.read('/etc/repoman-client/repoman-client.conf')
+            if os.path.isfile(os.getenv("HOME")+'/.repoman-client'):
+                config.read(os.getenv("HOME")+'/.repoman-client')
+            else:
+                print "Could not find a configuration file in ~/.repoman-client or in the path specified by the the environment variable \"REPOMAN_CLIENT_CONFIG\""
+                print "Please run 'repoman make-config' or specify a custom configfile by exporting its location as REPOMAN_CLIENT_CONFIG."
+                sys.exit(1)
+
 
         # read in some values that MUST be set:
         try:
