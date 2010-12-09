@@ -96,37 +96,37 @@ class repoutils(object):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('POST', '/api/images/'+image+'/share/user/'+user)
         resp = repo_https.getresponse()
-        return resp.status
+        return resp
 
     def share_group(self, repo, cert, key, image, group):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('POST', '/api/images/'+image+'/share/group/'+group)
         resp = repo_https.getresponse()
-        return resp.status
+        return resp
 
     def unshare_user(self, repo, cert, key, image, user):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('DELETE', '/api/images/'+image+'/share/user/'+user)
         resp = repo_https.getresponse()
-        return resp.status
+        return resp
 
     def unshare_group(self, repo, cert, key, image, group):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('DELETE', '/api/images/'+image+'/share/group/'+group)
         resp = repo_https.getresponse()
-        return resp.status
+        return resp
         
     def remove_user(self, repo, cert, key, user):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('DELETE', '/api/users/'+user)
         resp = repo_https.getresponse()
-        return resp.status
+        return resp
         
     def remove_group(self, repo, cert, key, group):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('DELETE', '/api/groups/'+group)
         resp = repo_https.getresponse()
-        return resp.status
+        return resp
         
     def remove_image(self, repo, cert, key, image, **kwargs):
         repo_https = self.repo(repo, cert, key)
@@ -138,25 +138,25 @@ class repoutils(object):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('POST', '/api/groups/'+group+'/users/'+user)
         resp = repo_https.getresponse()
-        return resp.status
+        return resp
         
     def remove_user_from_group(self, repo, cert, key, group, user):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('DELETE', '/api/groups/'+group+'/users/'+user)
         resp = repo_https.getresponse()
-        return resp.status
+        return resp
         
     def add_permission(self, repo, cert, key, group, permission):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('POST', '/api/groups/'+group+'/permissions/'+permission)
         resp = repo_https.getresponse()
-        return resp.status
+        return resp
         
     def remove_permission(self, repo, cert, key, group, permission):
         repo_https = self.repo(repo, cert, key)
         repo_https.request('DELETE', '/api/groups/'+group+'/permissions/'+permission)
         resp = repo_https.getresponse()
-        return resp.status
+        return resp
  
     def repo(self, repo, cert, key):
         hostname = urlparse.urlparse(repo)[1].split(':')[0]

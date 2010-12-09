@@ -59,7 +59,7 @@ def print_help_menu():
     print "  snapshot-system | ss           snapshot current system and store locally or upload."
     print "  upload-snapshot | us           upload a snapshot to the server."
     print "  whoami                         returns current username or user information"
-    print "  about                        returns information about repoman-client"
+    print "  about                          returns information about repoman-client"
     sys.exit(0)
 
 def main():
@@ -164,7 +164,7 @@ def main():
         sys.exit(0)
         
         
-    elif command == 'create-group' or command == 'create-group':
+    elif command == 'create-group' or command == 'cg':
         parser = argparse.ArgumentParser()
         args = parser.parse_known_args(args=sys.argv[2:])
         metadata = dict([(args[1][i].strip('-'), args[1][i+1]) for i in range(0, len(args[1]) - 1, 2)])
@@ -550,11 +550,12 @@ def main():
         sys.exit(0)
 
     elif command == 'about' or command == 'a':
-        print "Repoman-Client 0.2"
+        print "Repoman-client"
+        print "Version:                     0.2"
         print "User:                        "+repo.return_username()
-        print "User certificate             "+repo.return_usercert()
-        print "User key                     "+repo.return_userkey()
-        print "Repository                   "+repo.return_repo()
+        print "User certificate:            "+repo.return_usercert()
+        print "User key:                    "+repo.return_userkey()
+        print "Repository:                  "+repo.return_repo()
         print "Snapshot image location:     "+repo.return_snapshot_location()
         print "Snapshot mount location:     "+repo.return_snapshot_mount()
         sys.exit(0)
