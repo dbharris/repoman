@@ -247,7 +247,7 @@ class repoman_client(object):
     def remove_user(self, user):
         resp = self.rut.remove_user(self.repository, self.usercert, self.userkey, user)
         if resp.status == 200:
-            print 'User '+user+' has been deleted.'
+            print 'User '+user+' has been removed..'
         elif resp.status == 404:
             print 'User '+user+' not found.'
         else:
@@ -256,7 +256,7 @@ class repoman_client(object):
     def remove_group(self, group):
         resp = self.rut.remove_group(self.repository, self.usercert, self.userkey, group)
         if resp.status == 200:
-            print 'Group '+group+' has been deleted.'
+            print 'Group '+group+' has been removed.'
         elif resp.status == 404:
             print 'Group '+group+' not found.'
         else:
@@ -265,7 +265,7 @@ class repoman_client(object):
     def remove_image(self, image, **kwargs):
         resp = self.rut.remove_image(self.repository, self.usercert, self.userkey, image)
         if resp.status == 200:
-            print 'Image '+image+' has been deleted.'
+            print 'Image '+image+' has been removed.'
         elif resp.status == 404:
             print 'Image '+image+' not found.'
         else:
@@ -525,89 +525,89 @@ class repoman_client(object):
 
     def share_user(self, image, user):
         resp = self.rut.share_user(self.repository, self.usercert, self.userkey, image, user) 
-        if resp == 200:
+        if resp.status == 200:
             print "Share complete."
-        elif resp == 404:
+        elif resp.status == 404:
             print "Image not found."
-        elif resp == 400 or resp == 403:
+        elif resp.status == 400 or resp.status == 403:
             print "User not found."
         else:
-            print "Share failed: HTTP code "+str(resp)
+            print "Share failed: HTTP code "+str(resp.status)
 
     def share_group(self, image, group):
         resp = self.rut.share_group(self.repository, self.usercert, self.userkey, image, group) 
-        if resp == 200:
+        if resp.status == 200:
             print "Share complete."
-        elif resp == 404:
+        elif resp.status == 404:
             print "Image not found."
-        elif resp == 400 or resp == 403:
+        elif resp.status == 400 or resp.status == 403:
             print "Group not found."
         else:
-            print "Share failed: HTTP code "+str(resp)
+            print "Share failed: HTTP code "+str(resp.status)
 
     def unshare_user(self, image, user):
         resp = self.rut.unshare_user(self.repository, self.usercert, self.userkey, image, user) 
-        if resp == 200:
+        if resp.status == 200:
             print "Unshare complete."
-        elif resp == 404:
+        elif resp.status == 404:
             print "Image not found."
-        elif resp == 400 or resp == 403:
+        elif resp.status == 400 or resp.status == 403:
             print "User not found."
         else:
-            print "Unshare failed: HTTP code "+str(resp)
+            print "Unshare failed: HTTP code "+str(resp.status)
 
     def unshare_group(self, image, group):
         resp = self.rut.unshare_group(self.repository, self.usercert, self.userkey, image, group) 
-        if resp == 200:
+        if resp.status == 200:
             print "Unshare complete."
-        elif resp == 404:
+        elif resp.status == 404:
             print "Image not found."
-        elif resp == 400 or resp == 403:
+        elif resp.status == 400 or resp.status == 403:
             print "Group not found."
         else:
-            print "Share failed: HTTP code "+str(resp)
+            print "Share failed: HTTP code "+str(resp.status)
             
     def add_users_to_group(self, group, users):
         for user in users:
             resp = self.rut.add_user_to_group(self.repository, self.usercert, self.userkey, group, user)
-            if not resp == 200:
-                if resp == 404:
+            if not resp.status == 200:
+                if resp.status == 404:
                     print "User or group not found."
                 else:
-                    print "HTTP error "+resp
+                    print "HTTP error "+resp.status
                 sys.exit(1)
         print "Users successfully added to group "+group+"."
         
     def remove_users_from_group(self, group, users):
         for user in users:
             resp = self.rut.remove_user_from_group(self.repository, self.usercert, self.userkey, group, user)
-            if not resp == 200:
-                if resp == 404:
+            if not resp.status == 200:
+                if resp.status == 404:
                     print "User or group not found."
                 else:
-                    print "HTTP error "+resp
+                    print "HTTP error "+resp.status
                 sys.exit(1)
         print "Users successfully removed from group "+group+"."
         
     def add_permissions(self, group, permissions):
         for permission in permissions:
             resp = self.rut.add_permission(self.repository, self.usercert, self.userkey, group, permission)
-            if not resp == 200:
-                if resp == 404 or resp == 400:
+            if not resp.status == 200:
+                if resp.status == 404 or resp.status == 400:
                     print "Group or permission not found."
                 else:
-                    print "HTTP error "+resp
+                    print "HTTP error "+resp.status
                 sys.exit(1)
         print "Permissions succesfully added to group "+group+"."
         
     def remove_permissions(self, group, permissions):
         for permission in permissions:
             resp = self.rut.remove_permission(self.repository, self.usercert, self.userkey, group, permission)
-            if not resp == 200:
-                if resp == 404 or resp == 400:
+            if not resp.status == 200:
+                if resp.status == 404 or resp.status == 400:
                     print "Group or permission not found."
                 else:
-                    print "HTTP error "+resp
+                    print "HTTP error "+resp.status
                 sys.exit(1)
         print "Permissions succesfully removed from group "+group+"."
 

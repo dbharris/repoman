@@ -143,7 +143,7 @@ def main():
         parser = argparse.ArgumentParser()
         args = parser.parse_known_args(args=sys.argv[2:])
         metadata = dict([(args[1][i].strip('-'), args[1][i+1]) for i in range(0, len(args[1]) - 1, 2)])
-        if not set (('user_name','email','cert_dn','full_name')) <= set(metadata):
+        if not set (['user_name','email','cert_dn','full_name']) <= set(metadata):
             print 'usage: repoman create-user --user_name USERNAME --email USER_EMAIL --cert_dn USER_CERT_DN --full_name "FULL NAME"'
             print " "
             print "Creates users on the Repoman repository."
@@ -168,7 +168,8 @@ def main():
         parser = argparse.ArgumentParser()
         args = parser.parse_known_args(args=sys.argv[2:])
         metadata = dict([(args[1][i].strip('-'), args[1][i+1]) for i in range(0, len(args[1]) - 1, 2)])
-        if not set (('name')) <= set(metadata):
+        print str(metadata)
+        if not set (['name']) <= set(metadata):
             print 'usage: repoman create-group --name GROUP_NAME'
             print " "
             print "Creates groups on the Repoman repository."
@@ -194,7 +195,7 @@ def main():
         if args.force:
             repo.remove_user(args.user)
         else:
-            print 'Deleting user '+args.user+'...'
+            print 'Removing user '+args.user+'...'
             if ask_yes_or_no(force=True):
                 repo.remove_user(args.user)
             else:
@@ -210,7 +211,7 @@ def main():
         if args.force:
             repo.remove_group(args.group)
         else:
-            print 'Deleting user '+args.group+'...'
+            print 'Removing group '+args.group+'...'
             if ask_yes_or_no(force=True):
                 repo.remove_group(args.group)
             else:
@@ -226,7 +227,7 @@ def main():
         if args.force:
             repo.remove_image(args.image)
         else:
-            print 'Deleting image '+args.image+'...'
+            print 'Removing image '+args.image+'...'
             if ask_yes_or_no(force=True):
                 repo.remove_image(args.image)
             else:
@@ -375,7 +376,6 @@ def main():
                 metadata['readonly'] = False
         except:
             metadata['readonly'] = False
-            sys.exit(1)            
         print "Creating image "+name+" with metadata: "
         for key in metadata:
             print key+": "+str(metadata[key])
@@ -455,20 +455,27 @@ def main():
             sys.exit(0)
         else:
             repo.snapshot_system()
-            print "Local filesystem synced and prepared for upload at "+repo.mountpount+"."
+            print "Local filesystem synced and prepared for upload at "+repo.return_snapshot_mount()+"."
             print "To upload this image to the repository, run repoman upload-snapshot --META VALUE."
             sys.exit(0)
 
 
     elif command == 'upload-snapshot' or command == 'us':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
+        parser = argparse.ArgumentParser(prog='repoman upload-snapshot', description='Uploads a snapshot to the repository.  The snapshot created by upload-snapshot is stored in the location defined in the configfile.  Run "repoman about" to see the image location.', usage='%(prog)s [--force | -f] [--META_KEY VALUE]')
         parser.add_argument('--force','-f', action='store_true', default=False)
         args = parser.parse_known_args(args=sys.argv[2:])
         metadata = dict([(args[1][i].strip('-'), args[1][i+1]) for i in range(0, len(args[1]) - 1, 2)])
         try:
             name = metadata['name']
         except:
-            print "Please enter at least a name as metadata with --name IMAGE_NAME."
+            print "usage: repoman upload-snapshot [--force | -f] [--META_KEY VALUE]"
+            print ""
+            print "Uploads a snapshot to the repository. The snapshot created by upload-snapshot is stored in the location defined in the configfile. Run 'repoman about' to see the image location."
+            print "The minimum amount of metadata is a name (--name IMAGE_NAME)."
+            print ""
+            print "optional arguments:"
+            print "  -h, --help   show this help message and exit"
+            print "  --force, -f"
             sys.exit(1)
         images = repo.list_images_raw()
         exists = False
@@ -489,9 +496,9 @@ def main():
         
         
     elif command == 'upload-image' or command == 'ui':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        parser.add_argument('image')
-        parser.add_argument('--file', required=True)
+        parser = argparse.ArgumentParser(prog='repoman upload-image', description='Uploads a file to a previously-created image on the repository.', usage='%(prog)s [USER/]image --file FILE_NAME')
+        parser.add_argument('image', help='image on repository to upload to')
+        parser.add_argument('--file', required=True, help='file to upload')
         args = parser.parse_args(args=sys.argv[2:])
         if not os.path.isfile(args.file):
             print "The file "+args.file+" does not exist.  Please try again."
@@ -509,27 +516,27 @@ def main():
         
         
     elif command == 'add-users-to-group' or command == 'aug':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        parser.add_argument('group')
-        parser.add_argument('--users','-u', nargs='+')
+        parser = argparse.ArgumentParser(prog='repoman add-users-to-group', description='Adds user to a group on the repository.', usage='%(prog)s group --users USER1 USER2...')
+        parser.add_argument('group', help='group to add users to')
+        parser.add_argument('--users','-u', nargs='+', help='users to add')
         args = parser.parse_args(args=sys.argv[2:])
         repo.add_users_to_group(args.group, args.users)
         sys.exit(0)
         
         
     elif command == 'remove-users-from-group' or command == 'rug':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        parser.add_argument('group')
-        parser.add_argument('--users','-u', nargs='+')
+        parser = argparse.ArgumentParser(prog='repoman remove-users-from-group', description='Removes users from a group on the repository.', usage='%(prog)s group --users USER1 USER2...')
+        parser.add_argument('group', help='group to remove users from')
+        parser.add_argument('--users','-u', nargs='+', help='users to remove')
         args = parser.parse_args(args=sys.argv[2:])
         repo.remove_users_from_group(args.group, args.users)
         sys.exit(0)
         
         
     elif command == 'add-permissions' or command == 'ap':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        parser.add_argument('group')
-        parser.add_argument('--permissions', nargs='+')
+        parser = argparse.ArgumentParser(prog='repoman add-permissions', description='Adds permissions to a group on the repository.', usage='%(prog)s group --permissions PERMISSION1 PERMISSION2...')
+        parser.add_argument('group', help='group to add permissions to')
+        parser.add_argument('--permissions', nargs='+', help='permissions to add')
         args = parser.parse_args(args=sys.argv[2:])
         if not args.permissions:
             print "Please enter at least one permission to add."
@@ -539,9 +546,9 @@ def main():
         
         
     elif command == 'remove-permissions' or command == 'rp':
-        parser = argparse.ArgumentParser(description='Client for Repoman image repository.')
-        parser.add_argument('group')
-        parser.add_argument('--permissions', nargs='+')
+        parser = argparse.ArgumentParser(prog='repoman remove-permissions', description='Removes permissions from a group on the repository.', usage='%(prog)s group --permissions PERMISSION1 PERMISSION2...')
+        parser.add_argument('group', help='group to remove permissions from')
+        parser.add_argument('--permissions', nargs='+', help='permissions to remove')
         args = parser.parse_args(args=sys.argv[2:])
         if not args.permissions:
             print "Please enter at least one permission to remove."
