@@ -34,6 +34,7 @@ def print_help_menu():
     print "Possible subcommands:"
     print "Run \"repoman [subcommand] --help|-h\" for a complete list of options."
     print ""
+    print "  make-config | mc               creates a config file (must be done first)"
     print "  list-users | li                list users"
     print "  list-groups | lg               list groups"
     print "  create-user | cu               create a user"
@@ -59,7 +60,7 @@ def print_help_menu():
     print "  snapshot-system | ss           snapshot current system and store locally or upload."
     print "  upload-snapshot | us           upload a snapshot to the server."
     print "  whoami                         returns current username or user information"
-    print "  about                          returns information about repoman-client"
+    print "  about | a                      returns information about repoman-client"
     sys.exit(0)
 
 def main():

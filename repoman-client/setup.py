@@ -13,14 +13,13 @@ if not os.path.exists('/etc/repoman-client'):
     mkpath('/etc/repoman-client')
 
 setup(name='repoman-client',
-    version='0.2',
+    version='0.2.1',
     description='Client to connect to Repoman image repository.',
     author='Kyle Fransham, Drew Harris',
     author_email='fransham@uvic.ca, dbharris@uvic.ca',
     url='http://github.com/hep-gc/repoman',
     install_requires=["simplejson","argparse"],
     packages=['repoman_client'],
-    scripts=['scripts/repoman'],
-    data_files=[('/etc/repoman-client/',['repoman_client/repoman-client.conf'])]
+    scripts=['scripts/repoman']
 )
 

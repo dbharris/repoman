@@ -1,4 +1,4 @@
-def create_config(repository, snapshot_image, snapshot_mount, custom_cert, **kwargs):
+def make_config(repository, snapshot_image, snapshot_mount, custom_cert, **kwargs):
     if custom_cert:
         usercert = 'usercert: '+kwargs['usercert']
         userkey = 'userkey: '+kwargs['userkey']
