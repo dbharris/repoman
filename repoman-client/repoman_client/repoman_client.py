@@ -49,7 +49,7 @@ class repoman_client(object):
         except ConfigParser.NoSectionError:
             print "Trouble reading config file."  
             print "Make sure a mountpoint and image file are specified in the config"
-            print "(either /etc/repoman-client/repoman-client.conf or ~/.repoman-client)"
+            print "(either ~/.repoman-client)"
             sys.exit(1)
     
         try:
@@ -57,7 +57,7 @@ class repoman_client(object):
         except ConfigParser.NoSectionError:
             print "Trouble reading config file."  
             print "Make sure a repository is specified in the config"
-            print "(either /etc/repoman-client/repoman-client.conf or ~/.repoman-client)"
+            print "(either ~/.repoman-client)"
             sys.exit(1)
         
         #attempt to define the usercert/userkey based on default grid-proxy-init values    
@@ -70,17 +70,17 @@ class repoman_client(object):
             except ConfigParser.NoOptionError:
                 print "Could not find a certificate in the configuration file or at /tmp/x509up_u%USERID%."  
                 print "Please either use grid-proxy-init to generate a new proxy cert or specify an alternate certifate in the configuration file."
-                print "(either /etc/repoman-client/repoman-client.conf or ~/.repoman-client)"
+                print "(either ~/.repoman-client)"
                 sys.exit(1)
             except ConfigParser.NoSectionError:
                 print "Could not find a certificate in the configuration file."
                 print "Please either use grid-proxy-init to generate a new proxy cert or specify an alternate certifate in the configuration file."
-                print "(either /etc/repoman-client/repoman-client.conf or ~/.repoman-client)"
+                print "(either ~/.repoman-client)"
                 sys.exit(1)
             if not (os.path.exists(self.usercert) or os.path.exists(self.userkey)):
                 print "Your certificate and/or key doesn't exist as specified in"
                 print "the config file."
-                print "(either /etc/repoman-client/repoman-client.conf or ~/.repoman-client)"
+                print "(either ~/.repoman-client)"
                 sys.exit(1)    
         
         
